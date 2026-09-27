@@ -1671,14 +1671,47 @@ function progressLine() {
   const mocks = mockScores().map(m => `${m[1]} ${m[2]}%`).join(' ') || '—';
   return `A1A2-COACH | Day ${d} | ${lvl(d)} | step ${S.step} (${stepNames(d)[S.step - 1]}) | done: ${rangeStr(done)} | left: ${left.join(',') || '—'} | today ${dayPct(d)}% | course ${coursePct()[1]}% | weak: ${weak} | weak skills: ${weakSkillsLine()} | mocks: ${mocks}`;
 }
-function restoreCode() {
-  const d = {}; for (const [k, v] of Object.entries(S.d)) d[k] = { done: v.done, chunk: v.chunk, cs: v.cs, sc: v.sc, off: v.off, rev: v.rev, gr: v.gr };
-  const o = { v: 1, day: S.day, step: S.step, maxDay: S.maxDay, d, weak: S.weak, prof: S.prof, st: S.st };
-  return 'GC1.' + btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+function progressObj() {
+  const d = {}; for (const [k, v] of Object.entries(S.d)) { const x = { done: v.done }; if (v.chunk) x.chunk = v.chunk; for (const f of ['cs', 'sc', 'off', 'raw']) if (v[f] && Object.keys(v[f]).length) x[f] = v[f]; if (v.rev != null) x.rev = v.rev; if (v.gr != null) x.gr = v.gr; if (x.done.length || Object.keys(x).length > 1) d[k] = x; }
+  return { v: 2, day: S.day, step: S.step, maxDay: S.maxDay, d, weak: S.weak, prof: S.prof, st: S.st, at: Date.now() };
 }
-function importCode(txt) {
-  const m = /GC1\.([A-Za-z0-9+/=]+)/.exec(txt || ''); if (!m) return false;
-  try { const o = JSON.parse(decodeURIComponent(escape(atob(m[1])))); S.day = o.day; S.step = o.step; S.maxDay = o.maxDay; S.weak = o.weak || {}; S.prof = Object.assign(S.prof, o.prof || {}); S.st = o.st || S.st || {}; S.d = {}; for (const [k, v] of Object.entries(o.d || {})) S.d[k] = Object.assign({ done: [], chunk: 0, cs: {}, sc: {}, off: {}, dr: {}, rev: null, gr: null }, v); save(); return true; } catch (e) { return false; }
+const b64u = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = str => { str = str.replace(/-/g, '+').replace(/_/g, '/'); while (str.length % 4) str += '='; const s = atob(str); const b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b; };
+async function restoreCode() {
+  const json = new TextEncoder().encode(JSON.stringify(progressObj()));
+  if (window.CompressionStream) {
+    try { const buf = await new Response(new Blob([json]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer(); return 'GC2.' + b64u(new Uint8Array(buf)); } catch (e) { }
+  }
+  return 'GC3.' + b64u(json);
+}
+function appURL() { return /^https?:/.test(location.protocol) ? location.origin + location.pathname : 'https://ahsansabir143.github.io/goethe-coach/'; }
+async function transferLink() { return appURL() + '#restore=' + (await restoreCode()); }
+async function decodeCode(txt) {
+  const t = String(txt || '').replace(/\s+/g, '');
+  let m = /GC2\.([A-Za-z0-9_-]+)/.exec(t);
+  if (m) { const buf = await new Response(new Blob([unb64u(m[1])]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer(); return JSON.parse(new TextDecoder().decode(buf)); }
+  m = /GC3\.([A-Za-z0-9_-]+)/.exec(t); if (m) return JSON.parse(new TextDecoder().decode(unb64u(m[1])));
+  m = /GC1\.([A-Za-z0-9+/=]+)/.exec(t); if (m) return JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+  return null;
+}
+function applyProgress(o) {
+  S.day = o.day || 1; S.step = o.step || 1; S.maxDay = Math.max(o.maxDay || 1, S.day); S.weak = o.weak || {}; S.prof = Object.assign(S.prof, o.prof || {}); S.st = o.st || {}; S.d = {};
+  for (const [k, v] of Object.entries(o.d || {})) S.d[k] = Object.assign({ done: [], chunk: 0, cs: {}, sc: {}, off: {}, dr: {}, rev: null, gr: null }, v);
+  S.lastAt = Date.now(); save();
+}
+async function importCode(txt) { try { const o = await decodeCode(txt); if (!o || !o.day) return false; applyProgress(o); return true; } catch (e) { return false; } }
+async function checkRestoreLink() {
+  const m = /#restore=(.+)$/.exec(location.hash); if (!m) return false;
+  history.replaceState(null, '', location.pathname + location.search);
+  let o = null; try { o = await decodeCode(decodeURIComponent(m[1])); } catch (e) { }
+  if (!o || !o.day) { main().insertAdjacentHTML('afterbegin', '<div class="warn">❌ This progress link is broken or incomplete. Copy the whole link again (it is long).</div>'); return false; }
+  const done = Object.values(o.d || {}).reduce((a, x) => a + (x.done || []).length, 0);
+  const box = document.createElement('div'); box.className = 'voicewarn';
+  box.innerHTML = `<b>📲 Load progress from your other device?</b><br>${esc((o.prof || {}).name || '')} · Day ${o.day}, Step ${o.step} · ${done} steps done${o.at ? ' · saved ' + new Date(o.at).toLocaleString() : ''}.<br><span class="muted">This replaces the progress on this device (now: Day ${S.day}, Step ${S.step}).</span><div class="row"><button class="btn go" id="rlOk">✅ Load it</button><button class="btn" id="rlNo">Cancel</button></div>`;
+  document.body.appendChild(box);
+  $('#rlOk').onclick = () => { applyProgress(o); box.remove(); openDay(S.day, S.step, true); };
+  $('#rlNo').onclick = () => box.remove();
+  return true;
 }
 function refreshTracker() {
   const t = $('#tracker'); if (!t) return;
@@ -1700,19 +1733,22 @@ function openHome() {
     ${!synth || !vDE().length ? `<div class="warn">⚠️ No German voice found yet. In Chrome it usually appears after a second — if not, see ⚙️ Settings → Voice.</div>` : ''}
     <h3 class="sec">Phase 1 — A1 (Days 1–11)</h3><div class="map">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(tile).join('')}</div>
     <h3 class="sec">Phase 2 — A2 (Days 12–25)</h3><div class="map">${[12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25].map(tile).join('')}</div>
-    <div class="card"><h3>📋 Progress code for the chat</h3><p class="muted">Your progress saves itself automatically in this browser — you don't need to copy anything to continue here. Paste this line into the chat so your coach knows where you are.</p><pre class="code">${esc(progressLine())}</pre>
-    <div class="row"><button class="btn sm" id="cpy">📋 Copy</button></div>
-    <details><summary><b>Move my progress to another device</b> (phone ↔ computer)</summary>
-      <p class="muted">Option 1: download a backup file, send it to the other device, and load it there. Option 2: copy the restore code and paste it on the other device.</p>
-      <div class="row"><button class="btn sm" id="bkd">💾 Download backup file</button><label class="btn sm">📂 Load backup file<input type="file" id="bkl" accept=".json,.txt" hidden></label><button class="btn sm" id="cpr">📋 Copy restore code</button></div>
-      <textarea class="ta" id="imp" rows="2" placeholder="…or paste a restore code (GC1.…) here"></textarea><button class="btn sm" id="impb">Restore progress</button><span id="impm"></span></details></div>`;
+    <div class="card"><h3>📲 Move my progress to another device</h3><p class="muted">Progress saves itself automatically on this device. To continue on your phone or another computer:</p>
+      <ol class="steps-ol"><li>Press <b>📤 Send progress link</b> (or <b>🔗 Copy link</b>) and send it to yourself — WhatsApp, Telegram, e-mail or AirDrop.</li><li>On the other device, <b>tap that link</b>. The app opens and asks <i>“Load progress?”</i> — press <b>Load it</b>. Done.</li></ol>
+      <div class="row"><button class="btn go" id="shr">📤 Send progress link</button><button class="btn" id="cpl">🔗 Copy link</button><button class="btn sm" id="bkd">💾 Backup file</button><label class="btn sm">📂 Load backup file<input type="file" id="bkl" accept=".json,.txt" hidden></label></div>
+      <details><summary>Paste a link or code instead</summary><textarea class="ta" id="imp" rows="2" placeholder="Paste the progress link or code here"></textarea><button class="btn sm" id="impb">Load progress</button></details><div id="impm"></div>
+      <p class="muted">Do this every time you switch devices — the newest device should always send its link to the other one.</p></div>
+    <div class="card"><h3>📋 Progress line for the chat</h3><p class="muted">Paste this into the chat with your coach so they know where you are. (It is only a summary — to move progress between devices use the link above.)</p><pre class="code">${esc(progressLine())}</pre>
+    <div class="row"><button class="btn sm" id="cpy">📋 Copy</button></div></div>`;
   $('#cont').onclick = () => openDay(S.day, S.step);
   $$('.tile-d').forEach(b => b.onclick = () => { const d = +b.dataset.d; openDay(d, d === S.day ? S.step : (DS(d).done.length && !isDone(d, 8) ? Math.min(8, Math.max(...DS(d).done) + 1) : 1)); });
   $('#cpy').onclick = e => copyText(progressLine(), e.target);
-  $('#cpr').onclick = e => copyText(restoreCode(), e.target);
-  $('#bkd').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([restoreCode()], { type: 'text/plain' })); a.download = `goethe-coach-progress-day${S.day}.txt`; a.click(); };
-  $('#bkl').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { $('#impm').innerHTML = importCode(t) ? ' ✅ Restored!' : ' ❌ Not a valid backup.'; if ($('#impm').textContent.includes('✅')) setTimeout(openHome, 700); }); };
-  $('#impb').onclick = () => { $('#impm').innerHTML = importCode($('#imp').value) ? ' ✅ Restored!' : ' ❌ That code is not valid.'; if ($('#impm').textContent.includes('✅')) setTimeout(openHome, 700); };
+  const msg = (ok, t) => { $('#impm').innerHTML = `<div class="${ok ? 'good' : 'bad'}">${t}</div>`; if (ok) setTimeout(() => openDay(S.day, S.step, true), 800); };
+  $('#cpl').onclick = async e => copyText(await transferLink(), e.target);
+  $('#shr').onclick = async e => { const url = await transferLink(); if (navigator.share) { try { await navigator.share({ title: 'My Goethe coach progress', text: `My German course progress (Day ${S.day}, Step ${S.step}) — open this link on my other device:`, url }); return; } catch (er) { if (er && er.name === 'AbortError') return; } } copyText(url, e.target); };
+  $('#bkd').onclick = async () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([await transferLink()], { type: 'text/plain' })); a.download = `goethe-coach-progress-day${S.day}.txt`; a.click(); };
+  $('#bkl').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(async t => (await importCode(t)) ? msg(true, '✅ Progress loaded!') : msg(false, '❌ This file is not a valid backup.')); };
+  $('#impb').onclick = async () => (await importCode($('#imp').value)) ? msg(true, '✅ Progress loaded!') : msg(false, '❌ Not valid. Make sure you copied the whole link/code (it is long).');
   refreshTracker();
 }
 function openWords() {
@@ -1809,6 +1845,7 @@ function init() {
   $$('#nav button').forEach(b => b.onclick = () => ({ home: openHome, today: () => openDay(S.day, S.step), prac: openPracticeHub, course: () => openCourse(S.day), words: openWords, weak: openWeak, set: openSettings })[b.dataset.v]());
   $('#tracker').onclick = () => { if (curView !== 'day') openDay(S.day, S.step); };
   if (S.lastAt) { openDay(S.day, S.step, true); } else openHome();
+  checkRestoreLink();
 }
 init();
 
