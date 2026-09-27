@@ -123,6 +123,7 @@ select{border:1px solid var(--line);background:var(--card);color:var(--ink);bord
 .nbig{font-size:1.5em}.count-card{border-color:var(--acc)}
 @media (max-width:620px){.tocrow{grid-template-columns:1fr auto}.tocrow>span:nth-child(2){display:none}}
 .cday summary{cursor:pointer;font-size:1.02em}.cbody{margin-top:8px}.wrows{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:6px}.wrow{padding:2px 0;border-bottom:1px dashed var(--line);font-size:.93em}
+.voicewarn{position:fixed;left:50%;transform:translateX(-50%);top:80px;z-index:60;width:min(620px,calc(100% - 24px));background:var(--warn);border:2px solid #e09a1a;border-radius:14px;padding:12px;box-shadow:0 8px 30px rgba(0,0,0,.2);font-size:.95em}
 [hidden]{display:none!important}
 details summary{cursor:pointer}
 @media (max-width:620px){body{font-size:15px}.steps{grid-template-columns:repeat(2,1fr)}.opts{grid-template-columns:1fr}.brand{font-size:.95em}#nav button{padding:5px 6px;font-size:13px}main{padding:10px 12px 90px}}
@@ -226,6 +227,13 @@ function prepDE(t) {
   return t;
 }
 let speakTok = 0;
+let VOICE_OK = false, STUCK_SHOWN = false;
+function voiceStuck() {
+  if (STUCK_SHOWN) return; STUCK_SHOWN = true;
+  const d = document.createElement('div'); d.className = 'voicewarn';
+  d.innerHTML = `<b>🔇 Your browser's voice is not working.</b> The app sent the sound, but this browser did not play it (this happens to every website, not only this app).<br><b>Fix:</b> 1) Quit Chrome completely (⌘Q on Mac, not just close the window) and open it again. 2) Check the Mac/PC sound is on and the tab isn't muted. 3) If it still stays silent, open the same link in <b>Safari</b> (Mac/iPhone) — it uses the same voices. <button class="btn sm" onclick="this.parentNode.remove()">OK</button>`;
+  document.body.appendChild(d);
+}
 let SPEECH_UNLOCKED = false;
 function unlockSpeech() { if (SPEECH_UNLOCKED || !synth) return; SPEECH_UNLOCKED = true; try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); } catch (e) { } }
 ['touchend', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, unlockSpeech, { capture: true, once: false, passive: true }));
@@ -243,7 +251,9 @@ function speakOne(text, o = {}) {
     }
     if (v) u.voice = v;
     u.rate = Math.max(0.4, (S.set.rate || 0.9) * (o.slow ? 0.62 : 1) * (en ? 1.1 : 1));
-    let done = false; const fin = () => { if (!done) { done = true; clearTimeout(tm); res(); } };
+    let done = false, started = false; const fin = () => { if (!done) { done = true; clearTimeout(tm); clearTimeout(chk); res(); } };
+    u.onstart = () => { started = true; VOICE_OK = true; };
+    const chk = setTimeout(() => { if (!started && !done && !VOICE_OK) voiceStuck(); }, 3500);
     u.onend = fin; u.onerror = fin;
     const tm = setTimeout(fin, 3000 + text.length * 160 / u.rate);
     synth.speak(u);
