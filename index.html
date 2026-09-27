@@ -184,13 +184,14 @@ function learnedWords(uptoDay) { return D.WORDS.filter(w => w.d <= uptoDay); }
 const KEY = 'goetheCoach.v1';
 const DEF = { v: 1, day: 1, step: 1, maxDay: 1, d: {}, weak: {},
   prof: { name: 'Ahsan Sabir', age: '24', country: 'Pakistan', city: 'Bischkek', phone: '', langs: 'Urdu, Englisch', job: 'Ingenieur' },
-  set: { rate: 0.9, vF: '', vM: '', vE: '', dir: true, unlock: false }, st: {} };
+  set: { rate: 0.9, vF: '', vM: '', vE: '', dir: false, unlock: false }, st: {} };
 let S = null;
 try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
 let STORAGE_OK = true;
 try { localStorage.setItem(KEY + '.t', '1'); localStorage.removeItem(KEY + '.t'); } catch (e) { STORAGE_OK = false; }
 S = Object.assign(JSON.parse(JSON.stringify(DEF)), S || {});
 S.prof = Object.assign({}, DEF.prof, S.prof); S.set = Object.assign({}, DEF.set, S.set);
+if (!S.set.quiet) { S.set.dir = false; S.set.quiet = 1; }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
 function DS(d) { return S.d[d] || (S.d[d] = { done: [], chunk: 0, cs: {}, sc: {}, off: {}, dr: {}, rev: null, gr: null }); }
 function isDone(d, st) { return DS(d).done.includes(st); }
@@ -391,7 +392,7 @@ function quiz(el, items, o = {}) {
     el.innerHTML = `<div class="qz nohelp"><div class="qmeta">${o.title ? esc(o.title) + ' · ' : ''}${it.again ? '🔁 Try again' : `Question ${Math.min(answered + 1, total)} of ${total}`} · ✅ ${Object.values(first).filter(Boolean).length}</div>
       <div class="qq">${it.q} ${it.say ? spk(it.say[0], it.say[1] || 'F') : ''}</div>
       <div class="opts ${it.opts.length > 4 ? 'many' : ''}">${order.map(i => `<button class="opt" data-i="${i}"${i === it.ans ? ' data-r="1"' : ''}>${it.opts[i]}</button>`).join('')}</div><div class="fb"></div></div>`;
-    if (it.say && o.autoSay !== false) say(it.say[0], { g: it.say[1] || 'F' });
+    if (it.say && o.autoSay === true) say(it.say[0], { g: it.say[1] || 'F' });
     $$('.opt', el).forEach(b => b.onclick = () => {
       const i = +b.dataset.i, ok = i === it.ans;
       $$('.opt', el).forEach(x => { x.disabled = true; if (+x.dataset.i === it.ans) x.classList.add('right'); });
@@ -499,7 +500,6 @@ function countingDrill(el, L, back) {
     const q = qs[i]; const head = `<div class="qmeta">${esc(L.t)} · question ${i + 1}/10 · ✅ ${score}</div>`;
     if (q.type === 'listen') {
       el.innerHTML = `<div class="qz nohelp">${head}<div class="qq">🎧 Listen and type the number${L.time ? ' (like 14:30)' : L.price ? ' (like 3,50)' : L.date ? ' (the day, e.g. 3)' : ''}:</div><div class="row">${spk(q.say, 'F', false, '▶ Play')}${spk(q.say, 'F', true)}</div><input class="inp" id="nin" inputmode="numeric" autocomplete="off"><button class="btn go sm" id="nck">Check</button><div class="fb"></div></div>`;
-      say(q.say);
       const chk = () => { const raw = $('#nin', el).value, v = raw.replace(/\D/g, ''), want = q.digits; let ok; if (L.phone) ok = v === want; else if (L.price) ok = Math.abs(parseFloat(raw.replace(',', '.').replace(/[^\d.]/g, '')) - q.val) < 0.001; else ok = v.replace(/^0+/, '') === want.replace(/^0+/, ''); done(ok); };
       $('#nck', el).onclick = chk; $('#nin', el).onkeydown = e => { if (e.key === 'Enter') chk(); }; $('#nin', el).focus();
     } else if (q.type === 'read') {
@@ -516,7 +516,6 @@ function countingDrill(el, L, back) {
     if (ok) score++;
     const q = qs[i];
     $('.fb', el).innerHTML = `<div class="${ok ? 'good' : 'bad'}">${ok ? '✅ Richtig!' : '❌'} ${esc(q.show)} = <b>${esc(q.words)}</b> ${spk(q.say)}</div>${q.hint ? `<div class="why">${esc(q.hint)}</div>` : ''}<button class="btn go nextq">Next ▶</button>`;
-    if (!ok) say(q.say);
     $('.nextq', el).onclick = () => { i++; next(); };
   };
   next();
@@ -1082,7 +1081,6 @@ function openDay(d, st, resumed) {
   $('#nextSt').onclick = () => { if (st < 8) openDay(d, st + 1); else finishDay(d); };
   refreshTracker();
   window.scrollTo(0, 0);
-  sayEN(directions(d, st));
   const body = $('#stepbody');
   const off = OFFICIAL.includes(d);
   const fn = off ? [stepReview, offModule('L'), offModule('H'), offModule('S'), offModule('P'), offResults, offRepair, stepClose]
@@ -1285,7 +1283,7 @@ function runExercises(el, ex, onDone) {
       const picked = [];
       el.innerHTML = `<div class="qz nohelp">${head}<div class="qq">Build the sentence: <div class="en">${esc(e.en)}</div></div><div class="build" id="bl"></div><div class="tiles" id="tl"></div><div class="row"><button class="btn go sm" id="ck">Check</button><button class="btn sm" id="rs">Reset</button></div><div class="fb"></div></div>`;
       const drawT = () => { $('#bl', el).innerHTML = picked.map((k, j) => `<button class="tile in" data-j="${j}">${esc(e.sh[k])}</button>`).join('') + `<span>${e.punct}</span>`; $('#tl', el).innerHTML = e.sh.map((t, k) => picked.includes(k) ? '' : `<button class="tile" data-k="${k}">${esc(t)}</button>`).join('');
-        $$('#tl .tile', el).forEach(b => b.onclick = () => { picked.push(+b.dataset.k); say(e.sh[+b.dataset.k]); drawT(); }); $$('#bl .tile', el).forEach(b => b.onclick = () => { picked.splice(+b.dataset.j, 1); drawT(); }); };
+        $$('#tl .tile', el).forEach(b => b.onclick = () => { picked.push(+b.dataset.k); drawT(); }); $$('#bl .tile', el).forEach(b => b.onclick = () => { picked.splice(+b.dataset.j, 1); drawT(); }); };
       drawT();
       $('#rs', el).onclick = () => { picked.length = 0; drawT(); };
       $('#ck', el).onclick = () => { if (picked.length < e.toks.length) return; const got = picked.map(k => e.sh[k]).join(' '); const ok = got === e.toks.join(' '); rec('G', e.code, ok ? 1 : 0); if (ok) score++; else wrong.push(e); $('#ck', el).disabled = true; $('#rs', el).disabled = true; fin(ok, got); };
@@ -1294,7 +1292,6 @@ function runExercises(el, ex, onDone) {
   const fin = (ok, got) => {
     const e = ex[i]; const q = $('.qz', el); if (q) q.classList.remove('nohelp');
     $('.fb', el).innerHTML = `<div class="${ok ? 'good' : 'bad'}">${ok ? '✅ Richtig!' : '❌ Correct:'}</div><div>${de(e.full)} ${spk(e.full)}</div>${!ok && got ? `<div class="muted">You wrote: ${esc(got)}${e.punct} — sometimes another order is also correct (e.g. time first, verb still 2nd). Compare carefully.</div>` : ''}${!ok && D.GRAM[e.code] ? `<div class="why">🧠 ${esc(D.GRAM[e.code].cheat)}</div>` : ''}<button class="btn go nextq">Next ▶</button>`;
-    say(e.full);
     $('.nextq', el).onclick = () => { i++; next(); };
   };
   next();
@@ -1813,7 +1810,6 @@ function openSettings() {
    <label class="fl"><span>Directions voice (English)</span><select id="vE">${voiceOpts(vEN(), st.vE)}</select></label>
    <label class="fl"><span>Speed <b id="rv">${st.rate}</b></span><input type="range" id="rate" min="0.5" max="1.2" step="0.05" value="${st.rate}"></label>
    <div class="row"><button class="btn sm" id="tF">Test woman</button><button class="btn sm" id="tM">Test man</button><button class="btn sm" id="tE">Test directions</button></div>
-   <label class="tog"><input type="checkbox" id="dir" ${st.dir ? 'checked' : ''}> Read the directions aloud when a step opens</label>
    <details><summary>No German voice?</summary><div class="muted">iPhone/iPad: Settings → Accessibility → Spoken Content → Voices → German → download "Anna" (and a male voice such as "Markus" or "Yannick"). Desktop Chrome: "Google Deutsch" appears automatically when you are online. Windows: Settings → Time &amp; language → Speech → Add voices → Deutsch. Android: Settings → System → Languages → Text-to-speech → Google → install German voice data.</div></details>
    <h3>🎤 Microphone</h3><div class="row"><button class="btn sm" id="mt">Test the microphone (say "Guten Tag")</button></div><div class="live" id="mtl"></div>
    <div class="muted">Chrome asks for permission the first time — press <b>Allow</b>. Speech recognition needs the internet.</div>
@@ -1827,7 +1823,6 @@ function openSettings() {
   $('#tF').onclick = () => say('Guten Tag! Ich heiße Anna. Ich wohne in Frankfurt.');
   $('#tM').onclick = () => say('Guten Tag! Mein Name ist Tom. Meine Nummer ist 0151 23 45 67.', { g: 'M' });
   $('#tE').onclick = () => { const o = S.set.dir; S.set.dir = true; sayEN('These are the directions for each step.'); S.set.dir = o; };
-  $('#dir').onchange = e => { S.set.dir = e.target.checked; save(); };
   $('#unl').onchange = e => { S.set.unlock = e.target.checked; save(); };
   $('#mt').onclick = async () => { const h = await listen(5, $('#mtl'), { once: true }); if (h === null) { if (!SR) $('#mtl').innerHTML = '⚠️ Speech recognition is not available here. Use Google Chrome.'; return; } $('#mtl').innerHTML = h ? `✅ I heard: <b>${esc(h)}</b>` : '❌ I heard nothing. Check the microphone.'; };
   $('#rst').onclick = () => { if (confirm('Delete all progress on this device?')) { localStorage.removeItem(KEY); location.reload(); } };
