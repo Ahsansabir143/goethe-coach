@@ -310,7 +310,8 @@ async function micStartup() {
 }
 async function ensureMic(liveEl) {
   if (MIC_OK || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return true;
-  try { if (liveEl) liveEl.innerHTML = '🎤 Chrome will ask once: choose <b>Allow while visiting the site</b>.'; const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); MIC_OK = true; return true; }
+  try { if (navigator.permissions) { const st = await navigator.permissions.query({ name: 'microphone' }); if (st.state === 'granted') { MIC_OK = true; return true; } } } catch (e) { }
+  try { if (liveEl) liveEl.innerHTML = '🎤 Your browser asks once: choose <b>Allow</b> (on a computer: <b>Allow while visiting the site</b>). After that the mic works every time without asking.'; const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); MIC_OK = true; return true; }
   catch (e) { if (liveEl) liveEl.innerHTML = '⚠️ Microphone blocked. Click the 🔒 / mic icon in the address bar → Allow, then try again.'; return false; }
 }
 function listen(secs, liveEl, o = {}) {
@@ -1798,7 +1799,6 @@ function init() {
   $$('#nav button').forEach(b => b.onclick = () => ({ home: openHome, today: () => openDay(S.day, S.step), prac: openPracticeHub, course: () => openCourse(S.day), words: openWords, weak: openWeak, set: openSettings })[b.dataset.v]());
   $('#tracker').onclick = () => { if (curView !== 'day') openDay(S.day, S.step); };
   if (S.lastAt) { openDay(S.day, S.step, true); } else openHome();
-  setTimeout(micStartup, 400);
 }
 init();
 
