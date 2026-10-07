@@ -3891,10 +3891,10 @@ const CL_NOTES = [
 ];
 function clSay(t) { return t.replace(/\s*\(sich\)/, '').replace(/^der\/die /, 'der ').split(/\s*\/\s*/)[0].split(',')[0].trim(); }
 function clVerbTable(rows) {
-  return `<div class="cl-scroll"><table class="cltab"><tr><th>Verb</th><th>er / sie / es</th><th>Präteritum</th><th>Perfekt</th><th>English</th></tr>${rows.map(v => `<tr><td><b>${esc(v[0])}</b> ${spk(clSay(v[0]))}<div class="say">🗣️ ${esc(v[5])}</div></td><td>${esc(v[2])}</td><td>${esc(v[3])}</td><td>${esc(v[4])}</td><td>${esc(v[1])}${v[6] ? `<div class="note">${esc(v[6])}</div>` : ''}</td></tr>`).join('')}</table></div>`;
+  return `<div class="cl-scroll"><table class="cltab" data-vl="${rows === CLASS_LISTS.weak ? 'weak' : 'strong'}"><tr><th>Verb</th><th>er / sie / es</th><th>Präteritum</th><th>Perfekt</th><th>English</th></tr>${rows.map((v, i) => `<tr><td><a class="cl-w" data-v="${i}" data-w="${esc(clTok(v[0]))}" data-en="${esc(v[1])}"><b>${esc(v[0])}</b></a> ${spk(clSay(v[0]))}<div class="say">🗣️ ${esc(v[5])}</div></td><td>${esc(v[2])}</td><td>${esc(v[3])}</td><td>${esc(v[4])}</td><td>${esc(v[1])}${v[6] ? `<div class="note">${esc(v[6])}</div>` : ''}</td></tr>`).join('')}</table></div>`;
 }
 function clWordTable(rows, noun) {
-  return `<div class="cl-scroll"><table class="cltab"><tr><th>German</th><th>English</th><th>Say</th></tr>${rows.map(n => `<tr><td>${noun ? n[0].split(' / ').map(hw).join(' / ') : `<b>${esc(n[0])}</b>`} ${spk(clSay(n[0]))}</td><td>${esc(n[1])}</td><td class="say">${esc(n[2])}</td></tr>`).join('')}</table></div>`;
+  return `<div class="cl-scroll"><table class="cltab"><tr><th>German</th><th>English</th><th>Say</th></tr>${rows.map(n => `<tr><td>${n[0].split(' / ').map(x => `<a class="cl-w" data-w="${esc(clTok(x))}" data-en="${esc(n[1])}">${noun ? hw(x) : `<b>${esc(x)}</b>`}</a>`).join(' / ')} ${spk(clSay(n[0]))}</td><td>${esc(n[1])}</td><td class="say">${esc(n[2])}</td></tr>`).join('')}</table></div>`;
 }
 const CL_PARTS = [
   ['Weak verbs (regular)', `${CLASS_LISTS.weak.length} verbs`, 'Weak verbs keep their stem: Präteritum = stem + -te, Perfekt = ge + stem + -t (machen → machte → hat gemacht).', () => clVerbTable(CLASS_LISTS.weak), CLASS_LISTS.weak],
@@ -3906,12 +3906,40 @@ const CL_PARTS = [
   ['Adverbs', `${CLASS_LISTS.adv.length} words`, 'Words for when, where and how.', () => clWordTable(CLASS_LISTS.adv, false), CLASS_LISTS.adv]
 ];
 function clCard() {
-  return `<div class="card" id="g-class"><style>.cl-scroll{overflow-x:auto}.cltab{width:100%;border-collapse:collapse;font-size:.9em}.cltab td,.cltab th{border-bottom:1px solid var(--line);padding:6px 5px;text-align:left;vertical-align:top}.cl-note{border-bottom:1px solid var(--line);padding:8px 0}</style><h3>5. 📒 Verb & noun lists <span class="muted">(from your class files)</span></h3><p class="muted">Weak and strong verbs with all their forms, your class notes, and the nouns by topic. Tap 🔊 to hear a word.</p>
+  return `<div class="card" id="g-class"><style>.cl-scroll{overflow-x:auto}.cltab{width:100%;border-collapse:collapse;font-size:.9em}.cltab td,.cltab th{border-bottom:1px solid var(--line);padding:6px 5px;text-align:left;vertical-align:top}.cl-note{border-bottom:1px solid var(--line);padding:8px 0}.cl-w{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}.cl-det td{background:var(--bg);padding:10px}.cl-tenses{margin-top:8px}</style><h3>5. 📒 Verb & noun lists <span class="muted">(from your class files)</span></h3><p class="muted">Weak and strong verbs with all their forms, your class notes, and the nouns by topic. Tap 🔊 to hear a word. Tap a word to see its grammar and example sentences.</p>
     ${CL_PARTS.map((p, i) => `<details class="gi cl-d" data-s="${esc((p[0] + ' ' + p[4].map(r => r.slice(0, 3).join(' ')).join(' ')).toLowerCase())}"><summary><b>5.${i + 1} ${esc(p[0])}</b> <span class="muted">· ${esc(p[1])}</span></summary><div class="lay">🧒 ${esc(p[2])}</div><div class="clb" data-i="${i}"></div></details>`).join('')}</div>`;
+}
+function clTok(s) { return s.replace(/\s*\((sich|pl\.|Pl\.|Antwortbogen)\)/g, '').replace(/^der\/die /, '').replace(/^(der|die|das) /, '').split(',')[0].replace(/-$/, '').replace(/^weh tun$/, 'wehtun').trim(); }
+const CL_EXTRA_S = { mit: [{ de: 'Ich fahre mit dem Bus.', en: 'I go by bus.' }, { de: 'Kommst du mit mir?', en: 'Are you coming with me?' }], dorthin: [{ de: 'Wie komme ich dorthin?', en: 'How do I get there?' }, { de: 'Wir fahren morgen dorthin.', en: 'We are going there tomorrow.' }] };
+const CL_TWOWAY = /^(an|auf|in|über|unter|vor|hinter|neben|zwischen)$/;
+function clDetail(a) {
+  const t = a.dataset.w, en = a.dataset.en, tab = a.closest('table'), vl = tab && tab.dataset.vl, v = vl ? CLASS_LISTS[vl][+a.dataset.v] : null;
+  let x = explainWord(t, [t.toLowerCase()], 0);
+  if (v && x.type !== 'verb') x = { tok: t, lo: t.toLowerCase(), base: t, type: 'verb', gram: '', en };
+  if (!x.en) x.en = en;
+  let g = wordGrammarHTML(x);
+  if (CL_TWOWAY.test(t)) g += `<div><b>Two-way preposition:</b> where? (place) → <b>Dativ</b> (Ich bin <b>in der</b> Stadt.) · where to? (direction) → <b>Akkusativ</b> (Ich gehe <b>in die</b> Stadt.)</div>`;
+  else if (t === 'ab') g += `<div><b>ab</b> + Dativ for a starting point: <b>ab dem</b> 1. Mai, <b>ab</b> Montag.</div>`;
+  else if (t === 'bis') g += `<div><b>bis</b> + Akkusativ, but usually with another preposition: <b>bis zum</b> Bahnhof, <b>bis</b> Freitag.</div>`;
+  else if (/adverb|small word|expression/.test(x.type || '') && !/table|Always|After sein/.test(g)) g += `<div class="muted">A small word / adverb: it never changes its ending. It usually stands after the verb or at the start of the sentence (then the verb comes next).</div>`;
+  if (v) g += `<div class="cl-tenses"><b>Three tenses (er / sie / es):</b><div>${deS('Er ' + v[2] + '.')} <span class="muted">· present</span></div><div>${deS('Er ' + v[3] + '.')} <span class="muted">· Präteritum (simple past)</span></div><div>${deS('Er ' + v[4] + '.')} <span class="muted">· Perfekt (spoken past)</span></div></div>`;
+  let ss = []; try { ss = wordSentences(x); } catch (er) { ss = []; }
+  if (v) { const forms = new Set([t, v[2], v[3], v[4]].join(' ').toLowerCase().replace(/[()…]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !/^(hat|ist|sich|und)$/.test(w))); const c = VINF.get(t.toLowerCase()) || conj(t); if (c) c.forms.forEach(f => forms.add(f.toLowerCase())); ss = ss.filter(s => s.de.toLowerCase().split(/[^a-zäöüß]+/).some(w => forms.has(w))); }
+  if (!ss.length && CL_EXTRA_S[t]) ss = CL_EXTRA_S[t];
+  ss = ss.slice(0, 4);
+  return `<div class="pwbox cl-gram">${g}</div><div class="lbl">✍️ Sentences with <b>${esc(t)}</b></div>${ss.length ? ss.map(s => `<div class="exl">${deS(s.de)}<div class="en">${esc(s.en)}</div></div>`).join('') : '<div class="muted">No example sentence yet for this word.</div>'}`;
 }
 function bindClassLists() {
   const fillC = det => { const b = $('.clb', det); if (b && !b.dataset.done) { b.innerHTML = CL_PARTS[+b.dataset.i][3](); b.dataset.done = 1; } };
   $$('.cl-d').forEach(d => d.addEventListener('toggle', () => d.open && fillC(d)));
+  const card = $('#g-class'); if (card) card.addEventListener('click', e => {
+    const a = e.target.closest('.cl-w'); if (!a) return; e.preventDefault();
+    const tr = a.closest('tr'), nx = tr.nextElementSibling, key = a.dataset.w;
+    if (nx && nx.classList.contains('cl-det')) { const same = nx.dataset.w === key; nx.remove(); if (same) return; }
+    const row = document.createElement('tr'); row.className = 'cl-det'; row.dataset.w = key;
+    row.innerHTML = `<td colspan="${tr.children.length}">${clDetail(a)}</td>`; tr.after(row);
+    $$('[data-gs]', row).forEach(g => g.onclick = () => openSection('G:' + g.dataset.gs));
+  });
   const q = $('#gq'); if (q) q.addEventListener('input', () => { const v = q.value.trim().toLowerCase(); if (v) $$('.cl-d').forEach(d => { if (!d.hidden) { d.open = true; fillC(d); } }); });
 }
 
