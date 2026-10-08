@@ -3951,7 +3951,7 @@ const MAT_MEM = new Map(); // fallback when the browser blocks storage
 let matRsT = null, matDbP = null, matDoc = null, matId = null, matCur = 1, matZoom = 1, matRT = 0, matSaveT = null, matPdfjsP = null, matOcrP = null;
 const matReq = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
 function matDb() {
-  if (!matDbP) matDbP = new Promise((res, rej) => { try { const r = indexedDB.open('goethe-material', 1); r.onupgradeneeded = () => { r.result.createObjectStore('meta', { keyPath: 'id' }); r.result.createObjectStore('files', { keyPath: 'id' }); }; r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } });
+  if (!matDbP) matDbP = new Promise((res, rej) => { try { const r = indexedDB.open('goethe-material', 2); r.onupgradeneeded = () => { const db = r.result; ['meta', 'files', 'ocr'].forEach(s => { if (!db.objectStoreNames.contains(s)) db.createObjectStore(s, { keyPath: 'id' }); }); }; r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } });
   return matDbP.catch(e => { matDbP = null; throw e; });
 }
 async function matSt(name, mode) { return (await matDb()).transaction(name, mode).objectStore(name); }
@@ -4045,21 +4045,34 @@ async function matRender(n, meta) {
   }
   const ws = items.map(([d]) => d.getBoundingClientRect().width);
   items.forEach(([d, w, ang], i) => { const k = ws[i] > 0 && w > 0 ? w / ws[i] : 1; d.style.transform = `${ang ? `rotate(${ang}rad) ` : ''}scaleX(${k})`; });
-  if (meta) { meta.page = n; clearTimeout(matSaveT); matSaveT = setTimeout(() => matPutMeta(meta), 600); }
-  if (chars < 20 && oc) {
-    oc.innerHTML = `<div class="card"><p>🖼️ This page is a picture (a scan), so its words cannot be tapped yet.</p><button class="btn go" id="matRead">🔎 Read this page — make the words tappable</button><div id="matOcrMsg" class="muted"></div></div>`;
-    $('#matRead').onclick = () => matReadPage(cv, tl, tok, dpr);
-  }
+  if (meta) { meta.page = n; matPutMeta(meta); }
+  if (chars < 20 && oc) matReadPage(cv, tl, tok, dpr, vp);
 }
-async function matReadPage(cv, tl, tok, dpr) {
-  const msg = $('#matOcrMsg'), btn = $('#matRead'); if (btn) btn.disabled = true;
-  if (msg) msg.textContent = '⏳ Reading the page… (the first time takes about a minute: the German reader is downloaded once)';
+const MAT_OCRC = new Map(); // page text read from scans: memory + saved in this browser
+async function matOcrGet(k) { if (MAT_OCRC.has(k)) return MAT_OCRC.get(k); try { const r = await matReq((await matSt('ocr', 'readonly')).get(k)); if (r) { MAT_OCRC.set(k, r); return r; } } catch (e) { } return null; }
+async function matOcrPut(r) { MAT_OCRC.set(r.id, r); try { await matReq((await matSt('ocr', 'readwrite')).put(r)); } catch (e) { } }
+function matOcrDraw(tl, r, vp) {
+  for (const [t, x0, y0, x1, y1] of r.words) { const d = document.createElement('div'); d.className = 'mat-o'; d.style.left = x0 * vp.width + 'px'; d.style.top = y0 * vp.height + 'px'; d.style.fontSize = (y1 - y0) * vp.height + 'px'; d.innerHTML = de(t); tl.append(d); const nat = d.getBoundingClientRect().width, ww = (x1 - x0) * vp.width; if (nat > 0) d.style.transform = `scaleX(${ww / nat})`; }
+}
+function matOcrNote(r, cached) {
+  const oc = $('#matOcr'); if (!oc) return;
+  oc.innerHTML = `<div class="card"><div class="muted">✅ Scanned page — ${r.words.length} words are tappable${cached ? '' : ' (read from the picture)'}.</div><details><summary class="muted">Show the text of this page</summary><div class="mat-note">${(r.text || '').split('\n').filter(l => l.trim()).map(l => `<div>${de(l)}</div>`).join('')}</div></details></div>`;
+}
+async function matReadPage(cv, tl, tok, dpr, vp) {
+  const oc = $('#matOcr'), key = matId + ':' + matCur;
+  const had = await matOcrGet(key); if (tok !== matRT) return;
+  if (had) { matOcrDraw(tl, had, vp); matOcrNote(had, true); return; }
+  if (oc) oc.innerHTML = `<div class="card"><div class="muted">⏳ This page is a scan — reading it so the words become tappable… (the first time takes about a minute: the German reader is downloaded once)</div></div>`;
   try {
-    const w = await matOcr(); const r = await w.recognize(cv); if (tok !== matRT) return;
-    const words = (r.data.words || []).filter(x => x.confidence > 35 && /[A-Za-zÄÖÜäöüß]/.test(x.text));
-    for (const x of words) { const b = x.bbox, h = (b.y1 - b.y0) / dpr; const d = document.createElement('div'); d.className = 'mat-o'; d.style.left = b.x0 / dpr + 'px'; d.style.top = b.y0 / dpr + 'px'; d.style.fontSize = h + 'px'; d.innerHTML = de(x.text); tl.append(d); const nat = d.getBoundingClientRect().width, ww = (b.x1 - b.x0) / dpr; if (nat > 0) d.style.transform = `scaleX(${ww / nat})`; }
-    const card = $('#matOcr'); if (card) card.innerHTML = `<div class="card"><p class="muted">✅ ${words.length} words found — tap them on the page. Text of this page:</p><div class="mat-note">${(r.data.text || '').split('\n').filter(l => l.trim()).map(l => `<div>${de(l)}</div>`).join('')}</div></div>`;
-  } catch (e) { if (msg) msg.textContent = '❌ Could not read this page. Check the internet connection and try again.'; if (btn) btn.disabled = false; }
+    const w = await matOcr(); if (tok !== matRT) return;
+    const r = await w.recognize(cv); if (tok !== matRT) return;
+    const W = cv.width, H = cv.height;
+    const rec = { id: key, text: r.data.text || '', words: (r.data.words || []).filter(x => x.confidence > 35 && /[A-Za-zÄÖÜäöüß]/.test(x.text)).map(x => [x.text, x.bbox.x0 / W, x.bbox.y0 / H, x.bbox.x1 / W, x.bbox.y1 / H].map(v => typeof v === 'number' ? +v.toFixed(4) : v)) };
+    matOcrPut(rec); matOcrDraw(tl, rec, vp); matOcrNote(rec, false);
+  } catch (e) {
+    if (tok !== matRT) return;
+    if (oc) { oc.innerHTML = `<div class="card"><div class="muted">❌ Could not read this scanned page. Check the internet connection.</div><button class="btn sm go" id="matRead">🔄 Try again</button></div>`; $('#matRead').onclick = () => matReadPage(cv, tl, tok, dpr, vp); }
+  }
 }
 window.addEventListener('resize', () => { if (curView === 'material' && matDoc && $('#matPage')) { clearTimeout(matRsT); matRsT = setTimeout(() => matRender(matCur), 250); } });
 
