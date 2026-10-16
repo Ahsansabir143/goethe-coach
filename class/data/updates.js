@@ -13,5 +13,8 @@ window.UPDATES = window.UPDATES.concat([
  {date:'2026-10-17', icon:'📚', text:'My 12 daily-life texts (Der Morgen, Im Supermarkt, Im Bus …) line by line with English, verbs with their 3 forms', href:'#/texts'},
  {date:'2026-10-17', icon:'#️⃣', text:'Every word list is numbered; tap any word for its meaning, grammar and (verbs) 2nd + 3rd form', href:'#/words'},
  {date:'2026-10-17', icon:'💬', text:'Chat teacher knows the 3 forms: „2nd form of fahren“, „is treffen strong?“, „verbs with e → i“', href:''},
+ {date:'2026-10-17', icon:'🗂️', text:'Word bank in columns, in the order of my files: each noun category, weak verbs, strong verbs, prepositions, adjectives, adverbs', href:'#/bank'},
+ {date:'2026-10-17', icon:'📊', text:'All words by type: der · die · das · plural · weak verbs · strong verbs · other words', href:'#/words/type'},
+ {date:'2026-10-17', icon:'👆', text:'Almost every German word can be tapped — also inflected forms (meinen, Äpfel), numbers, compounds, names and the chat answers', href:''},
  {date:'2026-10-17', icon:'👉', text:'Every memory trick and short rule (DOGFU, e–st–t–en–t–en, nicht/kein …) now has worked examples in German + English', href:'#/l/L15/learn'}
 ]);

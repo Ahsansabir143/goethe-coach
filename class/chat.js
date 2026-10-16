@@ -73,7 +73,7 @@ function entryHead(e){ if(e.de) return fullDe(e); return e.w || e.de || ''; }
 function entryKey(e){ return lo(e.de || e.w || ''); }
 function lookupDe(w){
   if(!w) return null;
-  let e = DICT.get(lo(w)); if(e) return e;
+  let e = DICT.get(lo(w)) || (A.lookupWord && A.lookupWord(w)); if(e) return e;
   e = DICT.get(lo(w.replace(/^(der|die|das|den|dem|ein|eine|einen)\s+/i,''))); if(e) return e;
   return null;
 }
@@ -364,6 +364,7 @@ function render(){
   const quiz = window.__cur && document.querySelector('#app .q');
   box.innerHTML = (CHAT.length ? CHAT.map(m => `<div class="cm ${m.role}">${m.role === 'user' ? esc(m.content).replace(/\n/g,'<br>') : fmt(m.content)}</div>`).join('') : `<div class="cm assistant">${fmt(hello())}</div>`);
   $('#chatQuick').innerHTML = quiz ? `<button class="chip act" data-act="help with this question">🧩 Help with this question</button>` : '';
+  if(A.linkify) A.linkify(box);
   box.scrollTop = box.scrollHeight;
 }
 function send(text){

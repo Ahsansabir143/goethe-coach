@@ -50,6 +50,15 @@ th{background:var(--acc2);font-weight:600}
 .ex .en{display:block;color:var(--mut);font-size:.88em}.ex .note{font-style:italic}.tdl{display:block;color:var(--mut);font-size:.85em;font-weight:400}
 .vex{color:var(--mut);font-size:.88em}
 select.btn{max-width:100%;text-overflow:ellipsis}
+.wcols{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;align-items:start;margin:8px 0 18px}
+.wcol{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0}
+.wch{border-bottom:2px solid var(--acc);padding-bottom:6px;margin-bottom:4px}
+.wl{list-style:none;margin:0 0 8px;padding:0;max-height:520px;overflow:auto}
+.wl li{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}.wl li:last-child{border-bottom:0}
+.wn{color:var(--mut);font-size:.8em;min-width:1.8em;text-align:right;padding-top:3px}
+.wb{flex:1;min-width:0}.we{display:block;color:var(--mut);font-size:.88em}.wf{display:block;font-size:.82em;color:var(--ink)}
+.wl .spk{font-size:.8em;padding:0 2px}
+.jump{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.jump a{font-size:.9em;background:var(--acc2);border-radius:20px;padding:4px 10px;text-decoration:none;color:var(--ink)}
 .num{color:var(--mut);font-size:.85em;text-align:right;width:2.2em}.vf{font-size:.88em;margin-top:3px}.vfp{font-size:.95em}.vfk{display:inline-block;font-size:.72em;border-radius:10px;padding:0 6px;margin-right:4px;background:var(--acc2);color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:.03em}.vfk.strong,.vfk.irregular,.vfk.mixed,.vfk.modal{background:var(--nobg);color:var(--no)}.vfk.weak{background:var(--okbg);color:var(--ok)}#pop .pf{margin:4px 0;font-size:.95em}
 .daybox>summary{cursor:pointer;font-weight:700;font-size:1.05em;list-style:none;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.daybox>summary::-webkit-details-marker{display:none}.daybox>summary::before{content:'▸';color:var(--acc)}.daybox[open]>summary::before{content:'▾'}.daybox .muted{font-weight:400}.dayup{margin-top:10px;background:var(--acc2);border-radius:10px;padding:8px 12px}.dayup ul{margin:4px 0 0;padding-left:18px}
 .tip{background:var(--warn);border-radius:10px;padding:10px 12px;margin:8px 0}
@@ -80,7 +89,7 @@ input.ans.right{border-color:var(--ok);background:var(--okbg)}input.ans.wrong{bo
 .qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--mut);font-size:.9em}
 .flash{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;font-size:1.5em}
 .flash .sub{font-size:.6em;color:var(--mut);margin-top:10px}
-#pop{position:fixed;z-index:50;max-width:340px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.18);display:none}
+#pop{position:fixed;z-index:90;max-width:340px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.18);display:none}
 #pop b{font-size:1.1em}
 .stat{display:flex;gap:10px;flex-wrap:wrap}.stat div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:120px}.stat b{display:block;font-size:1.4em}
 .search{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
@@ -125,6 +134,7 @@ details summary{cursor:pointer;font-weight:600}
 <script src="data/translations.js"></script>
 <script src="data/tipx.js"></script>
 <script src="data/forms.js"></script>
+<script src="data/xdict.js"></script>
 <script src="data/helpers.js"></script>
 <script src="data/updates.js"></script>
 <script src="data/verbs.js"></script>

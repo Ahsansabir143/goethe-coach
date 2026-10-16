@@ -126,11 +126,32 @@ function addBankToDict(){
   WBN.forEach(w=>{ if(w.pl && w.pl!=='—') addD(w.pl, Object.assign({plf:true}, w)); });
   [].concat(WB.preps, WB.adjs, WB.advs).forEach(w=> addD(w.de.replace(/-$/,''), {w:w.de, en:w.en}));
 }
+/* find a word even when it is inflected: meinen → mein, kleinen → klein, komm → kommen, Äpfel → Apfel,
+   Apfelsaft → Apfel + Saft, names → „a name“ */
+const LCACHE = new Map();
+function lookupWord(t){
+  const k = String(t||''); const lo = k.toLowerCase(); if(LCACHE.has(k)) return LCACHE.get(k);
+  let e = DICT.get(lo);
+  if(!e && window.XDICT && window.XDICT[lo]) e = window.XDICT[lo];
+  const tryK = (w, note) => { if(e || !w || w.length < 2) return; const h = DICT.get(w) || (window.XDICT||{})[w]; if(h){ e = note ? Object.assign({}, h, {form:true, formOf: note, w:h.w||h.de}) : h; } };
+  // adjective / article / possessive endings
+  [['em',''],['en',''],['er',''],['es',''],['e','']].forEach(([end])=>{ if(lo.endsWith(end) && lo.length > end.length+2){ const b = lo.slice(0, -end.length); const h = DICT.get(b) || (window.XDICT||{})[b]; if(!e && h && !h.g && !h.pos) e = Object.assign({}, h, {form:true, formOf:`„${k}“ = ${b} + ending -${end}`}); } });
+  // imperative / verb stem (komm, kauf, wohn-) → verb
+  if(!e && /^[a-zäöüß]+$/.test(lo)){ ['en','n','eln','ern'].forEach(x=> tryK(lo + x, 'the imperative / stem')); }
+  // noun plurals: -n, -en, -e, -er, -s, umlaut
+  if(!e && /^[A-ZÄÖÜ]/.test(k)){ const un = s => s.replace(/ä/g,'a').replace(/ö/g,'o').replace(/ü/g,'u').replace(/äu/g,'au');
+    for(const end of ['en','n','e','er','s','']){ if(lo.endsWith(end)){ const b = lo.slice(0, lo.length - end.length); for(const c of [b, un(b)]){ const h = DICT.get(c); if(h && h.g){ e = Object.assign({}, h, {form:true, formOf:'a plural'}); break; } } } if(e) break; } }
+  // compound nouns: last part decides the article
+  if(!e && /^[A-ZÄÖÜ][a-zäöüß]{5,}$/.test(k)){ for(let i = 3; i <= lo.length - 3; i++){ const head = lo.slice(i), first = lo.slice(0, i).replace(/s$/,''); const h = DICT.get(head); if(h && h.g){ const f = DICT.get(first) || DICT.get(first.replace(/n$/,'')) || DICT.get(first+'en') || DICT.get(first+'e'); e = {de:k, g:h.g, en:`${f ? (f.en||'').split(/[,/;(]/)[0].trim() + ' + ' : ''}${(h.en||'').split(/[,/;(]/)[0].trim()} (compound: ${f ? (f.de||f.w)+' + ' : ''}${h.de})`, note:`Compound noun: the last part „${h.de}“ gives the article ${ART[h.g]}.`}; break; } } }
+  if(!e && window.NAMES && window.NAMES[k]) e = {w:k, en:window.NAMES[k]};
+  if(!e && window.NUMWORD && /^[a-zäöüß]+$/.test(lo)){ const n = NUMWORD(lo); if(n != null) e = {w:k, en:`the number ${n}`, note:'Numbers 21–99: the ONE comes first — einundzwanzig = 1 + and + 20.'}; }
+  LCACHE.set(k, e || null); return e || null;
+}
 function tokens(text){ return String(text).split(/([A-Za-zÄÖÜäöüß]+)/); }
 function linkText(text){
   return tokens(text).map((t,i)=>{
     if(i%2===0) return esc(t);
-    const e = DICT.get(t.toLowerCase());
+    const e = lookupWord(t);
     return e ? `<span class="w" data-w="${esc(t)}">${esc(t)}</span>` : esc(t);
   }).join('');
 }
@@ -154,7 +175,7 @@ function nounLabel(w){
 }
 function fullDe(w){ return w.g ? (w.g==='pl' ? 'die ' : ART[w.g]+' ') + w.de : w.de; }
 function showPop(el){
-  const t = el.getAttribute('data-w'); const e = DICT.get(t.toLowerCase()); if(!e) return;
+  const t = el.getAttribute('data-w'); const e = lookupWord(t); if(!e) return;
   return showPop2(el, e, t);
 }
 function showPop2(el, e, t){
@@ -171,7 +192,7 @@ function showPop2(el, e, t){
       body += `<div class="muted">Type: ${esc((window.VKIND||{})[vf.kind]||vf.kind)}${vf.pre?` · separable: „${esc(vf.pre)}“ goes to the end`:''}${vf.ins?` · inseparable ${esc(vf.ins)}- (no ge-)`:''}</div>`;
       body += `<div class="muted">Perfekt: ich ${vf.aux==='sein'?'bin':'habe'} … ${esc(vf.part)}</div>`;
     }
-  } else head = esc(e.w);
+  } else { head = esc(e.w); if(e.note) body += `<div class="muted">${esc(e.note)}</div>`; }
   $pop.innerHTML = `<b>${head}</b> ${spk(e.de?fullDe(e):e.w)}${body}`;
   $pop.style.display='block';
   const r = el.getBoundingClientRect(); const pw = Math.min(300, window.innerWidth-24);
@@ -793,17 +814,28 @@ function isVerbWord(w){ return !w.g && /^(sich )?[a-zäöüß]+(en|ern|eln|tun|s
 function formsLine(inf){ const f = window.VFORMS ? VFORMS(inf) : null; if(!f) return ''; return `<div class="vf" translate="no"><span class="vfk ${f.kind}">${f.kind}</span> 1️⃣ <b class="de">${esc(f.inf)}</b> · 2️⃣ <b class="de">${esc(f.prat)}</b> · 3️⃣ <b class="de">${esc(f.perfekt)}</b>${f.change?`<div class="vfp">du <b class="de">${esc(f.du)}</b> · er/sie/es <b class="de">${esc(f.er)}</b> <span class="muted">(${esc(f.change)})</span></div>`:''}</div>`; }
 function vocabTable(list, showL){
   if(!list.length) return '<p class="muted">No words.</p>';
-  return `<div class="card tw"><table class="vocab"><tr><th>№</th><th></th><th>German</th><th>Meaning</th>${showL?'<th>Class</th>':''}</tr>${list.map((w,i)=>`<tr><td class="num">${i+1}</td><td>${spk(fullDe(w))}</td><td><b class="de">${nounLabel(w)}</b>${w.pl?`<div class="muted">pl. ${w.pl==='—'?'—':'die '+esc(w.pl)}</div>`:''}${isVerbWord(w)?formsLine(w.de):''}${w.ex?`<div class="muted"><span class="de">${esc(w.ex)}</span>${(window.TR||{})[w.ex]?`<div class="vex">🇬🇧 ${esc(window.TR[w.ex])}</div>`:''}</div>`:''}</td><td>${esc(w.en)}${w.opp?`<div class="muted">↔ <span class="de">${esc(w.opp)}</span></div>`:''}${w.note?`<div class="muted">${esc(w.note)}</div>`:''}</td>${showL?`<td><a href="#/l/${w.lid}/words">${esc(w.lid)}</a></td>`:''}</tr>`).join('')}</table></div>`;
+  return `<div class="card tw"><table class="vocab"><tr><th>№</th><th></th><th>German</th><th>Meaning</th>${showL?'<th>Class</th>':''}</tr>${list.map((w,i)=>`<tr><td class="num">${i+1}</td><td>${spk(fullDe(w))}</td><td>${tapWord(w)}${w.pl?`<div class="muted">pl. ${w.pl==='—'?'—':'die '+esc(w.pl)}</div>`:''}${isVerbWord(w)?formsLine(w.de):''}${w.ex?`<div class="muted"><span class="de">${esc(w.ex)}</span>${(window.TR||{})[w.ex]?`<div class="vex">🇬🇧 ${esc(window.TR[w.ex])}</div>`:''}</div>`:''}</td><td>${esc(w.en)}${w.opp?`<div class="muted">↔ <span class="de">${esc(w.opp)}</span></div>`:''}${w.note?`<div class="muted">${esc(w.note)}</div>`:''}</td>${showL?`<td><a href="#/l/${w.lid}/words">${esc(w.lid)}</a></td>`:''}</tr>`).join('')}</table></div>`;
 }
 function drillCard(d){ const r = S.sets['drill:'+d.id]; return `<div class="card"><div class="row" style="justify-content:space-between;margin:0"><div><b>${esc(d.name)}</b><div class="muted de">${esc(d.d)}</div></div><a class="btn go" href="#/d/${d.id}">Start</a></div></div>`; }
 
 function viewDrills(){ setNav('drills'); $app.innerHTML = `<h1>Drills ♾️</h1><p class="muted">Endless, randomly generated questions from everything you have learnt. Stop whenever you like with “Finish”.</p>` + DRILLS.map(drillCard).join(''); linkify($app); }
 function viewDrill(id){ const d = DRILLS.find(x=>x.id===id); if(!d) return viewDrills(); runQuiz({title:d.name, gen:d.gen, back:'#/drills', key:'drill:'+d.id}); }
 
+function viewWordsByType(){
+  setNav('words');
+  const all = allVocab(); const L = {}; let k = 0; const col = (t, list, sub) => { const id = 'w'+(k++); L[id] = list; return wordCol(t, list, id, sub); };
+  const vk = w => window.VFORMS ? VFORMS(w.de.replace(/^sich |\s*\(sich\)/g,'')).kind : 'weak';
+  const verbs = all.filter(w=>isVerbWord(w));
+  const other = all.filter(w=>!w.g && !isVerbWord(w));
+  let html = `<h1>All words by type</h1><div class="row"><a class="btn sm" href="#/words">By class (as taught)</a><a class="btn sm go" href="#/words/type">By type (columns)</a></div><p class="muted">Every column keeps the order in which the words came in class. Tap any word for its meaning and grammar.</p><div class="wcols">`;
+  html += col('Nouns · der (masculine)', all.filter(w=>w.g==='m'), 'accusative: den / einen') + col('Nouns · die (feminine)', all.filter(w=>w.g==='f'), 'accusative: die / eine') + col('Nouns · das (neuter)', all.filter(w=>w.g==='n'), 'accusative: das / ein') + col('Plural-only nouns', all.filter(w=>w.g==='pl'), 'always die');
+  html += col('Weak verbs (regular)', verbs.filter(w=>vk(w)==='weak'), 'machen – machte – hat gemacht') + col('Strong, mixed & irregular verbs', verbs.filter(w=>vk(w)!=='weak'), 'fahren – fuhr – ist gefahren') + col('Adjectives, adverbs & other words', other, 'small words, phrases, question words') + `</div>`;
+  $app.innerHTML = html; linkify($app); wireColQuiz(L);
+}
 function viewWords(){
   setNav('words');
   const all = allVocab();
-  $app.innerHTML = `<h1>All words (${all.length})</h1><input class="search" id="sq" placeholder="Search German or English…"><div class="row"><select id="sl" class="btn sm"><option value="">All classes</option>${LESSONS.map(l=>`<option value="${l.id}">${esc(l.id)} · ${esc(l.title)}</option>`).join('')}</select><select id="sg" class="btn sm"><option value="">All types</option><option value="m">der (masc.)</option><option value="f">die (fem.)</option><option value="n">das (neuter)</option><option value="x">verbs, adjectives, phrases</option></select><button class="btn sm go" id="wq">Quiz these</button></div><div class="muted" id="wc"></div><div id="wl"></div>
+  $app.innerHTML = `<h1>All words (${all.length})</h1><div class="row"><a class="btn sm go" href="#/words">By class (as taught)</a><a class="btn sm" href="#/words/type">By type (columns)</a></div><input class="search" id="sq" placeholder="Search German or English…"><div class="row"><select id="sl" class="btn sm"><option value="">All classes</option>${LESSONS.map(l=>`<option value="${l.id}">${esc(l.id)} · ${esc(l.title)}</option>`).join('')}</select><select id="sg" class="btn sm"><option value="">All types</option><option value="m">der (masc.)</option><option value="f">die (fem.)</option><option value="n">das (neuter)</option><option value="x">verbs, adjectives, phrases</option></select><button class="btn sm go" id="wq">Quiz these</button></div><div class="muted" id="wc"></div><div id="wl"></div>
   <p class="muted"><span class="m">der</span> = masculine · <span class="f">die</span> = feminine · <span class="n">das</span> = neuter · <span class="p">die</span> = plural</p>`;
   const draw = ()=>{
     const q = norm(document.getElementById('sq').value), lid = document.getElementById('sl').value, g = document.getElementById('sg').value;
@@ -966,15 +998,26 @@ function viewRun(id, min){
   const gen = t ? topicGen(t) : (()=>{ const gs = TOPICS.map(topicGen); return ()=> pick(gs)(); })();
   runQuiz({title: (t ? t.title : 'Everything mixed') + (min ? ` · ${min<60?min+' min':(min/60)+' h'}` : ''), gen, back: t ? `#/t/${t.id}` : '#/topics', lid: t ? t.id : '', tid: t ? t.id : 'all', minutes: min, key: t ? 'run:'+t.id : 'run:all'});
 }
+function tapWord(w){ const key = String(w.de||w.w||'').replace(/^sich |\s*\(sich\)/g,'').trim(); return `<b class="de" data-l="1"><span class="w" data-w="${esc(key)}">${nounLabel(w)}</span></b>`; }
+/* a category as one column: numbered words in the original order, tap any word */
+function wordCol(title, list, id, sub){
+  const rows = list.map((w,i)=>{ const verbish = isVerbWord(w) || (w.pos==='verb'); const f = verbish && window.VFORMS ? VFORMS(w.de.replace(/^sich |\s*\(sich\)/g,'')) : null;
+    return `<li><span class="wn">${i+1}</span><span class="wb">${spk(fullDe(w))} ${tapWord(w)}${w.pl&&w.pl!=='—'?` <span class="muted">· die ${esc(w.pl)}</span>`:''}${f?` <span class="vfk ${f.kind}">${f.kind}</span>`:''}<span class="we">${esc(w.en)}</span>${f?`<span class="wf de">2️⃣ ${esc(f.prat)} · 3️⃣ ${esc(f.perfekt)}${f.change&&/→/.test(f.change)?` · du ${esc(f.du)}, er ${esc(f.er)}`:''}</span>`:''}</span></li>`; }).join('');
+  return `<div class="wcol" id="${id}"><div class="wch"><b>${esc(title)}</b> <span class="muted">(${list.length})</span>${sub?`<div class="muted" style="font-size:.85em">${esc(sub)}</div>`:''}</div><ol class="wl">${rows}</ol><button class="btn sm" data-colq="${id}">✍️ Quiz this column</button></div>`;
+}
+function wireColQuiz(lists){ document.querySelectorAll('[data-colq]').forEach(b=> b.onclick = ()=>{ const L = lists[b.dataset.colq]; if(!L || L.length<4) return; runQuiz({title:'Words: '+b.closest('.wcol').querySelector('.wch b').textContent, items: vocabQuiz(L), back:location.hash}); }); }
 function viewBank(){
   setNav('bank');
-  let html = `<h1>Word bank 🏦</h1><p class="muted">Anara's lists: the 300 most important nouns, the themed noun list, the weak / strong verb list, prepositions, adjectives and adverbs. Practise them with the drills below.</p><div class="row">${['wb-art','wb-mean','wb-spell','wb-pl','verb-mean','verb-type','small'].map(id=>{ const d = DRILLS.find(x=>x.id===id); return `<a class="btn ${id==='wb-art'?'go':''}" href="#/d/${id}">${esc(d.name)}</a>`; }).join('')}</div>`;
-  const sec = (title, list) => `<details class="card"><summary><b>${esc(title)}</b> <span class="muted">(${list.length})</span></summary>${vocabTable(list, false)}</details>`;
-  WB.list300.forEach(c=>{ html += sec(`${c.icon||''} 300 nouns · ${c.cat}`, c.words); });
-  WB.themes.forEach(c=>{ html += sec(`Nouns by theme · ${c.cat}`, c.words); });
-  html += sec('Weak (regular) verbs', WB.verbList.weak) + sec('Strong (irregular) verbs', WB.verbList.strong) + sec('Prepositions', WB.preps) + sec('Adjectives', WB.adjs) + sec('Adverbs & small words', WB.advs);
-  $app.innerHTML = html; linkify($app);
+  const L = {}; let k = 0; const col = (title, list, sub) => { const id = 'c'+(k++); L[id] = list; return wordCol(title, list, id, sub); };
+  let html = `<h1>Word bank 🏦</h1><p class="muted">Anara's lists in the same order as the files: every category is its own column, every word is numbered — tap any word for its meaning and grammar (nouns: article, plural, accusative · verbs: 1st, 2nd, 3rd form).</p><div class="row">${['wb-art','wb-mean','wb-spell','wb-pl','verb-mean','verb-type','vforms','small'].map(id=>{ const d = DRILLS.find(x=>x.id===id); return d?`<a class="btn sm" href="#/d/${id}">${esc(d.name)}</a>`:''; }).join('')}</div>
+  <nav class="jump"><a href="#bk-nouns" data-jump>📘 Nouns by theme</a><a href="#bk-verbs" data-jump>🔤 Verbs</a><a href="#bk-small" data-jump>🧩 Prepositions · adjectives · adverbs</a><a href="#bk-300" data-jump>⭐ 300 nouns</a></nav>`;
+  html += `<h2 id="bk-nouns">📘 Nouns by theme <span class="muted">(Nouns.pages)</span></h2><div class="wcols">` + WB.themes.map((c,i)=> col(`${i+1}. ${c.cat}`, c.words)).join('') + `</div>`;
+  html += `<h2 id="bk-verbs">🔤 Verbs <span class="muted">(Verbs weak-strong.pages)</span></h2><div class="wcols">` + col('Weak verbs (regular)', WB.verbList.weak.map(v=>Object.assign({pos:'verb'}, v)), '2nd form: -te · 3rd form: ge-…-t') + col('Strong & irregular verbs', WB.verbList.strong.map(v=>Object.assign({pos:'verb'}, v)), 'the vowel changes · 3rd form often -en') + `</div>`;
+  html += `<h2 id="bk-small">🧩 Small words</h2><div class="wcols">` + col('Prepositions', WB.preps) + col('Adjectives', WB.adjs) + col('Adverbs & small words', WB.advs) + `</div>`;
+  html += `<h2 id="bk-300">⭐ The 300 most important nouns</h2><div class="wcols">` + WB.list300.map(c=> col(`${c.icon||''} ${c.cat}`, c.words)).join('') + `</div>`;
+  $app.innerHTML = html; linkify($app); wireColQuiz(L); wireJump();
 }
+function wireJump(){ document.querySelectorAll('[data-jump]').forEach(a=> a.onclick = e=>{ e.preventDefault(); const t = document.querySelector(a.getAttribute('href')); if(t) t.scrollIntoView({behavior:'smooth'}); }); }
 
 
 /* ---------------- texts & dialogues (books) ----------------
@@ -1047,7 +1090,17 @@ function viewText(id){
 }
 
 /* ---------------- verbs: the 3 forms (1st · 2nd · 3rd) ---------------- */
-function verbList(){ return [...ALLV.values()].map(v=> Object.assign({}, v, {f:VFORMS(v.i)})).sort((a,b)=> a.i.localeCompare(b.i, 'de')); }
+function verbList(){ return [...ALLV.values()].map(v=> Object.assign({}, v, {f:VFORMS(v.i)})); }
+/* groups in the order of the material: my weak list, my strong list, class verbs (in class order), verbs from my texts */
+function verbGroups(){
+  const clean = x => (x.de||x.i).replace(/^sich |\s*\(sich\)/g,'').replace(/^weh tun$/,'wehtun');
+  const seen = new Set(); const mk = (title, sub, arr) => { const out = []; arr.forEach(x=>{ const i = clean(x); if(seen.has(i) || !ALLV.has(i)) return; seen.add(i); out.push(Object.assign({}, ALLV.get(i), {f:VFORMS(i)})); }); return {title, sub, list:out}; };
+  const classV = []; LESSONS.forEach(l=>{ VERBS.filter(v=>v.L===l.id).forEach(v=>classV.push(v)); (l.vocab||[]).filter(w=>isVerbWord(w)).forEach(w=>classV.push(w)); }); VERBS.forEach(v=>classV.push(v));
+  return [mk('Weak verbs — my list', 'Verbs weak-strong.pages, same order', WB.verbList.weak||[]),
+          mk('Strong & irregular verbs — my list', 'Verbs weak-strong.pages, same order', WB.verbList.strong||[]),
+          mk('More verbs from my classes', 'in the order of the classes', classV),
+          mk('Verbs from my texts', 'Alltag texts', window.EXTRA_VERBS||[])].filter(g=>g.list.length);
+}
 const firstW = x => String(x).split(' … ')[0];
 const answerSep = x => String(x).replace(' … ',' ');
 function vformItem(){
@@ -1068,13 +1121,14 @@ DRILLS.push({id:'vforms', name:'Verb forms: 1st · 2nd · 3rd', d:'fahren – fu
 function viewVerbs(filter){
   setNav('verbs'); filter = filter || 'all';
   const F = {all:['All verbs', ()=>true], strong:['Strong & irregular', v=>v.f.kind!=='weak'], weak:['Weak (regular)', v=>v.f.kind==='weak'], change:['Vowel change: du / er', v=>/→/.test(v.f.change)], sep:['Separable', v=>!!v.f.pre], sein:['Perfekt with ist', v=>v.f.aux==='sein']};
-  const list = verbList().filter(F[filter][1]);
-  let html = `<h1>Verbs: the 3 forms 🔤</h1><p class="muted">1️⃣ Infinitiv (1st form) · 2️⃣ Präteritum (2nd form, er/sie/es) · 3️⃣ Partizip II with <b>hat</b> or <b>ist</b> (3rd form). Strong verbs also show how du and er/sie/es change. Tap any verb to hear it and see all its grammar.</p>
+  const groups = verbGroups().map(g=> Object.assign({}, g, {list:g.list.filter(F[filter][1])})).filter(g=>g.list.length);
+  const total = groups.reduce((a,g)=>a+g.list.length,0);
+  let html = `<h1>Verbs: the 3 forms 🔤</h1><p class="muted">In the order of my lists. 1️⃣ Infinitiv (1st form) · 2️⃣ Präteritum (2nd form, er/sie/es) · 3️⃣ Partizip II with <b>hat</b> or <b>ist</b> (3rd form). Strong verbs also show how du and er/sie/es change. Tap any verb for its grammar.</p>
   <div class="row">${Object.entries(F).map(([k,[n]])=>`<a class="btn sm ${k===filter?'go':''}" href="#/verbs/${k}">${n}</a>`).join('')}</div>
-  <div class="row"><input id="vsearch" class="ans" style="flex:1;min-width:0" placeholder="Search a verb (German or English)…" autocomplete="off"><a class="btn go" href="#/d/vforms">Drill the 3 forms ♾️</a><a class="btn" href="#/d/vpres">du / er forms ♾️</a></div>
-  <div class="card tw"><table class="vocab" id="vt"><tr><th>№</th><th>1️⃣ Infinitiv</th><th>Meaning</th><th>2️⃣ Präteritum</th><th>3️⃣ Perfekt</th><th>du · er/sie/es</th></tr>${list.map((v,i)=>`<tr data-s="${esc((v.i+' '+v.en).toLowerCase())}"><td class="num">${i+1}</td><td><b class="de">${esc(v.i)}</b> ${spk(v.i)}<div><span class="vfk ${v.f.kind}">${v.f.kind}</span></div></td><td>${esc(v.en)}</td><td class="de">${esc(v.f.prat)}</td><td class="de">${esc(v.f.perfekt)}</td><td class="de">${esc(v.f.du)} · ${esc(v.f.er)}${v.f.change?`<div class="muted">${esc(v.f.change)}</div>`:''}</td></tr>`).join('')}</table></div>`;
+  <div class="row"><input id="vsearch" class="ans" style="flex:1;min-width:0" placeholder="Search a verb (German or English)… (${total} verbs)" autocomplete="off"><a class="btn go" href="#/d/vforms">Drill the 3 forms ♾️</a><a class="btn" href="#/d/vpres">du / er forms ♾️</a></div>`;
+  groups.forEach(g=>{ html += `<h2>${esc(g.title)} <span class="muted">(${g.list.length})</span></h2><p class="muted">${esc(g.sub)}</p><div class="card tw"><table class="vocab vt"><tr><th>№</th><th>1️⃣ Infinitiv</th><th>Meaning</th><th>2️⃣ Präteritum</th><th>3️⃣ Perfekt</th><th>du · er/sie/es</th></tr>${g.list.map((v,i)=>`<tr data-s="${esc((v.i+' '+v.en).toLowerCase())}"><td class="num">${i+1}</td><td>${tapWord({de:v.i})} ${spk(v.i)}<div><span class="vfk ${v.f.kind}">${v.f.kind}</span></div></td><td>${esc(v.en)}</td><td class="de">${esc(v.f.prat)}</td><td class="de">${esc(v.f.perfekt)}</td><td class="de">${esc(v.f.du)} · ${esc(v.f.er)}${v.f.change?`<div class="muted">${esc(v.f.change)}</div>`:''}</td></tr>`).join('')}</table></div>`; });
   $app.innerHTML = html; linkify($app);
-  const inp = document.getElementById('vsearch'); inp.oninput = ()=>{ const q = inp.value.toLowerCase().trim(); document.querySelectorAll('#vt tr[data-s]').forEach(r=> r.style.display = !q || r.dataset.s.includes(q) ? '' : 'none'); };
+  const inp = document.getElementById('vsearch'); inp.oninput = ()=>{ const q = inp.value.toLowerCase().trim(); document.querySelectorAll('.vt tr[data-s]').forEach(r=> r.style.display = !q || r.dataset.s.includes(q) ? '' : 'none'); };
 }
 
 /* ---------------- router ---------------- */
@@ -1085,7 +1139,7 @@ function route(){
     if(!h) viewHome();
     else if(p[0]==='l') viewLesson(p[1], p[2]);
     else if(p[0]==='p'){ const l = lessonById(p[1]); const s = l && l.sets[+p[2]]; if(!s) return viewHome(); runQuiz({title:s.title, items: s.shuffle===false ? s.items.slice() : shuffle(s.items), key:setKey(l,+p[2]), back:`#/l/${l.id}/practice`, lid:l.id}); }
-    else if(p[0]==='words') viewWords();
+    else if(p[0]==='words') (p[1]==='type' ? viewWordsByType() : viewWords());
     else if(p[0]==='flash') viewFlash(p[1]);
     else if(p[0]==='drills') viewDrills();
     else if(p[0]==='d') viewDrill(p[1]);
@@ -1107,5 +1161,5 @@ function route(){
 buildDict(); addBankToDict(); addTextsToDict(); addVerbForms();
 window.addEventListener('hashchange', route);
 route();
-window.__ANARA = {verbList, ALLV, LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems, speak, fullDe, linkify, verb, esc, ART, lessonItems, topicDrills};
+window.__ANARA = {verbGroups, lookupWord, verbList, ALLV, LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems, speak, fullDe, linkify, verb, esc, ART, lessonItems, topicDrills};
 })();
