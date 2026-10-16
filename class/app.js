@@ -807,7 +807,7 @@ function viewHome(){
   const cont = COURSE.find(c=>c.id===S.lastCh) || COURSE[0];
   let html = `<h1>Deutsch mit Anara 🇩🇪</h1><p class="muted">My German A1 course in the order of the book: every chapter with its grammar, words, texts and exercises. Tap any <span class="w" data-w="Wort">underlined</span> German word to see its meaning and grammar.</p>
   <div class="stat"><div><b>${COURSE.length}</b>chapters</div><div><b>${words}</b>words</div><div><b>${items}</b>exercises + endless drills</div><div><b>${S.stats.ans}</b>answered${S.stats.ans?` · ${acc}% right`:''}</div><div><b>${S.stats.days[today()]||0}</b>today</div></div>
-  <div class="row" style="margin-top:12px">${cont?`<a class="btn go" href="#/c/${cont.id}">Continue: ${esc(cont.label)} · ${esc(cont.title)} →</a>`:''}<a class="btn" href="#/contents">📚 Course contents (all topics)</a><a class="btn" href="#/topics">🎯 Practice by topic</a><a class="btn" href="#/texts">📚 Texts & dialogues</a><a class="btn" href="#/mix">🎲 Mixed review</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>
+  <div class="row" style="margin-top:12px">${cont?`<a class="btn go" href="#/c/${cont.id}">Continue: ${esc(cont.label)} · ${esc(cont.title)} →</a>`:''}<a class="btn" href="#/teach">🧑‍🏫 Teach me step by step</a><a class="btn" href="#/contents">📚 Course contents (all topics)</a><a class="btn" href="#/topics">🎯 Practice by topic</a><a class="btn" href="#/texts">📚 Texts & dialogues</a><a class="btn" href="#/mix">🎲 Mixed review</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>
   <h2 style="margin-top:18px">Course</h2><div class="chlist">`;
   COURSE.forEach((c,i)=>{ const p = chProgress(c); const ls = chPages(c);
     html += `<a class="chap" href="#/c/${c.id}"><div class="chn">${c.icon||''}</div><div class="chb"><div class="d">${esc(c.label)}</div><div class="t">${esc(c.title)}</div><div class="muted" style="font-size:.88em">${esc(c.sub)}</div>
@@ -830,6 +830,7 @@ function viewChapter(id, tab){
   const L = {};
   if(tab==='learn'){
     if(c.link) html += `<div class="row"><a class="btn go" href="${c.link[0]}">${esc(c.link[1])}</a></div>`;
+    const gs = guidesOf(c); if(gs.length) html += `<div class="card teachbox"><b>🧑‍🏫 Learn this chapter step by step:</b><div class="row">${gs.map(g=>`<a class="btn go sm" href="#/teach/${g.id}/0">${g.icon||''} ${esc(g.title)}</a>`).join('')}</div></div>`;
     if(!ls.length) html += `<p class="muted">This chapter has no grammar pages — see the texts, words and exercises.</p>`;
     ls.forEach((l,k)=>{ html += `<h2 class="chh2">${k+1}. ${esc(pageTitle(l))}</h2><p class="muted">${esc(pageSum(l))}</p>`; (l.learn||[]).forEach(s=>{ html += `<div class="card"><h3>${esc(s.h)}</h3>${s.html}</div>`; }); html += `<div class="row"><a class="btn" href="#/l/${l.id}/practice">✍️ Exercises for „${esc(pageTitle(l))}“</a></div>`; });
   } else if(tab==='words'){
@@ -1174,11 +1175,55 @@ function viewVerbs(filter){
 }
 
 
+
+/* ---------------- 🧑‍🏫 Teach me: step-by-step lessons (data/guides.js) ---------------- */
+const GUIDES = (window.GUIDES||[]).map(g=> Object.assign({}, g, {steps: g.steps.map(st=> Object.assign({}, st, {q:(st.q||[]).map(P)}))}));
+const KLAB = {def:'Definition', use:'When to use it', rules:'Rules', how:'Step by step', ex:'Examples', mistakes:'Common mistakes', sum:'Summary'};
+function guidesOf(c){ return GUIDES.filter(g=>g.ch===c.id); }
+function guidesInOrder(){ const out=[]; COURSE.forEach(c=> guidesOf(c).forEach(g=>out.push(g))); GUIDES.forEach(g=> out.includes(g) || out.push(g)); return out; }
+function guideProgress(g){ S.teach = S.teach || {}; const d = S.teach[g.id]||0; return Math.round(Math.min(d, g.steps.length)/g.steps.length*100); }
+function viewTeachList(){
+  setNav('teach');
+  let html = `<h1>🧑‍🏫 Teach me</h1><p class="muted">Step-by-step lessons for every grammar topic, in course order. Each one goes: what it is → when to use it → the rules → step by step → examples → common mistakes → summary, with check questions after the steps.</p>`;
+  let n = 0;
+  COURSE.forEach(c=>{ const gs = guidesOf(c); if(!gs.length) return; html += `<h2 class="chh2">${c.icon||''} ${esc(c.label)} · ${esc(c.title)}</h2>`;
+    gs.forEach(g=>{ n++; const p = guideProgress(g); html += `<div class="card ctop"><div class="ctop-h"><span class="ctn">${n}</span><a class="ctt" href="#/teach/${g.id}/0">${g.icon||''} ${esc(g.title)}</a><span class="badge">${g.steps.length} steps</span>${p?`<span class="badge">${p>=100?'✅ done':'▶ '+p+'%'}</span>`:''}</div><p class="muted" style="margin:6px 0 0 2.6em">${esc(g.goal||'')}</p><ol class="cheads">${g.steps.map((st,k)=>`<li><a href="#/teach/${g.id}/${k}">${esc(st.h.replace(/^\d+\.\s*/,''))}</a></li>`).join('')}</ol></div>`; }); });
+  $app.innerHTML = html; linkify($app);
+}
+function renderChecks(box, items){
+  items.forEach((it, i)=>{
+    const wrap = document.createElement('div'); wrap.className = 'chk'; const qb = document.createElement('div'); const fb = document.createElement('div'); fb.className = 'chkfb';
+    wrap.appendChild(qb); wrap.appendChild(fb); box.appendChild(wrap);
+    try{ RENDER[it.t](qb, it, (ok, right, given)=>{ fb.innerHTML = ok ? `✅ <b>Richtig!</b> ${it.x?`<span class="muted">${it.x}</span>`:''}` : `❌ Correct answer: <b class="de">${esc(right)}</b> ${it.x?`<div class="muted">${it.x}</div>`:''}`; fb.className = 'chkfb ' + (ok?'ok':'no'); linkify(fb); if(ok && it.t!=='mcq') speak(right); recordAnswer(it, ok, 'teach'); }); }catch(e){ qb.textContent = ''; }
+  });
+  linkify(box);
+}
+function viewTeach(id, k){
+  const g = GUIDES.find(x=>x.id===id); if(!g) return viewTeachList();
+  setNav('teach'); k = Math.max(0, Math.min(g.steps.length-1, +k||0));
+  S.teach = S.teach || {}; S.teach[g.id] = Math.max(S.teach[g.id]||0, k+1); save();
+  const c = COURSE.find(x=>x.id===g.ch); const st = g.steps[k]; const last = k === g.steps.length-1;
+  const order = guidesInOrder(); const gi = order.indexOf(g); const nextG = order[gi+1];
+  let html = `<div class="row"><a class="btn sm" href="#/teach">← All lessons</a>${c?`<a class="btn sm" href="#/c/${c.id}">${c.icon||''} ${esc(c.label)} · ${esc(c.title)}</a>`:''}</div>
+  <h1>${g.icon||''} ${esc(g.title)}</h1><p class="muted">🎯 Goal: ${esc(g.goal||'')}</p>
+  <div class="steps">${g.steps.map((s2,j)=>`<a href="#/teach/${g.id}/${j}" class="${j===k?'on':''} ${j<(S.teach[g.id]||0)?'seen':''}" title="${esc(s2.h)}">${j+1}</a>`).join('')}</div>
+  <div class="prog" style="margin:6px 0 12px"><i style="width:${Math.round((k+1)/g.steps.length*100)}%"></i></div>
+  <div class="card tstep"><div class="muted">Step ${k+1} of ${g.steps.length} · ${esc(KLAB[st.k]||'')}</div><h2 style="margin-top:4px">${esc(st.h.replace(/^\d+\.\s*/,''))}</h2>${st.html}</div>`;
+  if(st.q.length) html += `<div class="card"><h3>✅ Check yourself (${st.q.length})</h3><div id="chks"></div></div>`;
+  if(last){ const L = g.links||{}; const all = []; g.steps.forEach(s2=> s2.q.forEach(q=>all.push(q)));
+    html += `<div class="card done"><h3>🎉 You finished „${esc(g.title)}“</h3><p>Now practise it:</p><div class="row">${all.length?`<button class="btn go" id="tall">📝 Test: all ${all.length} questions of this lesson</button>`:''}${(L.pages||[]).map(pid=>{ const l = lessonById(pid); return l?`<a class="btn" href="#/l/${l.id}/practice">✍️ ${esc(pageTitle(l))}</a>`:''; }).join('')}${L.topic&&topicById(L.topic)?`<a class="btn" href="#/t/${L.topic}">🎯 ${esc(topicById(L.topic).title)}</a><a class="btn" href="#/run/${L.topic}/30">⏱ 30 min practice</a>`:''}${(L.drills||[]).map(d=>{ const D = DRILLS.find(x=>x.id===d); return D?`<a class="btn" href="#/d/${d}">♾️ ${esc(D.name)}</a>`:''; }).join('')}</div></div>`; }
+  html += `<div class="row tnav">${k>0?`<a class="btn" href="#/teach/${g.id}/${k-1}">‹ Back</a>`:''}${!last?`<a class="btn go" href="#/teach/${g.id}/${k+1}">Next: ${esc(g.steps[k+1].h.replace(/^\d+\.\s*/,''))} ›</a>`:(nextG?`<a class="btn go" href="#/teach/${nextG.id}/0">Next lesson: ${esc(nextG.title)} ›</a>`:'')}</div>`;
+  $app.innerHTML = html; linkify($app);
+  const box = document.getElementById('chks'); if(box) renderChecks(box, st.q);
+  const ta = document.getElementById('tall'); if(ta){ const all = []; g.steps.forEach(s2=> s2.q.forEach(q=>all.push(q))); ta.onclick = ()=> runQuiz({title:g.title+' — test', items: shuffle(all), back:`#/teach/${g.id}/${k}`}); }
+}
+
 /* ---------------- 📚 Contents: every topic of the course, numbered, in sequence ---------------- */
 function contentsItems(){
   const out = [], seenL = new Set(), seenT = new Set(), seenX = new Set();
   const chs = COURSE.slice();
   chs.forEach(c=>{
+    guidesOf(c).forEach(g=> out.push({c, kind:'guide', g}));
     chPages(c).forEach(l=>{ seenL.add(l.id); out.push({c, kind:'page', l}); });
     chTexts(c).forEach(x=>{ seenX.add(x.id); out.push({c, kind:'text', x}); });
     chTopics(c).forEach(t=>{ seenT.add(t.id); out.push({c, kind:'topic', t}); });
@@ -1196,14 +1241,16 @@ function viewContents(){
   const head = (h, href, ico) => `<li data-h="${esc(norm(h))}"><a href="${href}">${ico?ico+' ':''}${esc(h)}</a></li>`;
   const clean = h => String(h).replace(/^\d+\.\s*/,'');
   let html = `<div class="card"><h1 style="margin-top:0">📚 Course contents — all ${items.length} topics</h1><p class="muted">Everything in the course, in order, with every part of each topic. Tap any line to go straight to that part.</p>
-  <div class="csearch"><input id="csq" type="search" autocomplete="off" placeholder="🔍 What do you want to study? e.g. accusative, Familie, fahren, numbers, café, possessive…"><span id="csn" class="muted"></span></div>
+  <div class="csearch"><input id="csq" type="search" autocomplete="off" placeholder="🔍 What do you want to study? e.g. accusative, Familie, fahren, numbers, café, possessive…"><span id="csn" class="muted"></span></div><div id="cteach"></div>
   <div class="row">${COURSE.map(c=>`<a class="badge" href="#cc-${c.id}" data-jump>${c.icon||''} ${esc(c.label)}</a>`).join('')}</div></div>`;
   let cur = null, n = 0;
   items.forEach(it=>{
     n++;
     if(it.c !== cur){ cur = it.c; html += `<h2 class="chh2" id="cc-${cur.id}">${cur.icon||''} ${esc(cur.label)} · ${esc(cur.title)}</h2>${cur.sub?`<p class="muted">${esc(cur.sub)}</p>`:''}`; }
     let title, kind, open, heads = [], prog = 0, words = [];
-    if(it.kind==='page'){ const l = it.l; title = pageTitle(l); kind = '📖 Grammar'; open = `#/l/${l.id}/learn`; prog = lessonProgress(l); words = l.vocab||[];
+    if(it.kind==='guide'){ const g = it.g; title = `${g.icon||''} Teach me: ${g.title}`; kind = '🧑‍🏫 Step-by-step lesson'; open = `#/teach/${g.id}/0`; prog = guideProgress(g);
+      g.steps.forEach((st,k)=> heads.push(head(`${KLAB[st.k]||''}: ${clean(st.h)}${st.q.length?` (${st.q.length} checks)`:''}`, `#/teach/${g.id}/${k}`, '🧑‍🏫')));
+    } else if(it.kind==='page'){ const l = it.l; title = pageTitle(l); kind = '📖 Grammar'; open = `#/l/${l.id}/learn`; prog = lessonProgress(l); words = l.vocab||[];
       (l.learn||[]).forEach((s,k)=> heads.push(head(clean(s.h), `#/l/${l.id}/learn/${k}`, '📖')));
       if(words.length) heads.push(head(`Words (${words.length})`, `#/l/${l.id}/words`, '🔤'));
       (l.sets||[]).forEach((s,k)=> heads.push(head(`${s.title} (${s.items.length} questions)`, `#/p/${l.id}/${k}`, '✍️')));
@@ -1236,9 +1283,11 @@ function viewContents(){
       const words = (card.dataset.w||'').split(' | ').filter(Boolean).filter(w=> has(norm(w))).slice(0,8);
       wm.innerHTML = words.length ? `<div class="muted" style="font-size:.88em;margin:4px 0 0 2.6em">🔤 ${words.map(w=>`<b>${esc(w.split(' ').slice(0, /^(der|die|das) /.test(w)?2:1).join(' '))}</b>`).join(' · ')} — <a href="${card.dataset.open.replace(/\/learn$/,'')}${card.dataset.open.startsWith('#/l/')?'/words':(card.dataset.open.startsWith('#/x/')?'/words':'/words')}">open the words</a></div>` : '';
       const ok = titleHit || headHit || words.length; card.hidden = !ok;
-      if(ok){ shown++; const score = (titleHit?100:0) + headHit*10 + words.length; if(!firstOpen || score > firstOpen._s){ firstOpen = card; card._s = score; } }
+      if(ok){ shown++; const score = (titleHit?100:0) + headHit*10 + words.length + (card.dataset.open.startsWith('#/teach/')?60:0); if(!firstOpen || score > firstOpen._s){ firstOpen = card; card._s = score; } }
     });
     document.querySelectorAll('.chh2[id^="cc-"]').forEach(h=>{ let el = h.nextElementSibling, any = false; while(el && !el.classList.contains('chh2')){ if(el.classList.contains('ctop') && !el.hidden) any = true; el = el.nextElementSibling; } h.hidden = !any; const sub = h.nextElementSibling; if(sub && sub.tagName==='P') sub.hidden = !any; });
+    const tb = document.getElementById('cteach'); const gm = [...document.querySelectorAll('.ctop')].filter(c=> !c.hidden && c.dataset.open.startsWith('#/teach/') && terms.length);
+    tb.innerHTML = gm.length ? `<div class="card teachbox"><b>🧑‍🏫 Learn it step by step:</b> ${gm.map(c=>`<a class="btn go sm" href="${c.dataset.open}">${c.querySelector('.ctt').textContent.replace('Teach me: ','')}</a>`).join(' ')}</div>` : '';
     cnt.textContent = terms.length ? (shown ? `${shown} topic${shown>1?'s':''} found — tap a line to study it` : 'Nothing found — try another word (German or English)') : '';
     inp._first = firstOpen;
   };
@@ -1259,6 +1308,7 @@ function route(){
     else if(p[0]==='words') viewWords();
     else if(p[0]==='c') viewChapter(p[1], p[2]);
     else if(p[0]==='contents') viewContents();
+    else if(p[0]==='teach') (p[1] ? viewTeach(p[1], p[2]) : viewTeachList());
     else if(p[0]==='flash') viewFlash(p[1]);
     else if(p[0]==='drills') viewDrills();
     else if(p[0]==='d') viewDrill(p[1]);
@@ -1282,5 +1332,5 @@ function route(){
 buildDict(); addBankToDict(); addTextsToDict(); addVerbForms();
 window.addEventListener('hashchange', route);
 route();
-window.__ANARA = {contentsItems, COURSE, chWords, chapterOfPage, chapterOfText, chapterOfTopic, pageTitle, courseWords, wordColumns, verbGroups, lookupWord, verbList, ALLV, LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems, speak, fullDe, linkify, verb, esc, ART, lessonItems, topicDrills};
+window.__ANARA = {GUIDES, contentsItems, COURSE, chWords, chapterOfPage, chapterOfText, chapterOfTopic, pageTitle, courseWords, wordColumns, verbGroups, lookupWord, verbList, ALLV, LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems, speak, fullDe, linkify, verb, esc, ART, lessonItems, topicDrills};
 })();

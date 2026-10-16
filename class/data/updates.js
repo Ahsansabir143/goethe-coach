@@ -21,3 +21,6 @@ window.UPDATES = window.UPDATES.concat([
 window.UPDATES = window.UPDATES.concat([
  {date:'2026-10-17', icon:'📚', text:'Contents tab: every topic of the course numbered in sequence — open any topic to see its rules, words and exercises and choose what to study', href:'#/contents'}
 ]);
+window.UPDATES = window.UPDATES.concat([
+ {date:'2026-10-17', icon:'🧑‍🏫', text:'Teach me: 19 step-by-step lessons (definition → use → rules → step by step → examples → mistakes → summary) with check questions', href:'#/teach'}
+]);

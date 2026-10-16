@@ -218,13 +218,16 @@ function navAnswer(q){
   if(t){ LAST.topic = t; return `Let's practise „${t.title}“:\n${topicButtons(t)}`; }
   return `What would you like to practise?\n` + [go('🎯 All topics', '#/topics'), go('📚 Book texts', '#/texts'), go('🎲 Mixed review', '#/mix'), go('♾️ Drills', '#/drills'), go('🃏 Flashcards', '#/flash')].join(' ');
 }
+function guideFor(q){ const ql = lo(q); const G = A.GUIDES || []; const kw = words(ql).filter(w=>w.length>3 && !['teach','explain','what','learn','step','about','please','grammar','with','that','this'].includes(w));
+  let best = null, bs = 0; G.forEach(g=>{ const t = lo(g.id+' '+g.title+' '+(g.goal||'')); const sc = kw.filter(w=> t.includes(w) || t.includes(w.slice(0, Math.max(5, w.length-2)))).length; if(sc > bs){ bs = sc; best = g; } }); return best; }
 function grammarAnswer(q){
   const ql = lo(q);
   const g = GRAM.find(([id, rx]) => rx.test(ql));
   const kws = words(ql).filter(w => w.length > 3 && !['what','what\'s','does','explain','about','tell','how','with','grammar','rule','rules','when','which','that','this','please','mean','means','use','used','the'].includes(w));
   const hits = SECTIONS.map(s => { const h = lo(s.h), tx = lo(s.text); let sc = 0; kws.forEach(w => { if(h.includes(w)) sc += 3; else if(tx.includes(w)) sc += 1; }); if(g && (s.tid === g[0])) sc += 2; return [sc, s]; }).filter(x => x[0] >= 2).sort((a,b) => b[0]-a[0]).slice(0, 3).map(x => x[1]);
-  if(!g && !hits.length) return null;
-  let out = '';
+  const gd = guideFor(q);
+  if(!g && !hits.length && !gd) return null;
+  let out = gd ? `🧑‍🏫 Learn it step by step: ${go(gd.icon+' '+gd.title+' ('+gd.steps.length+' steps)', '#/teach/'+gd.id+'/0')}\n\n` : '';
   if(g){ const t = TOPICS.find(x => x.id === g[0]); LAST.topic = t; out += `📏 ${t ? t.title : g[0]}\n${g[2]}\n🇩🇪 ${g[3].split(' · ').map(x => `**${x}**`).join(' · ')}`;
     const ex = CORPUS.filter(c => c.en && t && c.href.includes(t.id)).slice(0,2); if(ex.length) out += '\n\n' + exLines(ex); }
   if(hits.length) out += (out ? '\n\n' : '') + 'Where it is in the course:\n' + hits.map(s => go(`📖 ${s.h.replace(/^\d+\.\s*/,'').slice(0,40)} (${s.where.slice(0,30)})`, s.href)).join(' ');
@@ -261,6 +264,7 @@ function answer(q){
   // memory tricks (DOGFU …) → the worked examples from data/tipx.js
   if(/dogfu|memory trick|eselsbrücke/i.test(ql)){ const hit = (window.TIPX||[]).find(([k]) => /dogfu/i.test(ql) ? k === 'DOGFU' : false) || (window.TIPX||[])[0];
     return `🧠 **DOGFU** = durch, ohne, gegen, für, um — these five ALWAYS take the accusative.\n\n` + hit[1].map(r => typeof r === 'string' ? `\n${r.replace(/^#/,'📌 ')}` : `• **${strip(r[0])}**  🇬🇧 ${r[1]}${r[2] ? `  ✔ ${r[2]}` : ''}`).join('\n') + '\n\n' + go('📖 Open L15', '#/l/L15/learn') + ' ' + go('🎯 Practise durch/für/gegen/ohne/um', '#/d/akkprep'); }
+  if(/^(teach me|teach|lesson on|i want to learn|learn)\b/.test(ql)){ const gd = guideFor(raw); if(gd) return `🧑‍🏫 Let's learn **${gd.title}** step by step:\n` + gd.steps.map((st,k)=> go(`${k+1}. ${st.h.replace(/^\d+\.\s*/,'')}`, '#/teach/'+gd.id+'/'+k)).join(' '); return `Here are all step-by-step lessons:\n${go('🧑‍🏫 Teach me', '#/teach')}`; }
   // check a sentence
   const chk = /^(check|correct|korrigier\w*|is this (right|correct)|ist das (richtig|korrekt))\s*(my )?(sentence|text|satz)?\s*[:\-]?\s*/i;
   if(chk.test(raw)){ const t = raw.replace(chk, '').trim(); if(!t) return 'Write your German sentence after „check:“ — for example: check: ich habe ein Hund'; return checkAnswer(t); }

@@ -86,6 +86,7 @@ practice topics and texts; `PAGE` gives every page its course title and summary.
 **When new material arrives:** create the page / text / topic file as before, then put its id into the right
 chapter in `data/course.js` (in book order), or add the next chapter (Lektion 5 · Essen und Trinken …).
 Before every push run `python3 tools/bump_class_version.py` (cache-busting ?v= on all scripts, so browsers never run an old app.js).
+New grammar always also gets a step-by-step lesson in data/guides.js (7-step teaching structure, check questions, ch = chapter).
 Never show class numbers or dates to the user. The Contents tab (#/contents) numbers every page, text and practice topic automatically in chapter order, so anything added to a chapter appears there in sequence. Words are always shown grouped by meaning (the themes of
 Nouns.pages — family, food, city …), with nouns, weak verbs, strong verbs, adjectives and small words in
 separate numbered columns.
