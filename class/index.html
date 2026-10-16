@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deutsch mit Anara</title>
+<meta name="description" content="Practice app for my German A1 classes with Anara Bekbolotova: grammar, word meanings and exercises for every lesson.">
+<meta name="theme-color" content="#1f5fd1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='21' fill='%23111'/><rect y='21' width='64' height='22' fill='%23d00'/><rect y='43' width='64' height='21' fill='%23fc0'/></svg>">
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1c2230;--mut:#5d6679;--line:#dfe3ec;--acc:#1f5fd1;--acc2:#e8f0ff;--ok:#1d8a4a;--okbg:#e6f6ec;--no:#c62828;--nobg:#fdecec;--warn:#fff4d6;--der:#1d5fd1;--die:#c62828;--das:#1d8a4a;--pl:#8a4bd1;--hl:#fff3b0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151c;--card:#1b2029;--ink:#e8ebf2;--mut:#9aa3b5;--line:#2c3340;--acc:#6ea0ff;--acc2:#1f2a40;--ok:#4cc27d;--okbg:#16301f;--no:#ff7070;--nobg:#3a1c1c;--warn:#3a321a;--der:#7aa7ff;--die:#ff7b7b;--das:#5fd08e;--pl:#c39bff;--hl:#4a4318}}
+:root[data-theme="dark"]{--bg:#12151c;--card:#1b2029;--ink:#e8ebf2;--mut:#9aa3b5;--line:#2c3340;--acc:#6ea0ff;--acc2:#1f2a40;--ok:#4cc27d;--okbg:#16301f;--no:#ff7070;--nobg:#3a1c1c;--warn:#3a321a;--der:#7aa7ff;--die:#ff7b7b;--das:#5fd08e;--pl:#c39bff;--hl:#4a4318}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:6px;max-width:980px;margin:auto;padding:8px 16px;flex-wrap:wrap}
+.brand{font-weight:750;white-space:nowrap;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:8px}
+.flag{display:inline-block;width:22px;height:15px;border-radius:3px;background:linear-gradient(#111 0 33%,#d00 33% 66%,#fc0 66%)}
+nav{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto}
+nav a{color:var(--ink);text-decoration:none;padding:6px 9px;border-radius:8px;font-size:14px}
+nav a:hover,nav a.on{background:var(--acc2)}
+main{max-width:980px;margin:auto;padding:14px 16px 100px}
+h1{font-size:1.5em;margin:.2em 0 .1em}h2{margin:.3em 0;font-size:1.3em}h3{margin:.4em 0 .4em;font-size:1.1em}h4{margin:.8em 0 .3em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+.muted{color:var(--mut);font-size:.92em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.lesson{display:block;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;transition:border-color .15s}
+.lesson:hover{border-color:var(--acc)}
+.lesson .d{font-size:.8em;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.lesson .t{font-weight:700;margin:2px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:.78em;background:var(--acc2);border-radius:20px;padding:2px 8px}
+.prog{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:10px}.prog i{display:block;height:100%;background:var(--ok)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 14px;font:inherit;cursor:pointer;text-decoration:none;min-height:42px}
+.btn:hover{border-color:var(--acc)}.btn:disabled{opacity:.45;cursor:default}
+.btn.go{background:var(--acc);color:#fff;border-color:var(--acc)}
+.btn.sm{padding:4px 10px;font-size:.9em;min-height:34px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:10px 0 4px;overflow-x:auto}
+.tabs a{padding:8px 12px;text-decoration:none;color:var(--mut);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs a.on{color:var(--acc);border-color:var(--acc);font-weight:600}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:.95em}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--acc2);font-weight:600}
+.tw{overflow-x:auto}
+.ex{margin:4px 0;padding:6px 10px;border-left:3px solid var(--acc);background:var(--acc2);border-radius:0 8px 8px 0}
+.ex .en{display:block;color:var(--mut);font-size:.88em}
+.tip{background:var(--warn);border-radius:10px;padding:10px 12px;margin:8px 0}
+.m{color:var(--der);font-weight:600}.f{color:var(--die);font-weight:600}.n{color:var(--das);font-weight:600}.p{color:var(--pl);font-weight:600}
+.hl{background:var(--hl);border-radius:3px;padding:0 2px}
+.end{color:var(--no);font-weight:700}
+.spk{border:0;background:none;cursor:pointer;font-size:1em;padding:2px 5px;border-radius:6px;color:var(--ink)}.spk:hover{background:var(--acc2)}
+.w{cursor:pointer;border-bottom:1px dotted var(--mut)}.w:hover{background:var(--acc2)}
+.vocab{width:100%}
+.vocab td:first-child{white-space:nowrap}
+.q{font-size:1.2em;margin:8px 0 14px;line-height:1.6}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;justify-content:flex-start;width:100%}
+.opt.right{background:var(--okbg);border-color:var(--ok)}.opt.wrong{background:var(--nobg);border-color:var(--no)}
+input.ans{font:inherit;font-size:1.05em;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:110px;max-width:100%}
+input.ans.wide{width:100%}
+input.ans.right{border-color:var(--ok);background:var(--okbg)}input.ans.wrong{border-color:var(--no);background:var(--nobg)}
+.keys{display:flex;gap:4px;margin:8px 0;flex-wrap:wrap}.keys button{min-width:40px;min-height:38px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.fb{margin-top:12px;padding:10px 12px;border-radius:10px}
+.fb.ok{background:var(--okbg)}.fb.no{background:var(--nobg)}
+.tok{display:inline-block;padding:6px 10px;margin:3px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer;user-select:none}
+.tok.used{opacity:.25;pointer-events:none}
+.built{min-height:52px;border:2px dashed var(--line);border-radius:10px;padding:6px;margin:8px 0}
+.mt{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mt .btn{width:100%;min-height:46px}
+.mt .btn.picked{outline:2px solid var(--acc)}.mt .btn.done{background:var(--okbg);border-color:var(--ok);opacity:.7;pointer-events:none}.mt .btn.bad{background:var(--nobg)}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--mut);font-size:.9em}
+.flash{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;font-size:1.5em}
+.flash .sub{font-size:.6em;color:var(--mut);margin-top:10px}
+#pop{position:fixed;z-index:50;max-width:300px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.18);display:none}
+#pop b{font-size:1.1em}
+.stat{display:flex;gap:10px;flex-wrap:wrap}.stat div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:120px}.stat b{display:block;font-size:1.4em}
+.search{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+.big{font-size:2em;font-weight:700;margin:10px 0}
+details summary{cursor:pointer;font-weight:600}
+.hide{display:none}
+@media (max-width:560px){nav a{padding:5px 7px;font-size:13px}.q{font-size:1.1em}.mt{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <a class="brand" href="#/"><span class="flag"></span>Deutsch mit Anara</a>
+  <nav id="nav">
+    <a href="#/" data-r="home">Lessons</a>
+    <a href="#/words" data-r="words">Words</a>
+    <a href="#/flash" data-r="flash">Flashcards</a>
+    <a href="#/drills" data-r="drills">Drills</a>
+    <a href="#/grammar" data-r="grammar">Grammar</a>
+    <a href="#/mistakes" data-r="mistakes">Mistakes</a>
+  </nav>
+</div></header>
+<main id="app"><p class="muted">Loading…</p></main>
+<div id="pop"></div>
+
+<!-- Data: shared verb list, then one file per class. To add a new class: create lessons/LNN.js and add a script line below. -->
+<script src="data/helpers.js"></script>
+<script src="data/verbs.js"></script>
+<script src="lessons/L01.js"></script>
+<script src="lessons/L02.js"></script>
+<script src="lessons/L03.js"></script>
+<script src="lessons/L04.js"></script>
+<script src="lessons/L05.js"></script>
+<script src="lessons/L06.js"></script>
+<script src="lessons/L07.js"></script>
+<script src="lessons/L08.js"></script>
+<script src="lessons/L09.js"></script>
+<script src="lessons/L10.js"></script>
+<script src="lessons/L11.js"></script>
+<script src="lessons/L12.js"></script>
+<script src="lessons/L13.js"></script>
+<script src="lessons/L14.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
