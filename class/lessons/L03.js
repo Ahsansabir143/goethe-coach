@@ -30,8 +30,8 @@ learn:[
  EX('ich fahre – du <b>fährst</b> – er <b>fährt</b>','to drive: a → ä')+
  EX('ich esse – du <b>isst</b> – sie <b>isst</b>','to eat: e → i')+
  EX('ich lese – du <b>liest</b> – er <b>liest</b>','to read: e → ie')+
- TIP('Anara: <i>„Not in every verb — only in these verbs. For A1 it is enough to know these verbs.“</i> The full list of stem-changing verbs is in the next class (L04).')+
- `<p>Common weak verbs from class to learn first:</p>`+
+ TIP('Anara: <i>„Not in every verb — only in these verbs. For A1 it is enough to know these verbs.“</i> The full list of stem-changing verbs is on the next page.')+
+ `<p>Common weak verbs to learn first:</p>`+
  TBL(['Verb','Meaning','Verb','Meaning'],[['machen','~to do / make','kaufen','~to buy'],['lernen','~to learn','spielen','~to play'],['wohnen','~to live','arbeiten','~to work'],['fragen','~to ask','antworten','~to answer'],['hören','~to hear','sagen','~to say'],['kochen','~to cook','brauchen','~to need'],['suchen','~to look for','zeigen','~to show'],['reisen','~to travel','tanzen','~to dance']])}
 ],
 vocab:[

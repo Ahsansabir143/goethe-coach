@@ -75,3 +75,16 @@ The app adds extra practice automatically from every text: gap-fills with the ha
   plurals, accusative forms, conjugations, numbers and grammar; finds example sentences; checks sentences
   (verb endings, capitals, accusative); helps with the exercise on screen; and links to lessons, topics, drills and timed sessions.
   New classes are picked up automatically.
+
+## Course structure (no classes, no dates)
+
+The app is organised like the book, not by class days. `data/course.js` lists the chapters in book order
+(Lektion 1 · Hallo und guten Tag!, Lektion 2 · Beruf und Familie, Lektion 3 · In der Stadt, Lektion 4 ·
+Von morgens bis abends, Verbs, Klimenko, Word lists). Each chapter lists its grammar pages (`lessons/LNN.js`),
+practice topics and texts; `PAGE` gives every page its course title and summary.
+
+**When new material arrives:** create the page / text / topic file as before, then put its id into the right
+chapter in `data/course.js` (in book order), or add the next chapter (Lektion 5 · Essen und Trinken …).
+Never show class numbers or dates to the user. Words are always shown grouped by meaning (the themes of
+Nouns.pages — family, food, city …), with nouns, weak verbs, strong verbs, adjectives and small words in
+separate numbered columns.

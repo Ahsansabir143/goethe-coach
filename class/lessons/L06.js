@@ -22,7 +22,7 @@ learn:[
  EX('Das Buch ist nicht teuer.','The book is not expensive.')+
  EX('Er wohnt nicht in Berlin.','He doesn\'t live in Berlin.')+
  EX('Ich stehe heute nicht früh auf.','I am not getting up early today.')+
- TIP('<b>nicht</b> = not (verbs, adjectives, places) · <b>kein</b> = no / not a (nouns with ein or no article) — see L11.')}
+ TIP('<b>nicht</b> = not (verbs, adjectives, places) · <b>kein</b> = no / not a (nouns with ein or no article) — see Lektion 2.')}
 ],
 vocab:[
  {de:'trennbar', en:'separable'},{de:'nicht trennbar', en:'inseparable'},{de:'Rechnung', g:'f', pl:'Rechnungen', en:'bill / invoice'},{de:'Zug', g:'m', pl:'Züge', en:'train'},

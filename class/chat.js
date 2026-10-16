@@ -32,14 +32,14 @@ const CORPUS = [];
     const re2 = /<td class="de">((?:(?!<\/?td)[\s\S])*?)<span class="en tdl"[^>]*>([\s\S]*?)<\/span><\/td>/g;
     while((m = re2.exec(html))) add(m[1], m[2], where, href);
   };
-  LESSONS.forEach(l => (l.learn||[]).forEach(s => fromHtml(s.html, `${l.id} · ${l.title}`, `#/l/${l.id}/learn`)));
+  LESSONS.forEach(l => (l.learn||[]).forEach(s => fromHtml(s.html, (A.pageTitle ? A.pageTitle(l) : l.title).slice(0,40), `#/l/${l.id}/learn`)));
   TOPICS.forEach(t => (t.learn||[]).forEach(s => fromHtml(s.html, t.title, `#/t/${t.id}/learn`)));
   TEXTS.forEach(t => (t.lines||[]).forEach(x => add(x.de, x.en, `${t.book} · ${t.title}`, `#/x/${t.id}`)));
   LESSONS.forEach(l => (l.vocab||[]).forEach(w => { if(w.ex) add(w.ex, (window.TR||{})[w.ex]||'', `${l.id} · words`, `#/l/${l.id}/words`); }));
 }
 // grammar sections (class pages + topic rules)
 const SECTIONS = [];
-LESSONS.forEach(l => (l.learn||[]).forEach(s => SECTIONS.push({h:s.h, text:strip(s.html), html:s.html, where:`Class ${l.id} (${l.title})`, href:`#/l/${l.id}/learn`, lid:l.id})));
+LESSONS.forEach(l => (l.learn||[]).forEach(s => SECTIONS.push({h:s.h, text:strip(s.html), html:s.html, where:(A.pageTitle ? A.pageTitle(l) : l.title), href:`#/l/${l.id}/learn`, lid:l.id})));
 TOPICS.forEach(t => (t.learn||[]).forEach(s => SECTIONS.push({h:s.h, text:strip(s.html), html:s.html, where:`Topic: ${t.title}`, href:`#/t/${t.id}/learn`, tid:t.id})));
 // grammar words → topic
 const GRAM = [
@@ -94,8 +94,8 @@ function examplesWith(w, n = 3){
 }
 function exLines(list){ return list.map(c => `• **${c.de}**${c.en ? `\n   🇬🇧 ${c.en}` : ''}  [[go:${c.where.split(' · ')[0]}|${c.href}]]`).join('\n'); }
 function whereFrom(e){
-  if(e.lid){ const l = LESSONS.find(x=>x.id===e.lid); return l ? `From class ${l.id} (${l.date.slice(8)}.${l.date.slice(5,7)}.) [[go:📖 Open ${l.id}|#/l/${l.id}/words]]` : ''; }
-  if(e.tx){ const t = TEXTS.find(x=>x.id===e.tx); return t ? `From the book text *${t.title}* (${t.book}) [[go:📚 Open text|#/x/${t.id}]]` : ''; }
+  if(e.lid){ const l = LESSONS.find(x=>x.id===e.lid); const c = l && A.chapterOfPage && A.chapterOfPage(l.id); return c ? `Chapter: ${c.label} · ${c.title} [[go:📖 Open the chapter|#/c/${c.id}/words]]` : ''; }
+  if(e.tx){ const t = TEXTS.find(x=>x.id===e.tx); return t ? `In the text *${t.title}* (${t.book}) [[go:📚 Open text|#/x/${t.id}]]` : ''; }
   if(e.wb) return 'From the word bank [[go:🗂️ Word bank|#/bank]]';
   return '';
 }
@@ -137,7 +137,7 @@ function wordCard(e, typed){
   const wf = whereFrom(e); if(wf) out += '\n' + wf;
   const key = e.pos === 'verb' ? [...new Set([e.vg.i].concat(conj(e.vg)||[]))] : (e.de || e.w);
   const ex = examplesWith(key, 3);
-  if(ex.length) out += '\n\nExamples from your classes & books:\n' + exLines(ex);
+  if(ex.length) out += '\n\nExamples from the course:\n' + exLines(ex);
   const name = e.pos === 'verb' ? e.vg.i : (e.de || e.w);
   out += '\n\n' + [`[[act:✍️ More sentences|sentences with ${name}]]`, e.pos === 'verb' ? '' : (e.g ? `[[act:🔁 Accusative|accusative of ${name}]]` : ''), `[[fill:✍️ Write a sentence, I'll check it|check: ]]`].filter(Boolean).join(' ');
   return out;
@@ -206,8 +206,8 @@ function topicButtons(t){ return [go(`🎯 ${t.title}`, `#/t/${t.id}`), go('📖
 function navAnswer(q){
   const ql = lo(q);
   if(!/\b(take me|go to|open|show me|bring me|start|begin|practi[cs]e|exercises?|quiz me|test me|drill|where (is|are|can i)|i want to|let'?s|\d+ ?(min|minutes|hours?|h))\b/.test(ql)) return null;
-  if(/\b(today|latest|last|new|newest)\b.*\b(class|lesson|update)|\b(today'?s|latest|last|new|newest) (class|lesson)/.test(ql)){ const d = latestDay(); return `Here is the latest day (${d.slice(8)}.${d.slice(5,7)}.):\n` + dayLessons(d).map(l => go(`📖 ${l.id}: ${l.title}`, `#/l/${l.id}`)).join(' ') + '\n' + dayLessons(d).map(l => go(`✍️ Practise ${l.id}`, `#/l/${l.id}/practice`)).join(' '); }
-  const lm = /\b(?:l|class|lesson|klasse)\s*0?(\d{1,2})\b/i.exec(q); if(lm){ const l = LESSONS.find(x => +x.id.slice(1) === +lm[1]); if(l) return `Class ${l.id}: ${l.title}\n${go('📖 Learn', `#/l/${l.id}`)} ${go('✍️ Practice', `#/l/${l.id}/practice`)} ${go('🔤 Words', `#/l/${l.id}/words`)} ${go('♾️ Drills', `#/l/${l.id}/drills`)}`; }
+  if(/\b(today|latest|last|new|newest|continue|my lesson|where i stopped)\b/.test(ql) && /\b(class|lesson|chapter|lektion|course|stopped)\b/.test(ql)){ const C = A.COURSE||[]; return `Your course chapters:\n` + C.map(c => go(`${c.icon||''} ${c.label} · ${c.title}`, '#/c/' + c.id)).join(' '); }
+  const lm = /\b(?:lektion|chapter|kapitel)\s*(\d{1,2})\b/i.exec(q); if(lm){ const c = (A.COURSE||[]).find(x => x.id === 'lektion' + (+lm[1])); if(c) return `${c.label} · ${c.title}\n${go('📖 Grammar', '#/c/'+c.id)} ${go('🔤 Words', '#/c/'+c.id+'/words')} ${go('📚 Texts', '#/c/'+c.id+'/texts')} ${go('✍️ Exercises', '#/c/'+c.id+'/practice')}`; }
   if(/mistake|fehler|wrong answers/.test(ql)) return `Your mistakes are saved — practise them again:\n${go('❗ My mistakes', '#/mistakes')}`;
   if(/flash ?card/.test(ql)) return go('🃏 Flashcards', '#/flash');
   if(/word ?bank|300 words|most common/.test(ql)) return go('🗂️ Word bank', '#/bank');
@@ -227,7 +227,7 @@ function grammarAnswer(q){
   let out = '';
   if(g){ const t = TOPICS.find(x => x.id === g[0]); LAST.topic = t; out += `📏 ${t ? t.title : g[0]}\n${g[2]}\n🇩🇪 ${g[3].split(' · ').map(x => `**${x}**`).join(' · ')}`;
     const ex = CORPUS.filter(c => c.en && t && c.href.includes(t.id)).slice(0,2); if(ex.length) out += '\n\n' + exLines(ex); }
-  if(hits.length) out += (out ? '\n\n' : '') + 'Where it is in your classes:\n' + hits.map(s => go(`📖 ${s.h.replace(/^\d+\.\s*/,'').slice(0,40)} (${s.where.split(' (')[0]})`, s.href)).join(' ');
+  if(hits.length) out += (out ? '\n\n' : '') + 'Where it is in the course:\n' + hits.map(s => go(`📖 ${s.h.replace(/^\d+\.\s*/,'').slice(0,40)} (${s.where.slice(0,30)})`, s.href)).join(' ');
   if(g){ const t = TOPICS.find(x => x.id === g[0]); if(t) out += '\n\n' + topicButtons(t); }
   return out;
 }
@@ -248,9 +248,9 @@ function currentQuestionHelp(reveal){
   return out;
 }
 function hello(){
-  const d = latestDay(); const ls = dayLessons(d);
-  return `Hallo Ahsan! 👋 I'm your class teacher. I know every class with Anara, every word, the Spektrum and Klimenko texts and all the exercises in this app.\n\nType or say a word in German or English, or ask me anything. Today's class: ${ls.map(l => go(l.id + ': ' + l.title.slice(0, 32), '#/l/' + l.id)).join(' ')}\n\nTry:\n` +
-    [act('📖 What does Geschenk mean?', 'what does Geschenk mean'), act('🇬🇧→🇩🇪 How do you say dog?', 'how do you say dog'), act('der/die/das Tisch?', 'der die das Tisch'), act('Accusative of der Hund', 'accusative of der Hund'), act('Conjugate lesen', 'conjugate lesen'), act('2nd & 3rd form of fahren', '3 forms of fahren'), act('e → i verbs', 'verbs with e → i'), act('Explain the accusative', 'explain the accusative'), '[[fill:✍️ Check my German|check: ]]', act('🎯 Take me to today\'s class', "take me to today's class")].join(' ');
+  const C = A.COURSE || [];
+  return `Hallo Ahsan! 👋 I'm your German teacher. I know the whole course: every chapter, word, verb, the Spektrum and Klimenko texts and all the exercises in this app.\n\nType or say a word in German or English, or ask me anything. Chapters: ${C.slice(0,4).map(c => go(c.label + ': ' + c.title, '#/c/' + c.id)).join(' ')}\n\nTry:\n` +
+    [act('📖 What does Geschenk mean?', 'what does Geschenk mean'), act('🇬🇧→🇩🇪 How do you say dog?', 'how do you say dog'), act('der/die/das Tisch?', 'der die das Tisch'), act('Accusative of der Hund', 'accusative of der Hund'), act('Conjugate lesen', 'conjugate lesen'), act('2nd & 3rd form of fahren', '3 forms of fahren'), act('e → i verbs', 'verbs with e → i'), act('Explain the accusative', 'explain the accusative'), '[[fill:✍️ Check my German|check: ]]', act('📚 Lektion 3', 'open Lektion 3')].join(' ');
 }
 function answer(q){
   const raw = q.trim(); const ql = lo(raw);
@@ -295,7 +295,7 @@ function answer(q){
   const cj = /(?:conjugat\w*|konjugier\w*|forms? of|present (?:tense )?of)\s+(?:the verb\s+)?["„“]?([a-zäöüß ]+?)["“”]?\??$/i.exec(raw);
   if(cj){ const w = cj[1].trim().replace(/^sich /,''); let e = DICT.get(lo(w)); if(!e || e.pos !== 'verb'){ const v = VERBS.find(x => lo(x.i) === lo(w) || lo(x.i).endsWith(lo(w))); if(v) e = {pos:'verb', vg:v, w:v.i, en:v.en}; }
     if(e && e.pos === 'verb') return wordCard(e, w);
-    return `„${w}“ is not in the verb list of your classes yet. Regular verbs: ich -e, du -st, er -t, wir -en, ihr -t, sie -en.`; }
+    return `„${w}“ is not in the verb list of the course yet. Regular verbs: ich -e, du -st, er -t, wir -en, ihr -t, sie -en.`; }
   // accusative of a noun
   const ak = /(?:accusative|akkusativ)\s+(?:of|von|for)?\s*["„“]?(?:der|die|das|ein|eine)?\s*([A-Za-zÄÖÜäöüß]+)/i.exec(raw);
   if(ak){ const e = lookupDe(ak[1]); if(e && e.g){ LAST.word = e; return nounCard(e) + '\n\n' + (e.g === 'm' ? `Example: **Ich habe einen ${e.de}.** · **Ich sehe den ${e.de}.** · Pronoun: **ihn**` : e.g === 'f' ? `Example: **Ich sehe die ${e.de}.** · Pronoun: **sie**` : e.g === 'n' ? `Example: **Ich kaufe das ${e.de}.** · Pronoun: **es**` : '') + '\n' + go('🎯 Accusative practice', '#/t/akkusativ'); }
@@ -304,22 +304,22 @@ function answer(q){
   const ar = /(?:der,? die,? (?:oder |or )?das|which article|article (?:of|for)|gender of|der oder die|die oder das|der oder das)\s*[:\-]?\s*["„“]?([A-Za-zÄÖÜäöüß]+)/i.exec(raw) || /^(?:is it )?(?:der|die|das) ([A-ZÄÖÜa-zäöüß]+)\s*\?$/i.exec(raw);
   if(ar){ const e = lookupDe(ar[1]); if(e && e.g) return nounCard(e) + '\n' + (whereFrom(e) || '') + '\n' + go('🎯 der/die/das practice', '#/t/nouns');
     const s = suggest(ar[1]); const e2 = s && DICT.get(s); if(e2 && e2.g) return `Did you mean **${e2.de}**?\n` + nounCard(e2);
-    return `„${ar[1]}“ is not in your class words yet. Endings that help: -ung, -heit, -keit, -ion → die · -chen, -ment, -um → das · days, months → der.\n${go('🎯 Gender rules', '#/t/gender')}`; }
+    return `„${ar[1]}“ is not in the course words yet. Endings that help: -ung, -heit, -keit, -ion → die · -chen, -ment, -um → das · days, months → der.\n${go('🎯 Gender rules', '#/t/gender')}`; }
   // plural
   const pl = /(?:plural (?:of|for)|mehrzahl von|plural)\s+["„“]?(?:der|die|das)?\s*([A-Za-zÄÖÜäöüß]+)/i.exec(raw);
   if(pl){ const e = lookupDe(pl[1]); if(e && e.g) return e.pl ? `**${fullDe(e)}** → plural **die ${e.pl}**\n(The plural article is always die.)` : `**${fullDe(e)}** — no plural is given in your classes for this word.`; }
   // sentences with
   const sw = /(?:sentences?|examples?|beispiel\w*|satz|sätze)\s+(?:with|using|for|mit)\s+["„“]?([A-Za-zÄÖÜäöüß ]+?)["“”]?\??$/i.exec(raw);
   if(sw){ let w = sw[1].trim(); let ex = examplesWith(w, 6); if(!ex.length){ const e = findEnglish(w)[0]; if(e){ w = e.de || e.w; ex = examplesWith(w, 6); } }
-    if(ex.length) return `Sentences with **${w}** from your classes and books:\n` + exLines(ex) + `\n\nNow make your own and I'll check it: [[fill:✍️ Check my sentence|check: ]]`;
-    return `I found no sentence with „${w}“ in your classes yet. Write one and I'll check it: [[fill:✍️ Check my sentence|check: ]]`; }
+    if(ex.length) return `Sentences with **${w}** from the course:\n` + exLines(ex) + `\n\nNow make your own and I'll check it: [[fill:✍️ Check my sentence|check: ]]`;
+    return `I found no sentence with „${w}“ in the course yet. Write one and I'll check it: [[fill:✍️ Check my sentence|check: ]]`; }
   // English → German
   const en = /(?:how (?:do|to|can) (?:you |i )?say|what(?:'s| is) (?:.+?) in german|german (?:word )?for|translate|in german|auf deutsch)\s*["„“]?(.+?)["“”]?\s*(?:in german|auf deutsch)?\??$/i.exec(raw);
   if(en){ const t = en[1].replace(/\b(in german|auf deutsch)\b/i,'').trim(); const whole = CORPUS.find(c => c.en && lo(c.en).replace(/[.?!]/g,'') === lo(t).replace(/[.?!]/g,''));
     if(whole) return `🇬🇧 ${t}\n🇩🇪 **${whole.de}**  ${go(whole.where.split(' · ')[0], whole.href)}`;
     const hits = findEnglish(t); if(hits.length) return `🇬🇧 ${t} → 🇩🇪 **${entryHead(hits[0])}**\n\n` + wordCard(hits[0]) + (hits.length > 1 ? '\n\nAlso: ' + hits.slice(1).map(e => `**${entryHead(e)}** (${e.en})`).join(' · ') : '');
     const near = CORPUS.filter(c => c.en && lo(c.en).includes(lo(t))).slice(0, 3); if(near.length) return `Sentences with „${t}“:\n` + exLines(near);
-    return `„${t}“ is not in your class words yet, so I can't be sure of the German. Try one word at a time (e.g. „how do you say dog“).`; }
+    return `„${t}“ is not in the course words yet, so I can't be sure of the German. Try one word at a time (e.g. „how do you say dog“).`; }
   // meaning of a word
   const raw2 = raw.replace(/\s+mean\s*\??$/i,'');
   const mn = /(?:what does|what is|what's|meaning of|means?|bedeutet|was heißt|was ist|explain the word)\s+(?:the word\s+)?["„“]?([A-Za-zÄÖÜäöüß-]+(?: [A-Za-zÄÖÜäöüß-]+)?)["“”]?\s*(?:mean)?\??$/i.exec(raw2);
@@ -341,7 +341,7 @@ function answer(q){
   }
   const g = grammarAnswer(raw); if(g) return g;
   const t = topicByWords(raw); if(t) return `This sounds like „${t.title}“:\n${topicButtons(t)}`;
-  return `I couldn't find that in your classes. You can ask me:\n• one word in German or English (**Geschenk**, *dog*)\n• „der die das Tisch“ · „plural of Buch“ · „accusative of Hund“\n• „conjugate lesen“ · „say 47“\n• „explain the accusative“ · „nicht or kein?“\n• „check: ich habe ein Hund“\n• „take me to accusative practice“ · „help with this question“`;
+  return `I couldn't find that in the course. You can ask me:\n• one word in German or English (**Geschenk**, *dog*)\n• „der die das Tisch“ · „plural of Buch“ · „accusative of Hund“\n• „conjugate lesen“ · „say 47“\n• „explain the accusative“ · „nicht or kein?“\n• „check: ich habe ein Hund“\n• „take me to accusative practice“ · „help with this question“`;
 }
 function checkAnswer(t){
   const r = checkGerman(t);
@@ -376,7 +376,7 @@ function send(text){
 function init(){
   const b = document.createElement('button'); b.id = 'chatBtn'; b.title = 'Ask your teacher'; b.setAttribute('aria-label','Open the chat teacher'); b.textContent = '💬'; document.body.appendChild(b);
   const p = document.createElement('div'); p.id = 'chatPanel'; p.hidden = true; p.setAttribute('translate','no');
-  p.innerHTML = `<div class="chh"><b>🧑‍🏫 Class teacher</b><span class="chgrow"></span><button class="btn sm ghost" id="chatClear" title="Clear chat">🗑</button><button class="btn sm ghost" id="chatX" title="Close">✕</button></div>
+  p.innerHTML = `<div class="chh"><b>🧑‍🏫 German teacher</b><span class="chgrow"></span><button class="btn sm ghost" id="chatClear" title="Clear chat">🗑</button><button class="btn sm ghost" id="chatX" title="Close">✕</button></div>
     <div id="chatMsgs"></div><div id="chatQuick" class="chq"></div><div id="chatLive" class="chlive"></div>
     <div class="chi"><textarea id="chatIn" rows="2" placeholder="Type or say a word — German or English…"></textarea><div class="chmic"><button class="btn sm" id="chatMic" title="Speak">🎤</button><button class="btn sm ghost" id="chatLang"></button></div><button class="btn go sm" id="chatGo">Send</button></div>`;
   document.body.appendChild(p);

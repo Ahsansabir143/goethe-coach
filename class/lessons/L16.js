@@ -81,7 +81,7 @@ learn:[
  EX('Ich gebe dir mein Buch. Du gibst mir dein Buch.','I give you my book. You give me your book.')+EX('Er gibt sein Buch. Lena gibt ihr Buch.','He gives his book. Lena gives her book.')+EX('Wir geben unser Buch. Ihr gebt euer Buch. Sie geben ihr Buch.','We give our book. You (all) give your book. They give their book.')+
  TIP('„Ich gebe mein Buch“ is understood, but German usually says <b>to whom</b>: Ich gebe <b>dir</b> mein Buch.')+
  EX('Ich helfe dir. Du hilfst mir.','I help you. You help me.')+EX('Er hilft ihr. Sie hilft ihm.','He helps her. She helps him.')+EX('Wir helfen euch. Ihr helft uns. Sie helfen mir.','We help you (all). You (all) help us. They help me.')+
- TIP('helfen takes the <b>dative</b>: mir, dir, ihm, ihr, uns, euch, ihnen — not mich / dich. That comes later in class; for now learn these as phrases.')+
+ TIP('helfen takes the <b>dative</b>: mir, dir, ihm, ihr, uns, euch, ihnen — not mich / dich. That comes later in the course; for now learn these as phrases.')+
  `<p><b>sehen · aussehen · sich ausziehen</b></p>`+EX('Ich sehe. Du siehst. Er sieht.','I see. You see. He sees.')+EX('Ich sehe gut aus. Du siehst gut aus.','I look good. You look good.')+EX('Ich ziehe mich aus. Du ziehst dich aus.','I get undressed. You get undressed.')}
 ],
 vocab: V.map(v=>({de:v[0], en:v[1]})).concat([

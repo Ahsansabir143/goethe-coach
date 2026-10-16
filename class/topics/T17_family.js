@@ -3,7 +3,7 @@ TOPICS.push({id:'family', icon:'👨‍👩‍👧‍👦', title:'Family: Peter
 gens:['family','possb'],
 learn:[
 {h:'Family words', html: TBL(['der','die','English'],[['der Mann','die Frau','~husband / wife (man / woman)'],['der Vater','die Mutter','~father / mother'],['der Sohn','die Tochter','~son / daughter'],['der Bruder','die Schwester','~brother / sister'],['der Onkel','die Tante','~uncle / aunt'],['der Großvater (Opa)','die Großmutter (Oma)','~grandfather / grandmother'],['der Freund','die Freundin','~(boy)friend / (girl)friend'],['die Eltern (pl)','die Kinder (pl)','~parents / children'],['die Geschwister (pl)','die Großeltern (pl)','~siblings / grandparents']])+EX('Ich bin ledig / verheiratet / geschieden.','single / married / divorced')+EX('Peter hat zwei Kinder. · Ich wohne allein. · Susanne wohnt mit Edwin zusammen.','')},
-{h:'The text (Aufgabe 19)', html: `<p>The full text with translation is on the class page <a href="#/l/L11/learn">L11 → Learn → „Die liebe Familie“</a>.</p>`}
+{h:'The text (Aufgabe 19)', html: `<p>The full text with translation is on the grammar page <a href="#/l/L11/learn">Noun gender rules · ein ↔ kein</a>.</p>`}
 ],
 sets:[
 {title:'Spektrum Aufgabe 21: Wer macht was?', src:'Spektrum S. 39', shuffle:false, items:[
