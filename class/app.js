@@ -542,6 +542,28 @@ DRILLS.push(
   {id:'small', name:'Prepositions, adverbs, adjectives', d:'from Anara\'s word lists', gen:smallWordItem}
 );
 
+
+/* accusative pronouns & prepositions (Anara's accusative sheet, 16 Oct) */
+const APRON = [['ich','mich'],['du','dich'],['er','ihn'],['sie','sie'],['es','es'],['wir','uns'],['ihr','euch'],['Sie','Sie']];
+const APNOUN = [['Peter','ihn'],['Maria','sie'],['den Kuchen','ihn'],['die Milch','sie'],['das Buch','es'],['die Erdbeeren','sie'],['den Lehrer','ihn'],['die Lehrerin','sie'],['das Kind','es'],['meine Eltern','sie'],['den Film','ihn'],['die Zeitung','sie'],['das Auto','es'],['den Schlüssel','ihn'],['die Tasche','sie'],['den Tisch','ihn'],['das Hotel','es'],['die Limonade','sie']];
+const APVERB = [['Kennst','kenne'],['Siehst','sehe'],['Kaufst','kaufe'],['Brauchst','brauche'],['Findest','finde'],['Hast','habe'],['Besuchst','besuche'],['Fragst','frage']];
+function akkPronItem(){
+  if(Math.random()<.4){ const [n,a] = pick(APRON); const ctx = pick(['Das Geschenk ist für ___.','Ohne ___ gehe ich nicht.','Er sieht ___.','Sie besucht ___ morgen.','Kennt er ___?','Der Lehrer fragt ___.']); return {t:'fill', q:`(${n}) ${ctx}`, a:[a], h:'accusative pronoun', x:`${esc(n)} → <b>${esc(a)}</b> · mich, dich, ihn, sie, es, uns, euch, sie/Sie`}; }
+  const [nn,p] = pick(APNOUN); const [v1,v2] = pick(APVERB.filter(v=> !(v[0]==='Hast' && /Lehrer|Kind|Eltern|Peter|Maria/.test(nn)) && !(v[0]==='Besuchst' && !/Peter|Maria|Lehrer|Kind|Eltern/.test(nn))));
+  return {t:'fill', q:`${v1} du ${nn}? – Ja, ich ${v2} ___.`, a:[p], x:`${esc(nn)} → <b>${esc(p)}</b> (der → ihn, die → sie, das → es, plural → sie)`};
+}
+const APREP = [['durch','den Park','m'],['durch','die Stadt','f'],['durch','das Zentrum','n'],['für','den Bruder','m'],['für','die Mutter','f'],['für','das Kind','n'],['für','die Kinder','pl'],['gegen','den Freund','m'],['gegen','die Mannschaft','f'],['ohne','den Zucker','m'],['ohne','die Tasche','f'],['ohne','das Handy','n'],['um','den Tisch','m'],['um','die Ecke','f'],['um','das Haus','n']];
+function akkPrepItem(){
+  const [pr, np, g] = pick(APREP); const noun = np.replace(/^(den|die|das) /,''); const ctx = {durch:'Wir gehen', für:'Das Geschenk ist', gegen:'Er spielt', ohne:'Ich komme', um:'Wir sitzen'}[pr];
+  const r = Math.random();
+  if(r<.45) return {t:'fill', q:`${ctx} ${pr} ___ ${noun}.`, a:[np.split(' ')[0]], h:`${({m:'der',f:'die',n:'das',pl:'die (plural)'})[g]} ${noun}`, x:`<b>${pr}</b> always takes the accusative: ${g==='m'?'der → <b>den</b>':'feminine / neuter / plural do not change'}.`};
+  if(r<.75){ const ind = {m:'einen',f:'eine',n:'ein',pl:''}[g]; if(g==='pl') return akkPrepItem(); return {t:'fill', q:`${ctx} ${pr} ___ ${noun}.`, a:[ind], h:`indefinite (ein / eine) · ${({m:'der',f:'die',n:'das'})[g]} ${noun}`, x:`${pr} + accusative: <b>${ind}</b> ${esc(noun)}`}; }
+  const o = shuffle(['durch','für','gegen','ohne','um']); const en = {durch:'through',für:'for',gegen:'against',ohne:'without',um:'around'}[pr];
+  return {t:'mcq', q:`${ctx} ___ ${np}. (${en})`, o, a:o.indexOf(pr), x:`<b>${pr}</b> = ${en} — durch, ohne, gegen, für, um (DOGFU) always take the accusative.`};
+}
+DRILLS.push({id:'akkpron', name:'Accusative pronouns: mich, dich, ihn …', d:'Kennst du Peter? – Ja, ich kenne ihn.', gen:akkPronItem},
+            {id:'akkprep', name:'durch, für, gegen, ohne, um', d:'Das Geschenk ist für den Bruder.', gen:akkPrepItem});
+
 /* ---------------- quiz runner ---------------- */
 function itemSay(it, correct){ if(it.say) return it.say; if(['fill','order','tr'].includes(it.t)) return correct; return null; }
 function recordAnswer(it, ok, lid){
