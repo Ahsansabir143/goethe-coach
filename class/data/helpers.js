@@ -14,6 +14,10 @@
   window.EX = (de, en) => { const tr = (window.TR||{})[key(de)]; const main = tr || en; const note = tr && en && en !== tr ? en : '';
     return `<div class="ex" translate="no"><span class="de" lang="de">${de}</span> <button class="spk" data-say="${strip(de)}">🔊</button>${main?`<span class="en" lang="en">🇬🇧 ${main}</span>`:''}${note?`<span class="en note">💡 ${note}</span>`:''}</div>`; };
   window.TBL = (head, rows) => `<div class="tw"><table><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>{ c = String(c); if(c[0]==='~') return `<td>${c.slice(1)}</td>`; const tr = (window.TR||{})[key(c)]; return `<td class="de">${c}${tr?`<span class="en tdl" lang="en">🇬🇧 ${tr}</span>`:''}</td>`; }).join('')}</tr>`).join('')}</table></div>`;
-  window.TIP = html => `<div class="tip">💡 ${html}</div>`;
+  // Short rules / memory tricks get worked examples (German + English) from data/tipx.js
+  const tipx = html => { const t = key(html); const hit = (window.TIPX||[]).find(([k]) => t.includes(k)); if(!hit) return '';
+    return `<div class="tipx"><div class="tipxh">👉 What this means — examples</div>${hit[1].map(r => typeof r === 'string' ? `<div class="tipxs">${r.replace(/^#/,'')}</div>` :
+      `<div class="txr" translate="no"><span class="de" lang="de">${r[0]}</span> <button class="spk" data-say="${strip(r[0])}">🔊</button><span class="en" lang="en">🇬🇧 ${r[1]}</span>${r[2]?`<span class="why">✔ ${r[2]}</span>`:''}</div>`).join('')}</div>`; };
+  window.TIP = html => `<div class="tip">💡 ${html}${tipx(html)}</div>`;
   window.DE = html => `<span class="de">${html}</span>`;
 })();

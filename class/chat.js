@@ -248,6 +248,9 @@ function answer(q){
   // help with the question on screen
   if(/\b(this|current|the) (question|exercise|task)\b|^help me$|^hint$|answer for this question|^i don'?t (get|understand) (it|this)/.test(ql)){ const h = currentQuestionHelp(/answer/.test(ql)); if(h) return h; return 'Open an exercise first, then ask me „help with this question“ — I will explain the words and the rule.'; }
   if(/^(hi|hallo|hello|hey|salam|guten (tag|morgen|abend)|help|hilfe|what can you do)\b/.test(ql) && ql.length < 24) return hello();
+  // memory tricks (DOGFU …) → the worked examples from data/tipx.js
+  if(/dogfu|memory trick|eselsbrücke/i.test(ql)){ const hit = (window.TIPX||[]).find(([k]) => /dogfu/i.test(ql) ? k === 'DOGFU' : false) || (window.TIPX||[])[0];
+    return `🧠 **DOGFU** = durch, ohne, gegen, für, um — these five ALWAYS take the accusative.\n\n` + hit[1].map(r => typeof r === 'string' ? `\n${r.replace(/^#/,'📌 ')}` : `• **${strip(r[0])}**  🇬🇧 ${r[1]}${r[2] ? `  ✔ ${r[2]}` : ''}`).join('\n') + '\n\n' + go('📖 Open L15', '#/l/L15/learn') + ' ' + go('🎯 Practise durch/für/gegen/ohne/um', '#/d/akkprep'); }
   // check a sentence
   const chk = /^(check|correct|korrigier\w*|is this (right|correct)|ist das (richtig|korrekt))\s*(my )?(sentence|text|satz)?\s*[:\-]?\s*/i;
   if(chk.test(raw)){ const t = raw.replace(chk, '').trim(); if(!t) return 'Write your German sentence after „check:“ — for example: check: ich habe ein Hund'; return checkAnswer(t); }

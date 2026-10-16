@@ -8,3 +8,6 @@ window.UPDATES = (window.UPDATES || []).concat([
  {date:'2026-10-16', icon:'🇬🇧', text:'Every German example now has its English translation', href:'#/grammar'},
  {date:'2026-10-16', icon:'💬', text:'Chat teacher: ask about any word, grammar or exercise (💬 button, bottom right)', href:''}
 ]);
+window.UPDATES = window.UPDATES.concat([
+ {date:'2026-10-17', icon:'👉', text:'Every memory trick and short rule (DOGFU, e–st–t–en–t–en, nicht/kein …) now has worked examples in German + English', href:'#/l/L15/learn'}
+]);
