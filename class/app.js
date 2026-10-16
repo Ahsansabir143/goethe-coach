@@ -851,7 +851,7 @@ function viewLesson(id, tab){
   ${ch?`<div class="muted">${esc(ch.label)} · ${esc(ch.title)}</div>`:''}<h1>${esc(pageTitle(l))}</h1>${pageSum(l)?`<p class="muted">${esc(pageSum(l))}</p>`:''}
   <div class="tabs">${[['learn','📖 Learn'],['words',`🔤 Words (${(l.vocab||[]).length})`],['practice',`✍️ Practice (${lessonItems(l).length})`],['drills','♾️ Drills']].map(([k,t])=>`<a href="#/l/${l.id}/${k}" class="${tab===k?'on':''}">${t}</a>`).join('')}</div>`;
   if(tab==='learn'){
-    (l.learn||[]).forEach(s=>{ html += `<div class="card"><h3>${esc(s.h)}</h3>${s.html}</div>`; });
+    (l.learn||[]).forEach((s,k)=>{ html += `<div class="card" id="sec-${k}"><h3>${esc(s.h)}</h3>${s.html}</div>`; });
     html += `<div class="row"><a class="btn go" href="#/l/${l.id}/practice">Practise this page →</a></div>`;
   } else if(tab==='words'){
     const LW = window.__LW = {}; html += columnsHtml(l.vocab||[], LW) + `<div class="row"><button class="btn go" id="vq">Quiz me on these words</button><a class="btn" href="#/flash/${(chapterOfPage(l.id)||{}).id||''}">Flashcards for this chapter</a></div>`;
@@ -1010,7 +1010,7 @@ function viewTopic(id, tab){
   } else if(tab==='drills'){
     html += `<p class="muted">Endless — new questions every time.</p>` + topicDrills(t).map(drillCard).join('');
   } else if(tab==='learn'){
-    (t.learn||[]).forEach(s=>{ html += `<div class="card"><h3>${esc(s.h)}</h3>${s.html}</div>`; });
+    (t.learn||[]).forEach((s,k)=>{ html += `<div class="card" id="sec-${k}"><h3>${esc(s.h)}</h3>${s.html}</div>`; });
     (t.lessons||[]).forEach(lid=>{ const l = lessonById(lid); if(l) html += `<div class="card"><div class="muted">Grammar page</div><a href="#/l/${l.id}/learn"><b>${esc(l.title)}</b></a></div>`; });
   } else if(tab==='words'){
     const words = []; (t.lessons||[]).forEach(lid=> allVocab(lid).forEach(w=>words.push(w)));
@@ -1118,10 +1118,10 @@ function viewText(id){
   const tp = TOPICS.find(x=>x.id===t.topic);
   let html = `<div class="row"><a class="btn sm" href="#/texts">← All texts</a>${prev?`<a class="btn sm" href="#/x/${prev.id}">‹ ${esc(prev.title)}</a>`:''}${next?`<a class="btn sm" href="#/x/${next.id}">${esc(next.title)} ›</a>`:''}</div>
   <div class="muted">${esc(t.book)} · ${esc(t.ref)}${tp?` · topic: <a href="#/t/${tp.id}">${esc(tp.title)}</a>`:''}</div><h1>${esc(t.title)}</h1>
-  <div class="row"><button class="btn go" id="allx">Practise this text (${textItems(t).length})</button>${t.items.length?`<button class="btn" id="bookx">Book exercises (${t.items.length})</button>`:''}<button class="btn" id="readall">🔊 Read it all</button><button class="btn sm" id="tgl">Hide English</button></div>
+  <div class="row" id="xbtns"><button class="btn go" id="allx">Practise this text (${textItems(t).length})</button>${t.items.length?`<button class="btn" id="bookx">Book exercises (${t.items.length})</button>`:''}<button class="btn" id="readall">🔊 Read it all</button><button class="btn sm" id="tgl">Hide English</button></div>
   <div class="card" id="tx">${t.lines.map(l=>`<div class="ex">${l.s?`<b class="muted">${esc(l.s)}:</b> `:''}<span class="de">${esc(l.de)}</span> ${spk(l.de)}<span class="en">${esc(l.en)}</span></div>`).join('')}</div>`;
   if(t.note) html += `<div class="tip">💡 ${t.note}</div>`;
-  if(t.words.length) html += `<h3>Hard words</h3>` + vocabTable(t.words, false) + `<div class="row"><button class="btn" id="wq">Quiz these words</button><button class="btn" id="ws">Write them</button></div>`;
+  if(t.words.length) html += `<h3 id="words">Hard words</h3>` + vocabTable(t.words, false) + `<div class="row"><button class="btn" id="wq">Quiz these words</button><button class="btn" id="ws">Write them</button></div>`;
   $app.innerHTML = html; linkify($app);
   document.getElementById('allx').onclick = ()=> runQuiz({title:t.title, items: shuffle(textItems(t)), key:'x:'+t.id, back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
   const bx = document.getElementById('bookx'); if(bx) bx.onclick = ()=> runQuiz({title:t.title+' — book exercises', items: t.items.slice(), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
@@ -1189,36 +1189,37 @@ function contentsItems(){
   TOPICS.filter(t=>!seenT.has(t.id)).forEach(t=> out.push({c:extra, kind:'topic', t}));
   return out;
 }
-function viewContents(openN){
+function viewContents(){
   setNav('contents');
   const items = contentsItems();
-  const st = p => p>=100 ? '✅ done' : p>0 ? `▶ ${p}% done` : '○ not started';
-  const wl = ws => ws.length ? `<h4>🔤 Words (${ws.length})</h4><div class="wrows">${ws.map((w,i)=>`<div class="wrow"><span class="pn">${i+1}</span> ${spk(fullDe(w))} ${tapWord(w)} <span class="muted">— ${esc(w.en)}</span></div>`).join('')}</div>` : '';
-  let html = `<div class="card"><h1 style="margin-top:0">📚 Course contents — all ${items.length} topics</h1><p class="muted">Everything in the course, in order: grammar pages, book texts and dialogues, and practice topics, chapter by chapter. Open any topic to see what is inside — rules, every word with its sound and meaning, the exercises — and choose what to study.</p>
+  const st = p => p>=100 ? '✅ done' : p>0 ? `▶ ${p}%` : '';
+  const head = (h, href, ico) => `<li><a href="${href}">${ico?ico+' ':''}${esc(h)}</a></li>`;
+  const clean = h => String(h).replace(/^\d+\.\s*/,'');
+  let html = `<div class="card"><h1 style="margin-top:0">📚 Course contents — all ${items.length} topics</h1><p class="muted">Everything in the course, in order, with every part of each topic. Tap any line to go straight to that part.</p>
   <div class="row">${COURSE.map(c=>`<a class="badge" href="#cc-${c.id}" data-jump>${c.icon||''} ${esc(c.label)}</a>`).join('')}</div></div>`;
   let cur = null, n = 0;
   items.forEach(it=>{
     n++;
     if(it.c !== cur){ cur = it.c; html += `<h2 class="chh2" id="cc-${cur.id}">${cur.icon||''} ${esc(cur.label)} · ${esc(cur.title)}</h2>${cur.sub?`<p class="muted">${esc(cur.sub)}</p>`:''}`; }
-    let sum, body, open, prac, badge;
-    if(it.kind==='page'){ const l = it.l; const p = lessonProgress(l);
-      badge = '📖 Grammar'; sum = pageTitle(l); open = `#/l/${l.id}/learn`; prac = `#/l/${l.id}/practice`;
-      body = `<p class="muted">${esc(pageSum(l))}</p>${(l.learn||[]).length?`<h4>🧠 What you learn (${l.learn.length})</h4><ol class="glist">${l.learn.map(s=>`<li>${esc(s.h.replace(/^\d+\.\s*/,''))}</li>`).join('')}</ol>`:''}${wl(l.vocab||[])}${(l.sets||[]).length?`<h4>✍️ Exercises (${lessonItems(l).length})</h4><div>${l.sets.map(s=>esc(s.title)).join(' · ')}</div>`:''}`;
-      badge += ` <span class="muted">· ${st(p)}</span>`;
-    } else if(it.kind==='text'){ const x = it.x; const r = S.sets['x:'+x.id]; const p = r ? Math.round(r.best/r.total*100) : 0;
-      badge = '📚 Text'; sum = x.title; open = `#/x/${x.id}`; prac = `#/x/${x.id}`;
-      body = `<p class="muted">${esc(x.book)} · ${esc(x.ref)} · ${x.lines.length} lines</p><div class="wrows">${x.lines.slice(0,3).map(L=>`<div class="wrow"><span class="de">${esc(L.de)}</span> <span class="muted">— ${esc(L.en)}</span></div>`).join('')}${x.lines.length>3?'<div class="muted">…</div>':''}</div>${wl(x.words)}<h4>✍️ Exercises (${textItems(x).length})</h4>`;
-      badge += ` <span class="muted">· ${st(p)}</span>`;
-    } else { const t = it.t; const p = topicProgress(t);
-      badge = '🎯 Practice'; sum = `${t.icon||''} ${t.title}`; open = `#/t/${t.id}/learn`; prac = `#/t/${t.id}`;
-      body = `<p class="muted">${esc(t.d||'')}</p>${(t.learn||[]).length?`<h4>🧠 Rules (${t.learn.length})</h4><ol class="glist">${t.learn.map(s=>`<li>${esc(s.h.replace(/^\d+\.\s*/,''))}</li>`).join('')}</ol>`:''}<h4>✍️ Exercises</h4><div>${topicItems(t).length} exercises · ${topicDrills(t).length} endless drills · timed sessions 15 min – 4 h</div>`;
-      badge += ` <span class="muted">· ${st(p)}</span>`;
+    let title, kind, open, heads = [], prog = 0, words = [];
+    if(it.kind==='page'){ const l = it.l; title = pageTitle(l); kind = '📖 Grammar'; open = `#/l/${l.id}/learn`; prog = lessonProgress(l); words = l.vocab||[];
+      (l.learn||[]).forEach((s,k)=> heads.push(head(clean(s.h), `#/l/${l.id}/learn/${k}`, '📖')));
+      if(words.length) heads.push(head(`Words (${words.length})`, `#/l/${l.id}/words`, '🔤'));
+      (l.sets||[]).forEach((s,k)=> heads.push(head(`${s.title} (${s.items.length} questions)`, `#/p/${l.id}/${k}`, '✍️')));
+    } else if(it.kind==='text'){ const x = it.x; title = x.title; kind = '📚 Text'; open = `#/x/${x.id}`; const r = S.sets['x:'+x.id]; prog = r ? Math.round(r.best/r.total*100) : 0; words = x.words;
+      heads.push(head(`Read the text (${x.lines.length} lines, German + English) · ${x.book} ${x.ref}`, `#/x/${x.id}`, '📖'));
+      if(x.words.length) heads.push(head(`Hard words (${x.words.length})`, `#/x/${x.id}/words`, '🔤'));
+      heads.push(head(`Exercises (${textItems(x).length})`, `#/x/${x.id}/xbtns`, '✍️'));
+    } else { const t = it.t; title = `${t.icon||''} ${t.title}`; kind = '🎯 Practice'; open = `#/t/${t.id}`; prog = topicProgress(t);
+      (t.learn||[]).forEach((s,k)=> heads.push(head(clean(s.h), `#/t/${t.id}/learn/${k}`, '📏')));
+      (t.sets||[]).forEach((s,k)=> heads.push(head(`${s.title} (${s.items.length})`, `#/ts/${t.id}/${k}`, '✍️')));
+      if(topicDrills(t).length) heads.push(head(`Endless drills (${topicDrills(t).length})`, `#/t/${t.id}/drills`, '♾️'));
+      heads.push(head('Timed session: 30 minutes', `#/run/${t.id}/30`, '⏱'));
     }
-    html += `<details class="card cday" id="ct-${n}" ${openN===n?'open':''}><summary><span class="ctn">${n}</span> <b>${esc(sum)}</b> <span class="badge">${badge}</span></summary><div class="cbody">${body}
-      <div class="row"><a class="btn go" href="${open}">▶ Study this topic</a><a class="btn" href="${prac}">✍️ Practise</a></div></div></details>`;
+    html += `<div class="card ctop" id="ct-${n}"><div class="ctop-h"><span class="ctn">${n}</span><a class="ctt" href="${open}">${esc(title)}</a><span class="badge">${kind}</span>${st(prog)?`<span class="badge">${st(prog)}</span>`:''}</div>
+      <ol class="cheads">${heads.join('')}</ol>${words.length?`<details class="cw"><summary>🔤 Show the ${words.length} words</summary><div class="wrows">${words.map((w,i)=>`<div class="wrow"><span class="pn">${i+1}</span> ${spk(fullDe(w))} ${tapWord(w)} <span class="muted">— ${esc(w.en)}</span></div>`).join('')}</div></details>`:''}</div>`;
   });
   $app.innerHTML = html; linkify($app); wireJump();
-  if(openN){ const o = document.getElementById('ct-'+openN); if(o) o.scrollIntoView(); }
 }
 
 /* ---------------- router ---------------- */
@@ -1231,7 +1232,7 @@ function route(){
     else if(p[0]==='p'){ const l = lessonById(p[1]); const s = l && l.sets[+p[2]]; if(!s) return viewHome(); runQuiz({title:s.title, items: s.shuffle===false ? s.items.slice() : shuffle(s.items), key:setKey(l,+p[2]), back:`#/l/${l.id}/practice`, lid:l.id}); }
     else if(p[0]==='words') viewWords();
     else if(p[0]==='c') viewChapter(p[1], p[2]);
-    else if(p[0]==='contents') viewContents(+p[1]||0);
+    else if(p[0]==='contents') viewContents();
     else if(p[0]==='flash') viewFlash(p[1]);
     else if(p[0]==='drills') viewDrills();
     else if(p[0]==='d') viewDrill(p[1]);
@@ -1249,6 +1250,8 @@ function route(){
     else viewHome();
   }catch(err){ console.error(err); $app.innerHTML = `<div class="card">Something went wrong: ${esc(err.message)}. <a href="#/">Home</a></div>`; }
   window.scrollTo(0,0);
+  const tgt = p[0]==='x' && p[2] ? document.getElementById(p[2]) : (p[3]!=null && ['l','t'].includes(p[0]) ? document.getElementById('sec-'+p[3]) : null);
+  if(tgt){ tgt.scrollIntoView({block:'start'}); window.scrollBy(0,-70); tgt.classList.add('flash-hl'); setTimeout(()=>tgt.classList.remove('flash-hl'), 1800); }
 }
 buildDict(); addBankToDict(); addTextsToDict(); addVerbForms();
 window.addEventListener('hashchange', route);
