@@ -51,6 +51,7 @@ th{background:var(--acc2);font-weight:600}
 .vex{color:var(--mut);font-size:.88em}
 select.btn{max-width:100%;text-overflow:ellipsis}
 .cday summary{cursor:pointer;font-size:1.02em;list-style:none;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.cday summary::-webkit-details-marker{display:none}.ctn{display:inline-flex;align-items:center;justify-content:center;min-width:2em;height:2em;border-radius:50%;background:var(--acc2);color:var(--acc);font-weight:700;font-size:.9em}.cday[open] .ctn{background:var(--acc);color:#fff}.cbody{margin-top:8px}.badge{display:inline-block;font-size:.8em;background:var(--acc2);border-radius:20px;padding:2px 9px;text-decoration:none;color:var(--ink);font-weight:400}.wrows{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:6px}.wrow{padding:3px 0;border-bottom:1px dashed var(--line);font-size:.93em}.pn{color:var(--mut);font-size:.85em;display:inline-block;min-width:1.8em;text-align:right;margin-right:4px}.glist{margin:4px 0;padding-left:22px}
+.csearch{position:sticky;top:58px;z-index:15;background:var(--card);padding:8px 0 4px;display:flex;flex-direction:column;gap:4px}.csearch input{width:100%;font:inherit;font-size:16px;padding:12px 14px;border:2px solid var(--acc);border-radius:12px;background:var(--card);color:var(--ink)}[hidden]{display:none!important}@media (max-width:900px){.csearch{position:static}}
 .ctop-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ctt{font-weight:750;font-size:1.05em;color:var(--ink);text-decoration:none}.ctt:hover{color:var(--acc)}.cheads{margin:8px 0 2px;padding-left:2.6em;columns:2 300px;column-gap:24px}.cheads li{break-inside:avoid;padding:2px 0}.cheads a{text-decoration:none;color:var(--ink)}.cheads a:hover{color:var(--acc);text-decoration:underline}.cw{margin-top:6px}.cw summary{cursor:pointer;color:var(--acc);font-size:.92em}.flash-hl{box-shadow:0 0 0 3px var(--acc);transition:box-shadow .4s}
 .chlist{display:grid;gap:12px}.chap{display:flex;gap:14px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}.chap:hover{border-color:var(--acc)}.chn{font-size:2em;line-height:1}.chb{flex:1;min-width:0}.chb .d{font-size:.8em;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;font-weight:700}.chb .t{font-weight:750;font-size:1.15em;margin:2px 0 4px}.chpages{margin:6px 0 0;padding-left:20px;font-size:.9em}.chh2{margin-top:22px;border-bottom:2px solid var(--acc);padding-bottom:4px}
 .wcols{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;align-items:start;margin:8px 0 18px}
@@ -135,61 +136,61 @@ details summary{cursor:pointer;font-weight:600}
 <div id="pop"></div>
 
 <!-- Data: shared verb list, then one file per class. To add a new class: create lessons/LNN.js and add a script line below. -->
-<script src="data/translations.js?v=20261017021644"></script>
-<script src="data/tipx.js?v=20261017021644"></script>
-<script src="data/forms.js?v=20261017021644"></script>
-<script src="data/xdict.js?v=20261017021644"></script>
-<script src="data/course.js?v=20261017021644"></script>
-<script src="data/helpers.js?v=20261017021644"></script>
-<script src="data/updates.js?v=20261017021644"></script>
-<script src="data/verbs.js?v=20261017021644"></script>
-<script src="data/wordbank.js?v=20261017021644"></script>
-<script src="lessons/L01.js?v=20261017021644"></script>
-<script src="lessons/L02.js?v=20261017021644"></script>
-<script src="lessons/L03.js?v=20261017021644"></script>
-<script src="lessons/L04.js?v=20261017021644"></script>
-<script src="lessons/L05.js?v=20261017021644"></script>
-<script src="lessons/L06.js?v=20261017021644"></script>
-<script src="lessons/L07.js?v=20261017021644"></script>
-<script src="lessons/L08.js?v=20261017021644"></script>
-<script src="lessons/L09.js?v=20261017021644"></script>
-<script src="lessons/L10.js?v=20261017021644"></script>
-<script src="lessons/L11.js?v=20261017021644"></script>
-<script src="lessons/L12.js?v=20261017021644"></script>
-<script src="lessons/L13.js?v=20261017021644"></script>
-<script src="lessons/L14.js?v=20261017021644"></script>
-<script src="lessons/L15.js?v=20261017021644"></script>
-<script src="lessons/L16.js?v=20261017021644"></script>
-<script src="texts/S1_spektrum_L1.js?v=20261017021644"></script>
-<script src="texts/S2_spektrum_L2.js?v=20261017021644"></script>
-<script src="texts/S3_spektrum_L3.js?v=20261017021644"></script>
-<script src="texts/S9_klimenko.js?v=20261017021644"></script>
-<script src="texts/S10_klimenko_main.js?v=20261017021644"></script>
-<script src="texts/S12_alltag.js?v=20261017021644"></script>
-<script src="topics/T01_sounds.js?v=20261017021644"></script>
-<script src="topics/T02_regular.js?v=20261017021644"></script>
-<script src="topics/T03_tds.js?v=20261017021644"></script>
-<script src="topics/T04_sein.js?v=20261017021644"></script>
-<script src="topics/T05_questions.js?v=20261017021644"></script>
-<script src="topics/T06_strong.js?v=20261017021644"></script>
-<script src="topics/T07_dusie.js?v=20261017021644"></script>
-<script src="topics/T08_nouns.js?v=20261017021644"></script>
-<script src="topics/T09_negation.js?v=20261017021644"></script>
-<script src="topics/T10_gender.js?v=20261017021644"></script>
-<script src="topics/T11_adjectives.js?v=20261017021644"></script>
-<script src="topics/T12_separable.js?v=20261017021644"></script>
-<script src="topics/T13_akkusativ.js?v=20261017021644"></script>
-<script src="topics/T14_possessive.js?v=20261017021644"></script>
-<script src="topics/T15_numbers.js?v=20261017021644"></script>
-<script src="topics/T16_jobs.js?v=20261017021644"></script>
-<script src="topics/T17_family.js?v=20261017021644"></script>
-<script src="topics/T18_countries.js?v=20261017021644"></script>
-<script src="topics/T19_moechten.js?v=20261017021644"></script>
-<script src="topics/T20_wordbank.js?v=20261017021644"></script>
-<script src="topics/T21_stadt.js?v=20261017021644"></script>
-<script src="topics/T22_klimenko.js?v=20261017021644"></script>
-<script src="topics/T23_klimenko_main.js?v=20261017021644"></script>
-<script src="app.js?v=20261017021644"></script>
-<script src="chat.js?v=20261017021644"></script>
+<script src="data/translations.js?v=20261017022310"></script>
+<script src="data/tipx.js?v=20261017022310"></script>
+<script src="data/forms.js?v=20261017022310"></script>
+<script src="data/xdict.js?v=20261017022310"></script>
+<script src="data/course.js?v=20261017022310"></script>
+<script src="data/helpers.js?v=20261017022310"></script>
+<script src="data/updates.js?v=20261017022310"></script>
+<script src="data/verbs.js?v=20261017022310"></script>
+<script src="data/wordbank.js?v=20261017022310"></script>
+<script src="lessons/L01.js?v=20261017022310"></script>
+<script src="lessons/L02.js?v=20261017022310"></script>
+<script src="lessons/L03.js?v=20261017022310"></script>
+<script src="lessons/L04.js?v=20261017022310"></script>
+<script src="lessons/L05.js?v=20261017022310"></script>
+<script src="lessons/L06.js?v=20261017022310"></script>
+<script src="lessons/L07.js?v=20261017022310"></script>
+<script src="lessons/L08.js?v=20261017022310"></script>
+<script src="lessons/L09.js?v=20261017022310"></script>
+<script src="lessons/L10.js?v=20261017022310"></script>
+<script src="lessons/L11.js?v=20261017022310"></script>
+<script src="lessons/L12.js?v=20261017022310"></script>
+<script src="lessons/L13.js?v=20261017022310"></script>
+<script src="lessons/L14.js?v=20261017022310"></script>
+<script src="lessons/L15.js?v=20261017022310"></script>
+<script src="lessons/L16.js?v=20261017022310"></script>
+<script src="texts/S1_spektrum_L1.js?v=20261017022310"></script>
+<script src="texts/S2_spektrum_L2.js?v=20261017022310"></script>
+<script src="texts/S3_spektrum_L3.js?v=20261017022310"></script>
+<script src="texts/S9_klimenko.js?v=20261017022310"></script>
+<script src="texts/S10_klimenko_main.js?v=20261017022310"></script>
+<script src="texts/S12_alltag.js?v=20261017022310"></script>
+<script src="topics/T01_sounds.js?v=20261017022310"></script>
+<script src="topics/T02_regular.js?v=20261017022310"></script>
+<script src="topics/T03_tds.js?v=20261017022310"></script>
+<script src="topics/T04_sein.js?v=20261017022310"></script>
+<script src="topics/T05_questions.js?v=20261017022310"></script>
+<script src="topics/T06_strong.js?v=20261017022310"></script>
+<script src="topics/T07_dusie.js?v=20261017022310"></script>
+<script src="topics/T08_nouns.js?v=20261017022310"></script>
+<script src="topics/T09_negation.js?v=20261017022310"></script>
+<script src="topics/T10_gender.js?v=20261017022310"></script>
+<script src="topics/T11_adjectives.js?v=20261017022310"></script>
+<script src="topics/T12_separable.js?v=20261017022310"></script>
+<script src="topics/T13_akkusativ.js?v=20261017022310"></script>
+<script src="topics/T14_possessive.js?v=20261017022310"></script>
+<script src="topics/T15_numbers.js?v=20261017022310"></script>
+<script src="topics/T16_jobs.js?v=20261017022310"></script>
+<script src="topics/T17_family.js?v=20261017022310"></script>
+<script src="topics/T18_countries.js?v=20261017022310"></script>
+<script src="topics/T19_moechten.js?v=20261017022310"></script>
+<script src="topics/T20_wordbank.js?v=20261017022310"></script>
+<script src="topics/T21_stadt.js?v=20261017022310"></script>
+<script src="topics/T22_klimenko.js?v=20261017022310"></script>
+<script src="topics/T23_klimenko_main.js?v=20261017022310"></script>
+<script src="app.js?v=20261017022310"></script>
+<script src="chat.js?v=20261017022310"></script>
 </body>
 </html>

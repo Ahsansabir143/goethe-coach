@@ -1193,9 +1193,10 @@ function viewContents(){
   setNav('contents');
   const items = contentsItems();
   const st = p => p>=100 ? '✅ done' : p>0 ? `▶ ${p}%` : '';
-  const head = (h, href, ico) => `<li><a href="${href}">${ico?ico+' ':''}${esc(h)}</a></li>`;
+  const head = (h, href, ico) => `<li data-h="${esc(norm(h))}"><a href="${href}">${ico?ico+' ':''}${esc(h)}</a></li>`;
   const clean = h => String(h).replace(/^\d+\.\s*/,'');
   let html = `<div class="card"><h1 style="margin-top:0">📚 Course contents — all ${items.length} topics</h1><p class="muted">Everything in the course, in order, with every part of each topic. Tap any line to go straight to that part.</p>
+  <div class="csearch"><input id="csq" type="search" autocomplete="off" placeholder="🔍 What do you want to study? e.g. accusative, Familie, fahren, numbers, café, possessive…"><span id="csn" class="muted"></span></div>
   <div class="row">${COURSE.map(c=>`<a class="badge" href="#cc-${c.id}" data-jump>${c.icon||''} ${esc(c.label)}</a>`).join('')}</div></div>`;
   let cur = null, n = 0;
   items.forEach(it=>{
@@ -1216,10 +1217,35 @@ function viewContents(){
       if(topicDrills(t).length) heads.push(head(`Endless drills (${topicDrills(t).length})`, `#/t/${t.id}/drills`, '♾️'));
       heads.push(head('Timed session: 30 minutes', `#/run/${t.id}/30`, '⏱'));
     }
-    html += `<div class="card ctop" id="ct-${n}"><div class="ctop-h"><span class="ctn">${n}</span><a class="ctt" href="${open}">${esc(title)}</a><span class="badge">${kind}</span>${st(prog)?`<span class="badge">${st(prog)}</span>`:''}</div>
-      <ol class="cheads">${heads.join('')}</ol>${words.length?`<details class="cw"><summary>🔤 Show the ${words.length} words</summary><div class="wrows">${words.map((w,i)=>`<div class="wrow"><span class="pn">${i+1}</span> ${spk(fullDe(w))} ${tapWord(w)} <span class="muted">— ${esc(w.en)}</span></div>`).join('')}</div></details>`:''}</div>`;
+    const wtxt = words.map(w=>`${w.g?ART[w.g]+' ':''}${w.de} ${w.pl||''} ${w.en}`).join(' | ');
+    html += `<div class="card ctop" id="ct-${n}" data-t="${esc(norm(title))}" data-w="${esc(wtxt)}" data-open="${open}"><div class="ctop-h"><span class="ctn">${n}</span><a class="ctt" href="${open}">${esc(title)}</a><span class="badge">${kind}</span>${st(prog)?`<span class="badge">${st(prog)}</span>`:''}</div>
+      <ol class="cheads">${heads.join('')}</ol><div class="cwm"></div>${words.length?`<details class="cw"><summary>🔤 Show the ${words.length} words</summary><div class="wrows">${words.map((w,i)=>`<div class="wrow"><span class="pn">${i+1}</span> ${spk(fullDe(w))} ${tapWord(w)} <span class="muted">— ${esc(w.en)}</span></div>`).join('')}</div></details>`:''}</div>`;
   });
   $app.innerHTML = html; linkify($app); wireJump();
+  const inp = document.getElementById('csq'), cnt = document.getElementById('csn');
+  const run = ()=>{
+    const raw = inp.value.trim(), q = norm(raw), terms = q.split(' ').filter(Boolean);
+    let shown = 0, firstOpen = null;
+    document.querySelectorAll('.ctop').forEach(card=>{
+      const lis = [...card.querySelectorAll('.cheads li')], wm = card.querySelector('.cwm');
+      if(!terms.length){ card.hidden = false; lis.forEach(li=> li.hidden = false); wm.innerHTML = ''; shown++; return; }
+      const has = t => terms.every(x=> t.includes(x));
+      const titleHit = has(card.dataset.t);
+      let headHit = 0; lis.forEach(li=>{ const h = has(li.dataset.h); li.hidden = !(titleHit || h); if(h) headHit++; });
+      // matching words of this topic
+      const words = (card.dataset.w||'').split(' | ').filter(Boolean).filter(w=> has(norm(w))).slice(0,8);
+      wm.innerHTML = words.length ? `<div class="muted" style="font-size:.88em;margin:4px 0 0 2.6em">🔤 ${words.map(w=>`<b>${esc(w.split(' ').slice(0, /^(der|die|das) /.test(w)?2:1).join(' '))}</b>`).join(' · ')} — <a href="${card.dataset.open.replace(/\/learn$/,'')}${card.dataset.open.startsWith('#/l/')?'/words':(card.dataset.open.startsWith('#/x/')?'/words':'/words')}">open the words</a></div>` : '';
+      const ok = titleHit || headHit || words.length; card.hidden = !ok;
+      if(ok){ shown++; const score = (titleHit?100:0) + headHit*10 + words.length; if(!firstOpen || score > firstOpen._s){ firstOpen = card; card._s = score; } }
+    });
+    document.querySelectorAll('.chh2[id^="cc-"]').forEach(h=>{ let el = h.nextElementSibling, any = false; while(el && !el.classList.contains('chh2')){ if(el.classList.contains('ctop') && !el.hidden) any = true; el = el.nextElementSibling; } h.hidden = !any; const sub = h.nextElementSibling; if(sub && sub.tagName==='P') sub.hidden = !any; });
+    cnt.textContent = terms.length ? (shown ? `${shown} topic${shown>1?'s':''} found — tap a line to study it` : 'Nothing found — try another word (German or English)') : '';
+    inp._first = firstOpen;
+  };
+  inp.addEventListener('input', run);
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter' && inp._first){ location.hash = inp._first.dataset.open; } });
+  try{ const last = sessionStorage.getItem('csq'); if(last){ inp.value = last; run(); } }catch(e){}
+  inp.addEventListener('input', ()=>{ try{ sessionStorage.setItem('csq', inp.value); }catch(e){} });
 }
 
 /* ---------------- router ---------------- */
