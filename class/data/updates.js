@@ -18,3 +18,6 @@ window.UPDATES = window.UPDATES.concat([
  {date:'2026-10-17', icon:'👆', text:'Almost every German word can be tapped — also inflected forms (meinen, Äpfel), numbers, compounds, names and the chat answers', href:''},
  {date:'2026-10-17', icon:'👉', text:'Every memory trick and short rule (DOGFU, e–st–t–en–t–en, nicht/kein …) now has worked examples in German + English', href:'#/l/L15/learn'}
 ]);
+window.UPDATES = window.UPDATES.concat([
+ {date:'2026-10-17', icon:'📚', text:'Contents tab: every topic of the course numbered in sequence — open any topic to see its rules, words and exercises and choose what to study', href:'#/contents'}
+]);

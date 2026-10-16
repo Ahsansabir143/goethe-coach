@@ -807,7 +807,7 @@ function viewHome(){
   const cont = COURSE.find(c=>c.id===S.lastCh) || COURSE[0];
   let html = `<h1>Deutsch mit Anara 🇩🇪</h1><p class="muted">My German A1 course in the order of the book: every chapter with its grammar, words, texts and exercises. Tap any <span class="w" data-w="Wort">underlined</span> German word to see its meaning and grammar.</p>
   <div class="stat"><div><b>${COURSE.length}</b>chapters</div><div><b>${words}</b>words</div><div><b>${items}</b>exercises + endless drills</div><div><b>${S.stats.ans}</b>answered${S.stats.ans?` · ${acc}% right`:''}</div><div><b>${S.stats.days[today()]||0}</b>today</div></div>
-  <div class="row" style="margin-top:12px">${cont?`<a class="btn go" href="#/c/${cont.id}">Continue: ${esc(cont.label)} · ${esc(cont.title)} →</a>`:''}<a class="btn" href="#/topics">🎯 Practice by topic</a><a class="btn" href="#/texts">📚 Texts & dialogues</a><a class="btn" href="#/mix">🎲 Mixed review</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>
+  <div class="row" style="margin-top:12px">${cont?`<a class="btn go" href="#/c/${cont.id}">Continue: ${esc(cont.label)} · ${esc(cont.title)} →</a>`:''}<a class="btn" href="#/contents">📚 Course contents (all topics)</a><a class="btn" href="#/topics">🎯 Practice by topic</a><a class="btn" href="#/texts">📚 Texts & dialogues</a><a class="btn" href="#/mix">🎲 Mixed review</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>
   <h2 style="margin-top:18px">Course</h2><div class="chlist">`;
   COURSE.forEach((c,i)=>{ const p = chProgress(c); const ls = chPages(c);
     html += `<a class="chap" href="#/c/${c.id}"><div class="chn">${c.icon||''}</div><div class="chb"><div class="d">${esc(c.label)}</div><div class="t">${esc(c.title)}</div><div class="muted" style="font-size:.88em">${esc(c.sub)}</div>
@@ -1173,6 +1173,54 @@ function viewVerbs(filter){
   const inp = document.getElementById('vsearch'); inp.oninput = ()=>{ const q = inp.value.toLowerCase().trim(); document.querySelectorAll('.vt tr[data-s]').forEach(r=> r.style.display = !q || r.dataset.s.includes(q) ? '' : 'none'); };
 }
 
+
+/* ---------------- 📚 Contents: every topic of the course, numbered, in sequence ---------------- */
+function contentsItems(){
+  const out = [], seenL = new Set(), seenT = new Set(), seenX = new Set();
+  const chs = COURSE.slice();
+  chs.forEach(c=>{
+    chPages(c).forEach(l=>{ seenL.add(l.id); out.push({c, kind:'page', l}); });
+    chTexts(c).forEach(x=>{ seenX.add(x.id); out.push({c, kind:'text', x}); });
+    chTopics(c).forEach(t=>{ seenT.add(t.id); out.push({c, kind:'topic', t}); });
+  });
+  const extra = {id:'more', label:'More', title:'More material', icon:'➕', sub:''};
+  LESSONS.filter(l=>!seenL.has(l.id)).forEach(l=> out.push({c:extra, kind:'page', l}));
+  TEXTS.filter(x=>!seenX.has(x.id)).forEach(x=> out.push({c:extra, kind:'text', x}));
+  TOPICS.filter(t=>!seenT.has(t.id)).forEach(t=> out.push({c:extra, kind:'topic', t}));
+  return out;
+}
+function viewContents(openN){
+  setNav('contents');
+  const items = contentsItems();
+  const st = p => p>=100 ? '✅ done' : p>0 ? `▶ ${p}% done` : '○ not started';
+  const wl = ws => ws.length ? `<h4>🔤 Words (${ws.length})</h4><div class="wrows">${ws.map((w,i)=>`<div class="wrow"><span class="pn">${i+1}</span> ${spk(fullDe(w))} ${tapWord(w)} <span class="muted">— ${esc(w.en)}</span></div>`).join('')}</div>` : '';
+  let html = `<div class="card"><h1 style="margin-top:0">📚 Course contents — all ${items.length} topics</h1><p class="muted">Everything in the course, in order: grammar pages, book texts and dialogues, and practice topics, chapter by chapter. Open any topic to see what is inside — rules, every word with its sound and meaning, the exercises — and choose what to study.</p>
+  <div class="row">${COURSE.map(c=>`<a class="badge" href="#cc-${c.id}" data-jump>${c.icon||''} ${esc(c.label)}</a>`).join('')}</div></div>`;
+  let cur = null, n = 0;
+  items.forEach(it=>{
+    n++;
+    if(it.c !== cur){ cur = it.c; html += `<h2 class="chh2" id="cc-${cur.id}">${cur.icon||''} ${esc(cur.label)} · ${esc(cur.title)}</h2>${cur.sub?`<p class="muted">${esc(cur.sub)}</p>`:''}`; }
+    let sum, body, open, prac, badge;
+    if(it.kind==='page'){ const l = it.l; const p = lessonProgress(l);
+      badge = '📖 Grammar'; sum = pageTitle(l); open = `#/l/${l.id}/learn`; prac = `#/l/${l.id}/practice`;
+      body = `<p class="muted">${esc(pageSum(l))}</p>${(l.learn||[]).length?`<h4>🧠 What you learn (${l.learn.length})</h4><ol class="glist">${l.learn.map(s=>`<li>${esc(s.h.replace(/^\d+\.\s*/,''))}</li>`).join('')}</ol>`:''}${wl(l.vocab||[])}${(l.sets||[]).length?`<h4>✍️ Exercises (${lessonItems(l).length})</h4><div>${l.sets.map(s=>esc(s.title)).join(' · ')}</div>`:''}`;
+      badge += ` <span class="muted">· ${st(p)}</span>`;
+    } else if(it.kind==='text'){ const x = it.x; const r = S.sets['x:'+x.id]; const p = r ? Math.round(r.best/r.total*100) : 0;
+      badge = '📚 Text'; sum = x.title; open = `#/x/${x.id}`; prac = `#/x/${x.id}`;
+      body = `<p class="muted">${esc(x.book)} · ${esc(x.ref)} · ${x.lines.length} lines</p><div class="wrows">${x.lines.slice(0,3).map(L=>`<div class="wrow"><span class="de">${esc(L.de)}</span> <span class="muted">— ${esc(L.en)}</span></div>`).join('')}${x.lines.length>3?'<div class="muted">…</div>':''}</div>${wl(x.words)}<h4>✍️ Exercises (${textItems(x).length})</h4>`;
+      badge += ` <span class="muted">· ${st(p)}</span>`;
+    } else { const t = it.t; const p = topicProgress(t);
+      badge = '🎯 Practice'; sum = `${t.icon||''} ${t.title}`; open = `#/t/${t.id}/learn`; prac = `#/t/${t.id}`;
+      body = `<p class="muted">${esc(t.d||'')}</p>${(t.learn||[]).length?`<h4>🧠 Rules (${t.learn.length})</h4><ol class="glist">${t.learn.map(s=>`<li>${esc(s.h.replace(/^\d+\.\s*/,''))}</li>`).join('')}</ol>`:''}<h4>✍️ Exercises</h4><div>${topicItems(t).length} exercises · ${topicDrills(t).length} endless drills · timed sessions 15 min – 4 h</div>`;
+      badge += ` <span class="muted">· ${st(p)}</span>`;
+    }
+    html += `<details class="card cday" id="ct-${n}" ${openN===n?'open':''}><summary><span class="ctn">${n}</span> <b>${esc(sum)}</b> <span class="badge">${badge}</span></summary><div class="cbody">${body}
+      <div class="row"><a class="btn go" href="${open}">▶ Study this topic</a><a class="btn" href="${prac}">✍️ Practise</a></div></div></details>`;
+  });
+  $app.innerHTML = html; linkify($app); wireJump();
+  if(openN){ const o = document.getElementById('ct-'+openN); if(o) o.scrollIntoView(); }
+}
+
 /* ---------------- router ---------------- */
 function route(){
   $pop.style.display='none'; if(window.__QT) clearInterval(window.__QT);
@@ -1183,6 +1231,7 @@ function route(){
     else if(p[0]==='p'){ const l = lessonById(p[1]); const s = l && l.sets[+p[2]]; if(!s) return viewHome(); runQuiz({title:s.title, items: s.shuffle===false ? s.items.slice() : shuffle(s.items), key:setKey(l,+p[2]), back:`#/l/${l.id}/practice`, lid:l.id}); }
     else if(p[0]==='words') viewWords();
     else if(p[0]==='c') viewChapter(p[1], p[2]);
+    else if(p[0]==='contents') viewContents(+p[1]||0);
     else if(p[0]==='flash') viewFlash(p[1]);
     else if(p[0]==='drills') viewDrills();
     else if(p[0]==='d') viewDrill(p[1]);
@@ -1204,5 +1253,5 @@ function route(){
 buildDict(); addBankToDict(); addTextsToDict(); addVerbForms();
 window.addEventListener('hashchange', route);
 route();
-window.__ANARA = {COURSE, chWords, chapterOfPage, chapterOfText, chapterOfTopic, pageTitle, courseWords, wordColumns, verbGroups, lookupWord, verbList, ALLV, LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems, speak, fullDe, linkify, verb, esc, ART, lessonItems, topicDrills};
+window.__ANARA = {contentsItems, COURSE, chWords, chapterOfPage, chapterOfText, chapterOfTopic, pageTitle, courseWords, wordColumns, verbGroups, lookupWord, verbList, ALLV, LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems, speak, fullDe, linkify, verb, esc, ART, lessonItems, topicDrills};
 })();
