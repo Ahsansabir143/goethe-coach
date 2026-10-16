@@ -1,0 +1,36 @@
+/* Topic 14 — possessive articles */
+TOPICS.push({id:'possessive', icon:'🔑', title:'Possessives: mein, dein, sein, ihr …', d:'Das ist mein Stift. · Wie ist Ihr Name? · Peter liebt seine Frau.', src:'Spektrum L2 Ü4, Ü5, A10c, A22, T3 · class example · Possessive worksheet · SK1 5.1', lessons:['L12'], lessonSets:['L12:0','L12:1'],
+gens:['poss','possb'],
+learn:[
+{h:'Two questions (Anara\'s worksheet)', html: `<p><b>1. Whose is it?</b></p>`+TBL(['Person','Possessive','English'],[['ich','mein','~my'],['du','dein','~your (informal)'],['er / es','sein','~his / its'],['sie','ihr','~her'],['wir','unser','~our'],['ihr','euer','~your (several people)'],['sie','ihr','~their'],['Sie','Ihr','~your (formal, capital I)']])+`<p><b>2. Is the noun der, das or die?</b></p>`+TBL(['der / das','die','Plural'],[['mein Bruder · mein Auto','meine Schwester','meine Eltern'],['dein Vater · dein Handy','deine Mutter','deine Kinder'],['sein Freund · sein Buch','seine Wohnung','seine Bücher'],['unser Tisch · unser Buch','unsere Tasche','unsere Bücher'],['euer Tisch · euer Buch','eure Tasche','eure Bücher']])+TIP('Trick: if the noun has <b>die</b> (feminine or plural), the possessive gets the <b>-e</b> from die. euer + e → <b>eure</b>. <b>ihr</b> has three meanings: Anna und ihr Bruder (her) · die Kinder und ihr Lehrer (their) · Ihr Pass, bitte! (your, formal).')},
+{h:'Class example', html: EX('Peter – der Tisch, die Flasche, das Buch → sein Tisch, seine Flasche, sein Buch','')+EX('Sara – der Tisch, die Tasche, das Buch → ihr Tisch, ihre Tasche, ihr Buch','')+EX('Sie (plural) → ihr Tisch, ihre Tasche, ihr Buch, ihre Bücher','')+EX('wir → unser Tisch, unsere Tasche, unser Buch, unsere Bücher','')+EX('ihr (you pl) → euer Tisch, eure Tasche, euer Buch, eure Bücher','')},
+{h:'Accusative (SK1 5.1) — extra', html: TBL(['','maskulin','feminin','neutral','Plural'],[['Nominativ','mein','meine','mein','meine'],['Akkusativ','<b>meinen</b>','meine','mein','meine']])+EX('Ich besuche meinen Onkel.','der Onkel → meinen')+TIP('Same rule as ein → einen: only masculine changes. euer → euren / eure.')}
+],
+sets:[
+{title:'Spektrum L2 Ü4: Mein Laptop', src:'Spektrum S. 42', shuffle:false, items:[
+ "f:ich: [mein] Laptop","f:1. du: [dein] Regenschirm","f:2. Maria: [ihr] Handy","f:3. du: [deine] Zeitung","f:4. er: [seine] Uhr","f:5. Paul: [sein] Auto","f:6. der Chef: [sein] Schreibtisch","f:7. Sie: [Ihre] Tasche","f:8. sie: [ihre] Tasse","f:9. ich: [meine] Brille","f:10. Sie: [Ihr] Stuhl","f:11. ich: [mein] Schlüssel"
+]},
+{title:'Spektrum L2 Ü5 & T3: Mein Name ist …', src:'Spektrum S. 42, 48', shuffle:false, items:[
+ "f:ich: [Mein] Name ist Christian. (der Name)","f:1. Sie: Wie ist [Ihr] Name? (der Name)","f:2. er: Ist das [sein] Computer? (der Computer)","f:3. du: Was ist [dein] Hobby? (das Hobby)","f:4. sie: Wie ist [ihre] Adresse? (die Adresse)","f:5. ich: [Meine] Schwester ist Lehrerin. (die Schwester)","f:6. du: Was ist [deine] Muttersprache? (die Muttersprache)","f:7. Sie: Ist das [Ihr] Schlüssel? (der Schlüssel)","f:8. ich: Das ist [mein] Stift. (der Stift)","f:9. er: Wie ist [seine] Telefonnummer? (die Telefonnummer)","f:10. Sie: Was ist [Ihr] Autokennzeichen? (das Autokennzeichen)",
+ "f:T3: Sie: Wie ist [Ihr] Name? (der Name)","f:1. du: Wie ist [deine] Adresse? (die Adresse)","f:2. Max: Wie ist [seine] Telefonnummer? (die Telefonnummer)","f:3. Sie: Was sind [Ihre] Hobbys? (die Hobbys, Pl.)","f:4. sie: Was ist [ihre] Muttersprache? (die Muttersprache)"
+]},
+{title:'Spektrum L2 Aufgabe 10b–c: Mein oder dein Stift?', src:'Spektrum S. 32', items:[
+ "f:Ist das dein Stift? – Ja, das ist [mein] Stift. – Nein, das ist der Stift von Paul.","f:Ist das deine Brille? – Ja, das ist [meine] Brille.","f:Ist das Ihr Buch? – Ja, das ist [mein] Buch. – Nein, das ist das Buch von Vera.","f:Ist das deine Tasche? – Nein, das ist [die] Tasche von Erika. – Ja, das ist [meine] Tasche.",
+ "f:1. (die Zeitung) Ist das [deine] Zeitung? – Ja, das ist [meine] Zeitung.","f:2. (die Uhr) Ist das [deine] Uhr? – Ja, das ist [meine] Uhr.","f:3. (das Handy) Ist das [dein] Handy? – Nein, das ist [das] Handy von Frau Krause.","f:4. (das Auto) Ist das [dein] Auto? – Ja, das ist [mein] Auto.","f:5. (der Schlüssel) Ist das [dein] Schlüssel? – Ja, das ist [mein] Schlüssel.","f:6. (der Stuhl) Ist das [dein] Stuhl? – Nein, das ist [der] Stuhl von Jürgen.","f:7. (das Lehrbuch) Ist das [dein] Lehrbuch? – Ja, das ist [mein] Lehrbuch."
+]},
+{title:'Class example & worksheet sentences', src:'class example · „Possessive words“ sheet', items:[
+ "f:Peter: [sein] Tisch, [seine] Flasche, [sein] Buch","f:Sara: [ihr] Tisch, [ihre] Tasche, [ihr] Buch","f:Sie (plural): [ihr] Tisch, [ihre] Tasche, [ihre] Bücher","f:wir: [unser] Tisch, [unsere] Tasche, [unser] Buch, [unsere] Bücher","f:ihr: [euer] Tisch, [eure] Tasche, [euer] Buch, [eure] Bücher",
+ "f:[Mein] Bruder heißt Ali.","f:Wo wohnt [dein] Vater?","f:[Sein] Freund kommt aus Berlin.","f:[Mein] Auto ist neu.","f:Ist das [dein] Handy?","f:(she) [Ihr] Buch liegt auf dem Tisch.","f:[Meine] Schwester ist Lehrerin.","f:Wie heißt [deine] Mutter?","f:(he) [Seine] Wohnung ist klein.","f:(she) [Ihre] Tochter lernt Deutsch.","f:[Meine] Eltern wohnen in Pakistan.","f:(we) [Unsere] Kinder spielen im Park.","f:Wie ist [Ihr] Name? (formal)","f:Ist das [Ihre] Tasche, Herr Müller?",
+ "m:Anna und ___ Bruder|ihr (her)|sein|ihre","m:Die Kinder und ___ Lehrer|ihr (their)|sein|ihre","m:___ Pass, bitte! (formal)|Ihr|Dein|Euer","m:ihr (you all): ___ Tasche|eure|euere|euer",
+ "t:My brother is called Ali.|Mein Bruder heißt Ali.","t:Where does your father live? (du)|Wo wohnt dein Vater?","t:Her daughter is learning German.|Ihre Tochter lernt Deutsch.","t:What is your name? (formal)|Wie ist Ihr Name?","t:Our children are playing in the park.|Unsere Kinder spielen im Park."
+]},
+{title:'SK1 5.1 Übung 1: Subjekt or Akkusativobjekt? (mein / meinen)', src:'Aber Hallo! A1, S. 20 — extra: possessive + accusative', shuffle:false, items:[
+ "f:a) Ich bringe [mein] Fahrrad in die Garage.","f:b) [Mein] Onkel fährt morgen nach Köln.","f:c) Ich treffe morgen [meine] Kollegin.","f:d) Ich muss [mein] Zimmer aufräumen.","f:e) [Meine] Eltern fahren in Urlaub.","f:f) [Mein] Bleistift ist weg.","f:g) Ich will [meinen] Großvater einladen. ## der Großvater = object → <b>meinen</b>",
+ "f:h) Ich suche [meine] Socken.","f:i) Ich möchte [meinen] Computer verkaufen.","f:j) [Meine] Freundin sucht einen Job.","f:k) [Mein] Rucksack liegt hier. ## subject → mein","f:l) Ich muss [meine] Schuhe putzen.","f:m) Ich finde [meinen] Kugelschreiber nicht.","f:n) [Mein] Auto ist sehr teuer."
+]},
+{title:'SK1 5.1 Übung 2: Ich besuche meine Tante.', src:'Aber Hallo! A1, S. 20 — extra', shuffle:false, items:[
+ "f:a) Wir besuchen [unsere] Eltern.","f:b) Paul fragt [seinen] Vater.","f:c) Eva sieht morgen [ihren] Onkel.","f:d) Ihr ladet [eure] Tante ein.","f:e) Du räumst [dein] Zimmer auf.","f:f) Trifft Amira [ihre] Freundin?","f:g) Besucht ihr [euren] Großvater? ## euer + en → <b>euren</b>",
+ "f:h) Sie treffen [ihre] Freunde.","f:i) Wir räumen [unsere] Wohnung auf.","f:j) Max zählt [sein] Geld.","f:k) Eva trifft heute Abend [ihre] Geschwister.","f:l) Kennst du [deine] Nachbarin?","f:m) Wir holen [unser] Gepäck.","f:n) Ihr bezahlt [eure] Rechnung."
+]}
+]
+});

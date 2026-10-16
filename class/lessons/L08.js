@@ -7,20 +7,20 @@ learn:[
 {h:'1. Introducing yourself and others', html:
  TBL(['Question','Answer (ich)','Answer (er / sie)'],[
   ['Wie heißt du? / Wie heißen Sie?','Ich heiße Ahsan.','Er heißt Franz. / Sie heißt Martina.'],
-  ['Woher kommst du?','Ich komme aus Pakistan.','Er kommt aus Österreich.'],
+  ['Woher kommst du?','Ich komme aus Pakistan.','Er kommt aus Deutschland.'],
   ['Wo wohnst du?','Ich wohne in Bischkek.','Sie wohnt in Bern.'],
   ['Welche Sprachen sprichst du?','Ich spreche Urdu, Englisch und ein bisschen Deutsch.','Sie spricht Deutsch und Französisch.'],
-  ['Was ist dein Hobby? / Was machst du gern?','Ich spiele gern Fußball.','Sie lernt gern Spanisch.']
+  ['Was ist dein Hobby? / Was machst du gern?','Ich spiele gern Fußball.','Sie lernt gern Sprachen.']
  ])+
- EX('Das ist Franz. Er kommt aus Österreich und wohnt in München. Er spricht Deutsch. Sein Hobby ist Fußball.','This is Franz. He comes from Austria and lives in Munich. He speaks German. His hobby is football.')+
- EX('Das ist Martina. Sie kommt aus der Schweiz und wohnt in Bern. Sie spricht Deutsch und Französisch. Sie lernt gern Spanisch.','')+
+ EX('Das ist Franz. Er kommt aus Deutschland und wohnt in München. Er spricht Deutsch. Sein Hobby ist Fußball.','This is Franz. He comes from Germany and lives in Munich. He speaks German. His hobby is football.')+
+ EX('Das ist Martina. Sie kommt aus der Schweiz und wohnt in Bern. Sie spricht Deutsch und Französisch. Sie lernt gern Sprachen.','She likes learning languages.')+
  EX('Das sind Lars, Rasmus und Johan. Sie kommen aus Dänemark und wohnen in Kopenhagen. Sie sprechen Dänisch, Schwedisch und Englisch. Sie spielen gern Jazz.','')+
  TIP('<b>gern</b> + verb = to like doing something: Ich spiele <b>gern</b> Tennis = I like playing tennis. Sie spielt gern Tennis.')},
 {h:'2. sprechen (e → i)', html:
  TBL(['Person','sprechen'],[['ich','spreche'],['du','sprichst'],['er / sie / es','spricht'],['wir','sprechen'],['ihr','sprecht'],['sie / Sie','sprechen']])},
 {h:'3. Countries and languages', html:
  TBL(['Land (country)','Sprache (language)','Land','Sprache'],[
-  ['Deutschland','Deutsch','Pakistan','Urdu'],['Österreich','Deutsch','die Schweiz','Deutsch, Französisch, Italienisch'],['England','Englisch','Frankreich','Französisch'],['Spanien','Spanisch','Italien','Italienisch'],
+  ['Deutschland','Deutsch','Pakistan','Urdu'],['Österreich','Deutsch','die Schweiz','Deutsch, Französisch, Italienisch'],['Großbritannien','Englisch','Frankreich','Französisch'],['Spanien','Spanisch','Italien','Italienisch'],
   ['Portugal','Portugiesisch','Griechenland','Griechisch'],['Russland','Russisch','Kirgisistan','Kirgisisch, Russisch'],['die Türkei','Türkisch','Marokko','Arabisch'],['Japan','Japanisch','China','Chinesisch'],
   ['Dänemark','Dänisch','Schweden','Schwedisch'],['die Niederlande','Niederländisch','Ungarn','Ungarisch'],['Bulgarien','Bulgarisch','Polen','Polnisch']
  ])+
@@ -36,18 +36,19 @@ learn:[
 vocab:[
  {de:'Name', g:'m', pl:'Namen', en:'name'},{de:'Land', g:'n', pl:'Länder', en:'country'},{de:'Wohnort', g:'m', pl:'Wohnorte', en:'place of residence'},{de:'Sprache', g:'f', pl:'Sprachen', en:'language'},{de:'Hobby', g:'n', pl:'Hobbys', en:'hobby'},
  {de:'Deutschland', en:'Germany'},{de:'Österreich', en:'Austria'},{de:'Schweiz', g:'f', pl:'—', en:'Switzerland (die Schweiz)'},{de:'Türkei', g:'f', pl:'—', en:'Turkey (die Türkei)'},{de:'Italien', en:'Italy'},{de:'Griechenland', en:'Greece'},{de:'Russland', en:'Russia'},{de:'Kirgisistan', en:'Kyrgyzstan'},
- {de:'Dänemark', en:'Denmark'},{de:'Schweden', en:'Sweden'},{de:'Ungarn', en:'Hungary'},{de:'Marokko', en:'Morocco'},{de:'Japan', en:'Japan'},
- {de:'Englisch', en:'English'},{de:'Französisch', en:'French'},{de:'Spanisch', en:'Spanish'},{de:'Italienisch', en:'Italian'},{de:'Russisch', en:'Russian'},{de:'Türkisch', en:'Turkish'},{de:'Arabisch', en:'Arabic'},{de:'Dänisch', en:'Danish'},{de:'Schwedisch', en:'Swedish'},{de:'Portugiesisch', en:'Portuguese'},{de:'Griechisch', en:'Greek'},{de:'Chinesisch', en:'Chinese'},{de:'Japanisch', en:'Japanese'},{de:'Niederländisch', en:'Dutch'},
+ {de:'Dänemark', en:'Denmark'},{de:'Schweden', en:'Sweden'},{de:'Ungarn', en:'Hungary'},{de:'Marokko', en:'Morocco'},{de:'Japan', en:'Japan'},{de:'Großbritannien', en:'Great Britain'},{de:'Bulgarien', en:'Bulgaria'},{de:'Portugal', en:'Portugal'},{de:'China', en:'China'},{de:'Niederlande', g:'pl', en:'the Netherlands (die Niederlande)'},{de:'Pakistan', en:'Pakistan'},
+ {de:'Englisch', en:'English'},{de:'Französisch', en:'French'},{de:'Spanisch', en:'Spanish'},{de:'Italienisch', en:'Italian'},{de:'Russisch', en:'Russian'},{de:'Türkisch', en:'Turkish'},{de:'Arabisch', en:'Arabic'},{de:'Dänisch', en:'Danish'},{de:'Schwedisch', en:'Swedish'},{de:'Portugiesisch', en:'Portuguese'},{de:'Griechisch', en:'Greek'},{de:'Chinesisch', en:'Chinese'},{de:'Japanisch', en:'Japanese'},{de:'Niederländisch', en:'Dutch'},{de:'Bulgarisch', en:'Bulgarian'},{de:'Ungarisch', en:'Hungarian'},{de:'Urdu', en:'Urdu'},{de:'Kirgisisch', en:'Kyrgyz'},
  {de:'gern', en:'gladly — (to) like doing'},{de:'ein bisschen', en:'a little'},{de:'wer', en:'who'},{de:'was', en:'what'},{de:'wie', en:'how'},{de:'welche', en:'which'},{de:'jetzt', en:'now'},
  {de:'Käse', g:'m', pl:'—', en:'cheese'},{de:'Wein', g:'m', pl:'Weine', en:'wine'},{de:'Tennis', g:'n', pl:'—', en:'tennis'},{de:'Jazz', g:'m', pl:'—', en:'jazz'},{de:'Goethe-Zertifikat', g:'n', pl:'Goethe-Zertifikate', en:'Goethe certificate (exam)'},{de:'Prüfungstermin', g:'m', pl:'Prüfungstermine', en:'exam date'}
 ],
 sets:[
 {title:'Personen vorstellen', d:'Franz, Martina, Lars …', items:[
- {t:'fill', q:'Franz ___ aus Österreich. (kommen)', a:['kommt']},
+ {t:'fill', q:'Franz ___ aus Deutschland. (kommen)', a:['kommt']},
  {t:'fill', q:'Er ___ in München. (wohnen)', a:['wohnt']},
  {t:'fill', q:'Er ___ Deutsch. (sprechen)', a:['spricht']},
  {t:'fill', q:'Martina kommt aus ___ Schweiz.', a:['der'], x:'die Schweiz → aus <b>der</b> Schweiz'},
  {t:'fill', q:'Sie ___ Deutsch und Französisch. (sprechen)', a:['spricht']},
+ {t:'fill', q:'Martina ___ gern Sprachen. (lernen)', a:['lernt'], x:'Spektrum: „Martina lernt gern Sprachen.“'},
  {t:'fill', q:'Lars und Rasmus ___ aus Dänemark. (kommen)', a:['kommen']},
  {t:'fill', q:'Sie ___ Dänisch, Schwedisch und Englisch. (sprechen)', a:['sprechen']},
  {t:'fill', q:'Sie ___ gern Jazz. (spielen)', a:['spielen']},
@@ -63,7 +64,7 @@ sets:[
  {t:'tr', en:'She likes playing tennis.', a:['Sie spielt gern Tennis.','Sie spielt gerne Tennis.']},
  {t:'tr', en:'I speak a little German.', a:['Ich spreche ein bisschen Deutsch.']},
  {t:'order', a:'Welche Sprachen sprichst du?', en:'Which languages do you speak?'},
- {t:'order', a:'Er kommt aus Österreich.', en:'He comes from Austria.'}
+ {t:'order', a:'Er kommt aus Deutschland.', en:'He comes from Austria.'}
 ]},
 {title:'Countries & languages', items:[
  {t:'match', pairs:[['Frankreich','Französisch'],['Spanien','Spanisch'],['Russland','Russisch'],['Marokko','Arabisch'],['die Türkei','Türkisch'],['Dänemark','Dänisch']], q:'Match each country to its language.'},

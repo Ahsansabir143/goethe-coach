@@ -38,26 +38,31 @@ vocab:[
  {de:'Gitarre', g:'f', pl:'Gitarren', en:'guitar'},{de:'Wohnung', g:'f', pl:'Wohnungen', en:'flat / apartment'},{de:'Zentrum', g:'n', pl:'Zentren', en:'centre'},{de:'Eltern', g:'pl', en:'parents'},
  {de:'malen', en:'to paint'},{de:'bedienen', en:'to serve'},{de:'untersuchen', en:'to examine'},{de:'entwickeln', en:'to develop'},{de:'unterrichten', en:'to teach'},{de:'präsentieren', en:'to present'},
  {de:'Zeit', g:'f', pl:'Zeiten', en:'time'},{de:'Hunger', g:'m', pl:'—', en:'hunger'},{de:'Durst', g:'m', pl:'—', en:'thirst'},{de:'Bruder', g:'m', pl:'Brüder', en:'brother'},{de:'Schwester', g:'f', pl:'Schwestern', en:'sister'},
- {de:'morgens', en:'in the mornings'},{de:'jeden Tag', en:'every day'},{de:'zum Beispiel', en:'for example'}
+ {de:'morgens', en:'in the mornings'},{de:'jeden Tag', en:'every day'},{de:'Weihnachten', g:'n', pl:'—', en:'Christmas'},{de:'geboren', en:'born'},{de:'Engländer', g:'m', pl:'Engländer', en:'Englishman'},{de:'Auge', g:'n', pl:'Augen', en:'eye'},{de:'Haar', g:'n', pl:'Haare', en:'hair'},{de:'blau', en:'blue'},{de:'blond', en:'blond'},{de:'alleine', en:'alone (also: allein)'},{de:'zu zweit', en:'as a pair / the two of us'},{de:'froh', en:'glad / happy'},{de:'Urlaub', g:'m', pl:'Urlaube', en:'holiday / vacation'},{de:'zurückkommen', en:'to come back'},{de:'Hose', g:'f', pl:'Hosen', en:'trousers'},{de:'Stadt', g:'f', pl:'Städte', en:'city / town'},{de:'Mir ist schlecht.', en:'I feel sick.'},{de:'Toilette', g:'f', pl:'Toiletten', en:'toilet'},{de:'hungrig', en:'hungry'},{de:'durstig', en:'thirsty'},{de:'Wie spät ist es?', en:'What time is it?'},{de:'zum Beispiel', en:'for example'}
 ],
 sets:[
-{title:'sein (online test)', d:'bin, bist, ist, sind, seid', items:[
- {t:'fill', q:'Ich ___ Ahsan.', a:['bin']},
- {t:'fill', q:'Du ___ sehr nett.', a:['bist']},
- {t:'fill', q:'Er ___ Lehrer.', a:['ist']},
- {t:'fill', q:'Wir ___ aus Pakistan.', a:['sind']},
- {t:'fill', q:'Ihr ___ müde.', a:['seid'], x:'ihr <b>seid</b> (not „seit“ — that means since)'},
- {t:'fill', q:'Meine Eltern ___ zu Hause.', a:['sind']},
- {t:'fill', q:'Wo ___ Sie, Frau Müller?', a:['sind']},
- {t:'fill', q:'Das ___ meine Bücher.', a:['sind']},
- {t:'fill', q:'___ du krank? – Nein, ich bin nur müde.', a:['Bist']},
- {t:'fill', q:'Woher ___ ihr? – Wir sind aus Kirgisistan.', a:['seid']},
- {t:'fill', q:'Anara ___ unsere Lehrerin.', a:['ist']},
+{title:'sein (online test)', d:'the 14 sentences of the test — fill in every form of sein', shuffle:false, items:[
+ {t:'fill', q:'1. Meine Eltern ___ einkaufen und meine Schwester ___ auch nicht zu Hause.', a:['sind','ist']},
+ {t:'fill', q:'2. ___ ihr zum Abendessen zurück?', a:['Seid'], x:'ihr <b>seid</b> (not „seit“ — that means since)'},
+ {t:'fill', q:'3. Morgen ___ Weihnachten und die ganze Familie ___ zu Hause.', a:['ist','ist']},
+ {t:'fill', q:'4. Ich ___ in Deutschland geboren, aber mein Vater ___ Engländer.', a:['bin','ist']},
+ {t:'fill', q:'5. Meine Augen ___ blau, meine Haare ___ blond.', a:['sind','sind'], x:'die Augen, die Haare = plural → <b>sind</b>'},
+ {t:'fill', q:'6. Wer ___ du? Wer ___ deine Eltern?', a:['bist','sind']},
+ {t:'fill', q:'7. Ich ___ hier alleine, ihr ___ hier zu zweit.', a:['bin','seid']},
+ {t:'fill', q:'8. Wie ___ Ihr Name? Woher ___ Sie?', a:['ist','sind']},
+ {t:'fill', q:'9. Wir ___ froh, dass ihr gut aus dem Urlaub zurückgekommen ___.', a:['sind','seid'], x:'In a dass-sentence the verb goes to the end: … zurückgekommen <b>seid</b>.'},
+ {t:'fill', q:'10. Wie spät ___ es? Wann ___ wir zu Hause?', a:['ist','sind']},
+ {t:'fill', q:'11. Seine Schuhe ___ neu, seine Hose ___ es nicht.', a:['sind','ist']},
+ {t:'fill', q:'12. Wo ___ London? London, Manchester und Liverpool ___ Städte in England.', a:['ist','sind']},
+ {t:'fill', q:'13. Mir ___ schlecht. Wo ___ hier die Toiletten?', a:['ist','sind'], x:'Mir ist schlecht = I feel sick.'},
+ {t:'fill', q:'14. ___ ihr hungrig? Nein, aber wir ___ sehr durstig.', a:['Seid','sind']},
+ {t:'tr', en:'Are you (all) hungry? – No, but we are very thirsty.', a:['Seid ihr hungrig? – Nein, aber wir sind sehr durstig.','Seid ihr hungrig? Nein, aber wir sind sehr durstig.']},
+ {t:'tr', en:'Where are the toilets here?', a:['Wo sind hier die Toiletten?','Wo sind die Toiletten hier?']},
+ {t:'tr', en:'What time is it?', a:['Wie spät ist es?']},
+ {t:'tr', en:'What is your name? Where are you from? (Sie)', a:['Wie ist Ihr Name? Woher sind Sie?','Wie ist Ihr Name? Woher kommen Sie?']},
  {t:'fill', q:'Ich ___ einen Bruder. (haben)', a:['habe']},
- {t:'fill', q:'Du ___ viele Fragen. (haben)', a:['hast']},
  {t:'fill', q:'Er ___ keine Zeit. (haben)', a:['hat']},
- {t:'fill', q:'___ ihr Hunger? (haben)', a:['Habt']},
- {t:'fill', q:'Wir ___ heute Deutschunterricht. (haben)', a:['haben']}
+ {t:'fill', q:'___ ihr Hunger? (haben)', a:['Habt']}
 ]},
 {title:'Exercise 1 (sentences 1–15)', d:'conjugate the verb in brackets', items:[
  {t:'fill', q:'Ich ___ Deutsch in der Sprachschule. (lernen)', a:['lerne']},

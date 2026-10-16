@@ -13,19 +13,19 @@ learn:[
  TBL(['Tens',''],[['20 zwanzig','60 <b>sech</b>zig'],['30 drei<b>ß</b>ig','70 <b>sieb</b>zig'],['40 vierzig','80 achtzig'],['50 fünfzig','90 neunzig']])+
  TIP('For 21, 31, 41 … use <b>ein</b>und…: einundzwanzig, not „einsundzwanzig“.')},
 {h:'3. 100 – 1 000 000', html:
- TBL(['Number','German'],[['100','(ein)hundert'],['101','hunderteins'],['200','zweihundert'],['365','dreihundertfünfundsechzig'],['1 000','(ein)tausend'],['2 024','zweitausendvierundzwanzig'],['10 000','zehntausend'],['100 000','hunderttausend'],['1 000 000','eine Million']])+
+ TBL(['Number','German'],[['100','(ein)hundert'],['101','(ein)hundert(und)eins'],['121','(ein)hunderteinundzwanzig'],['200','zweihundert'],['365','dreihundertfünfundsechzig'],['1 000','(ein)tausend'],['2 024','zweitausendvierundzwanzig'],['10 000','zehntausend'],['100 000','hunderttausend'],['1 000 000','eine Million'],['1 000 000 000','eine Milliarde']])+
  TIP('Big numbers are written as <b>one word</b>. Germans write a dot or space for thousands: 10.000 or 10 000, and a comma for decimals: 2,60 €.')},
 {h:'4. Telephone numbers (Dialoge mit Zahlen)', html:
  `<p>Phone numbers are read in single digits or in pairs:</p>`+
- EX('Wie ist die Telefonnummer von Martina? – 36 29 81.','What is Martina\'s phone number? – sechsunddreißig, neunundzwanzig, einundachtzig.')+
+ EX('Wie ist die Telefonnummer von Martina? – Die Telefonnummer von Martina ist 5 26 39 81.','fünf – sechsundzwanzig – neununddreißig – einundachtzig')+EX('Wie ist die Telefonnummer von Doktor Müller? – 6 47 35 27.','sechs – siebenundvierzig – fünfunddreißig – siebenundzwanzig')+EX('Wie ist die Telefonnummer von Anton? – 2 25 34 71.','')+EX('Wie ist die Telefonnummer von Eva? – 9 98 76 53.','')+
  EX('Wie ist deine Handynummer? – 0176 2539414.','What is your mobile number? – null eins sieben sechs …')+
  EX('Wie ist die Nummer von der Polizei? – 110.','The police number? – eins eins null')+
  EX('Und von der Feuerwehr? – 112.','And the fire brigade? – eins eins zwei')+
  TIP('On the phone, Germans often say <b>zwo</b> instead of zwei so it does not sound like drei.')},
 {h:'5. Things for work and everyday life', html:
- `<p>Learn every noun with its colour: <span class="m">der</span> · <span class="f">die</span> · <span class="n">das</span>.</p>`+
+ `<p>The 23 things from Spektrum Lektion 2, Aufgabe 7. Learn every noun with its colour: <span class="m">der</span> · <span class="f">die</span> · <span class="n">das</span>.</p>`+
  TBL(['der (masc.)','die (fem.)','das (neuter)'],[
-  ['der Tisch','die Brille','das Handy'],['der Stuhl','die Zeitung','das Bild'],['der Computer','die Uhr','das Auto'],['der Regenschirm','die Tasche','das Medikament'],['der Schlüssel','die Lampe','das Lehrbuch'],['der Stift','die Seife','das Feuerzeug'],['der Kalender','die Tasse','das Wörterbuch'],['der Ball','die Flasche','das Foto'],['','die Zeitschrift',''],['','die Kaffeemaschine','']
+  ['der Tisch','die Brille','das Handy'],['der Stuhl','die Zeitung','das Medikament'],['der Regenschirm','die Uhr','das Bild'],['der Computer','die Tasche','das Auto'],['der Schlüssel','die Lampe','das Lehrbuch'],['der Stift','die Seite',''],['der Fußball','die Tasse',''],['','die Tür',''],['','die Zeitschrift',''],['','die Flasche',''],['','die Kaffeemaschine','']
  ])+
  EX('Was ist das? – Das ist ein Regenschirm.','What is that? – That is an umbrella.')+EX('Ist das eine Brille? – Ja, das ist eine Brille.','')}
 ],
@@ -34,9 +34,9 @@ vocab:[
  {de:'zehn', en:'ten'},{de:'elf', en:'eleven'},{de:'zwölf', en:'twelve'},{de:'sechzehn', en:'sixteen'},{de:'siebzehn', en:'seventeen'},{de:'zwanzig', en:'twenty'},{de:'dreißig', en:'thirty'},{de:'hundert', en:'hundred'},{de:'tausend', en:'thousand'},{de:'Million', g:'f', pl:'Millionen', en:'million'},
  {de:'Zahl', g:'f', pl:'Zahlen', en:'number'},{de:'Telefonnummer', g:'f', pl:'Telefonnummern', en:'telephone number'},{de:'Handynummer', g:'f', pl:'Handynummern', en:'mobile number'},{de:'Polizei', g:'f', pl:'—', en:'police'},{de:'Feuerwehr', g:'f', pl:'Feuerwehren', en:'fire brigade'},
  {de:'Tisch', g:'m', pl:'Tische', en:'table'},{de:'Stuhl', g:'m', pl:'Stühle', en:'chair'},{de:'Regenschirm', g:'m', pl:'Regenschirme', en:'umbrella'},{de:'Schlüssel', g:'m', pl:'Schlüssel', en:'key'},{de:'Stift', g:'m', pl:'Stifte', en:'pen'},
- {de:'Brille', g:'f', pl:'Brillen', en:'glasses'},{de:'Tasche', g:'f', pl:'Taschen', en:'bag'},{de:'Lampe', g:'f', pl:'Lampen', en:'lamp'},{de:'Seife', g:'f', pl:'Seifen', en:'soap'},{de:'Tasse', g:'f', pl:'Tassen', en:'cup'},{de:'Flasche', g:'f', pl:'Flaschen', en:'bottle'},
+ {de:'Brille', g:'f', pl:'Brillen', en:'glasses'},{de:'Tasche', g:'f', pl:'Taschen', en:'bag'},{de:'Lampe', g:'f', pl:'Lampen', en:'lamp'},{de:'Seite', g:'f', pl:'Seiten', en:'page'},{de:'Tasse', g:'f', pl:'Tassen', en:'cup'},{de:'Flasche', g:'f', pl:'Flaschen', en:'bottle'},
  {de:'Zeitschrift', g:'f', pl:'Zeitschriften', en:'magazine'},{de:'Kaffeemaschine', g:'f', pl:'Kaffeemaschinen', en:'coffee machine'},
- {de:'Handy', g:'n', pl:'Handys', en:'mobile phone'},{de:'Bild', g:'n', pl:'Bilder', en:'picture'},{de:'Medikament', g:'n', pl:'Medikamente', en:'medicine'},{de:'Lehrbuch', g:'n', pl:'Lehrbücher', en:'textbook'},{de:'Feuerzeug', g:'n', pl:'Feuerzeuge', en:'lighter'},{de:'Foto', g:'n', pl:'Fotos', en:'photo'},
+ {de:'Handy', g:'n', pl:'Handys', en:'mobile phone'},{de:'Bild', g:'n', pl:'Bilder', en:'picture'},{de:'Medikament', g:'n', pl:'Medikamente', en:'medicine'},{de:'Lehrbuch', g:'n', pl:'Lehrbücher', en:'textbook'},{de:'Milliarde', g:'f', pl:'Milliarden', en:'billion (1 000 000 000)'},
  {de:'Was ist das?', en:'What is that?'}
 ],
 sets:[
@@ -53,6 +53,9 @@ sets:[
  {t:'fill', q:'100 = ___', a:['hundert|einhundert']},
  {t:'fill', q:'365 = ___', a:['dreihundertfünfundsechzig|dreihundertfuenfundsechzig'], wide:true},
  {t:'fill', q:'1 000 000 = ___', a:['eine Million']},
+ {t:'fill', q:'1 000 000 000 = ___', a:['eine Milliarde']},
+ {t:'fill', q:'101 = ___', a:['hunderteins|einhunderteins|hundertundeins|einhundertundeins'], wide:true},
+ {t:'fill', q:'121 = ___', a:['hunderteinundzwanzig|einhunderteinundzwanzig'], wide:true},
  {t:'fill', q:'achtundachtzig = ___', a:['88']},
  {t:'fill', q:'zweihundertzwölf = ___', a:['212']},
  {t:'fill', q:'dreitausendvierhundert = ___', a:['3400|3.400|3 400']},
@@ -64,6 +67,12 @@ sets:[
  {t:'order', a:'Wie ist die Telefonnummer von Martina?', en:'What is Martina\'s phone number?'},
  {t:'order', a:'Wie ist deine Handynummer?', en:'What is your mobile number?'},
  {t:'fill', q:'Wie ___ die Telefonnummer von Martina?', a:['ist']},
+ {t:'fill', q:'Die Telefonnummer von Martina ist ___. (5 26 39 81)', a:['5 26 39 81|5263981'], h:'write the digits'},
+ {t:'fill', q:'Die Telefonnummer von Doktor Müller ist sechs – siebenundvierzig – fünfunddreißig – siebenundzwanzig = ___', a:['6 47 35 27|6473527'], h:'write the digits'},
+ {t:'fill', q:'Die Telefonnummer von Anton ist zwei – fünfundzwanzig – vierunddreißig – einundsiebzig = ___', a:['2 25 34 71|2253471']},
+ {t:'fill', q:'Die Telefonnummer von Eva ist neun – achtundneunzig – sechsundsiebzig – dreiundfünfzig = ___', a:['9 98 76 53|9987653']},
+ {t:'order', a:'Wie ist die Telefonnummer von Doktor Müller?', en:'What is Dr Müller\'s phone number?'},
+ {t:'order', a:'Die Telefonnummer von Eva ist 9 98 76 53.', en:'Eva\'s phone number is 9 98 76 53.'},
  {t:'fill', q:'Die Nummer von der Polizei ist ___. (110 in words: eins eins null)', a:['eins eins null|110|hundertzehn'], wide:true},
  {t:'fill', q:'Die Nummer von der Feuerwehr ist ___. (112)', a:['eins eins zwei|112|hundertzwölf'], wide:true},
  {t:'tr', en:'What is your phone number? (Sie)', a:['Wie ist Ihre Telefonnummer?']},
@@ -83,10 +92,17 @@ sets:[
  {t:'mcq', q:'___ Lampe (lamp)', o:['der','die','das'], a:1, say:'die Lampe', x:'-e → mostly die'},
  {t:'mcq', q:'___ Lehrbuch (textbook)', o:['der','die','das'], a:2, say:'das Lehrbuch', x:'Compound nouns take the gender of the <b>last</b> word: das Buch → das Lehrbuch.'},
  {t:'mcq', q:'___ Kaffeemaschine', o:['der','die','das'], a:1, say:'die Kaffeemaschine', x:'Last word decides: die Maschine → die Kaffeemaschine.'},
- {t:'match', pairs:[['der Stuhl','chair'],['die Brille','glasses'],['das Handy','mobile phone'],['die Seife','soap'],['der Schlüssel','key'],['die Zeitschrift','magazine']]},
+ {t:'match', pairs:[['der Stuhl','chair'],['die Brille','glasses'],['das Handy','mobile phone'],['die Seite','page'],['der Schlüssel','key'],['die Zeitschrift','magazine']]},
  {t:'fill', q:'Was ist das? – Das ist ___ Regenschirm.', a:['ein']},
  {t:'fill', q:'Was ist das? – Das ist ___ Tasse.', a:['eine']},
- {t:'fill', q:'Was ist das? – Das ist ___ Foto.', a:['ein']}
+ {t:'fill', q:'Was ist das? – Das ist ___ Medikament.', a:['ein']},
+ {t:'fill', q:'Was ist das? – Das ist ___ Kaffeemaschine.', a:['eine']},
+ {t:'fill', q:'Was ist das? – Das ist ___ Fußball.', a:['ein']},
+ {t:'mcq', q:'___ Seite (page)', o:['der','die','das'], a:1, say:'die Seite'},
+ {t:'mcq', q:'___ Tür (door)', o:['der','die','das'], a:1, say:'die Tür'},
+ {t:'mcq', q:'___ Fußball (football)', o:['der','die','das'], a:0, say:'der Fußball', x:'der Fuß + der Ball → der Fußball.'},
+ {t:'mcq', q:'___ Zeitschrift (magazine)', o:['der','die','das'], a:1, say:'die Zeitschrift'},
+ {t:'mcq', q:'___ Auto (car)', o:['der','die','das'], a:2, say:'das Auto'}
 ]}
 ],
 drills:['numbers','articles']

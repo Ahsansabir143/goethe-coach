@@ -9,6 +9,10 @@ A practice app for my German A1 classes with Anara Bekbolotova. Every class has:
 - **Practice**: exercise sets (multiple choice, fill-in, word order, matching, translation)
 - **Drills**: endless generated questions (verbs, der/die/das, plurals, ein/kein, possessives, accusative, numbers, word meanings)
 
+Plus **Topics** (`#/topics`): 20 grammar topics, each with the exact exercises from the books (Aber Hallo! Skript A1, Spektrum A1), Anara's homework sheets and class worksheets, the matching class pages, and endless generated drills built from the same words. Every topic has timed sessions (15 min … 4 h, or no limit) and remembers how long you practised.
+
+**Word bank** (`#/bank`): Anara's lists — 300 most important nouns, the themed noun list, weak/strong verbs, prepositions, adjectives, adverbs — with article, meaning, spelling and plural drills.
+
 Tap any underlined German word anywhere in the app to see its meaning and hear it.
 Progress, flashcard boxes and mistakes are saved in the browser (per device).
 
@@ -30,3 +34,17 @@ Exercise item types:
 ```
 
 Vocab entry: `{de:'Buch', g:'n', pl:'Bücher', en:'book'}` (g = m / f / n / pl; leave g out for verbs, adjectives and phrases).
+
+## Adding exercises to a topic
+
+Topic files live in `topics/` (`T01_sounds.js` … `T20_wordbank.js`). Each set can use short item strings:
+
+```js
+"f:Ich red[e] mit Paul. {reden} ## explanation"   // fill-in: [answer|alternative] per blank, {hint} optional
+"m:Question|right answer|wrong|wrong"             // multiple choice — first option is the right one
+"o:Ich stehe um 7 Uhr auf.|English meaning"       // word order
+"t:I get up at 7.|Ich stehe um 7 Uhr auf."        // translate (more correct answers after more |)
+"p:der Tisch=table;die Uhr=clock"                 // match pairs
+```
+
+`lessons:[…]` links class pages to the topic, `lessonSets:['L07:0']` picks which class exercise sets appear there, and `gens:[…]` lists the endless drills (ids from `DRILLS` in `app.js`).

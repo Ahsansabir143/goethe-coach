@@ -28,7 +28,7 @@ learn:[
  EX('Kaufst du ein Schwarzbrot? – Nein, ich kaufe kein Schwarzbrot. Ich kaufe Brötchen.','')}
 ],
 vocab:[
- {de:'Wecker', g:'m', pl:'Wecker', en:'alarm clock'},{de:'Kreditkarte', g:'f', pl:'Kreditkarten', en:'credit card'},{de:'Schirm', g:'m', pl:'Schirme', en:'umbrella'},{de:'MP3-Player', g:'m', pl:'MP3-Player', en:'MP3 player'},
+ {de:'Pass', g:'m', pl:'Pässe', en:'passport'},{de:'Wecker', g:'m', pl:'Wecker', en:'alarm clock'},{de:'Kreditkarte', g:'f', pl:'Kreditkarten', en:'credit card'},{de:'Schirm', g:'m', pl:'Schirme', en:'umbrella'},{de:'MP3-Player', g:'m', pl:'MP3-Player', en:'MP3 player'},
  {de:'Schuh', g:'m', pl:'Schuhe', en:'shoe'},{de:'Socke', g:'f', pl:'Socken', en:'sock'},{de:'Pyjama', g:'m', pl:'Pyjamas', en:'pyjamas'},{de:'Waschzeug', g:'n', pl:'—', en:'toiletries / wash things'},
  {de:'Glas', g:'n', pl:'Gläser', en:'glass / jar'},{de:'Marmelade', g:'f', pl:'Marmeladen', en:'jam'},{de:'Schwarzbrot', g:'n', pl:'Schwarzbrote', en:'dark (rye) bread'},{de:'Brötchen', g:'n', pl:'Brötchen', en:'bread roll'},
  {de:'Packung', g:'f', pl:'Packungen', en:'pack / carton'},{de:'Salat', g:'m', pl:'Salate', en:'salad / lettuce'},{de:'Joghurt', g:'m', pl:'Joghurts', en:'yoghurt'},{de:'Schokoladenkuchen', g:'m', pl:'Schokoladenkuchen', en:'chocolate cake'},
@@ -47,6 +47,8 @@ sets:[
  {t:'fill', q:'Ich brauche ___ Pyjama.', a:['den']},
  {t:'fill', q:'Ich brauche ___ Waschzeug.', a:['das']},
  {t:'fill', q:'Ich brauche ___ Zeitung.', a:['die']},
+ {t:'fill', q:'Ich brauche ___ Pass.', a:['den'], x:'der Pass → <b>den</b> Pass'},
+ {t:'fill', q:'Hast du ___ Pass? – Ja, ich habe ___ Pass.', a:['einen|deinen','einen|meinen']},
  {t:'fill', q:'Ich fahre zwei Tage ___ Berlin.', a:['nach'], x:'cities and countries: <b>nach</b> Berlin'}
 ]},
 {title:'Walter kauft … (einen / eine / ein / —)', items:[

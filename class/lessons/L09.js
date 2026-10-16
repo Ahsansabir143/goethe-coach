@@ -15,7 +15,7 @@ learn:[
  `<p>If the question is <b>negative</b> (has nicht / kein) and you want to say „yes“, use <b>Doch</b>:</p>`+
  EX('Lernst du nicht Deutsch? – Doch, ich lerne Deutsch.','Aren\'t you learning German? – Yes, I am!')+
  EX('Kommst du nicht aus Tokio? – Nein, ich komme nicht aus Tokio.','Don\'t you come from Tokyo? – No, I don\'t.')+
- EX('Arbeitest du nicht in München? – Doch, ich arbeite in München.','')+
+ EX('Arbeitest du nicht in München? (–) – Nein, ich arbeite nicht in München.','Don\'t you work in Munich? – No, I don\'t.')+EX('Studierst du nicht? (+) – Doch, ich studiere.','Don\'t you study? – Yes, I do!')+
  TBL(['Question','Yes','No'],[['Lernst du Deutsch?','Ja, ich lerne Deutsch.','Nein, ich lerne nicht Deutsch.'],['Lernst du nicht Deutsch?','Doch, ich lerne Deutsch.','Nein, ich lerne nicht Deutsch.']])},
 {h:'3. Text: Der Morgen (translate & learn)', html:
  EX('Am Morgen stehe ich um sieben Uhr auf.','In the morning I get up at seven o\'clock.')+
@@ -50,16 +50,21 @@ sets:[
  {t:'fill', q:'Fliegst du nach Tokio? – Nein, ich ___ nach Kairo.', a:['fliege']},
  {t:'fill', q:'Antwortest du? – Nein, ich ___ nicht.', a:['antworte']}
 ]},
-{title:'Ja, Nein or Doch? (Übung 6)', items:[
- {t:'mcq', q:'Lernst du nicht Deutsch? – ___, ich lerne Deutsch.', o:['Doch','Ja','Nein'], a:0, x:'Negative question + positive answer → <b>Doch</b>.'},
- {t:'mcq', q:'Studiert Maria Mathematik? – ___, sie studiert Mathematik.', o:['Ja','Doch','Nein'], a:0},
- {t:'mcq', q:'Kommt Carlos aus London? – ___, er kommt aus Madrid.', o:['Nein','Doch','Ja'], a:0},
- {t:'mcq', q:'Arbeitest du nicht in München? – ___, ich arbeite in München.', o:['Doch','Ja','Nein'], a:0},
- {t:'mcq', q:'Kommst du nicht aus Tokio? – ___, ich komme nicht aus Tokio.', o:['Nein','Doch','Ja'], a:0},
- {t:'mcq', q:'Trinkst du Tee? – ___, ich trinke Tee.', o:['Ja','Doch','Nein'], a:0},
- {t:'fill', q:'Gehst du nach Hause? – Ja, ich ___ nach Hause.', a:['gehe']},
- {t:'fill', q:'Reist du nach England? – Nein, ich ___ nicht nach England.', a:['reise']},
- {t:'fill', q:'Studieren Robert und Eva Jura? – Ja, sie ___ Jura.', a:['studieren']},
+{title:'Ja, Nein or Doch? (SK1 1.3 Übung 8)', d:'+ = positive answer, – = negative answer', shuffle:false, items:[
+ {t:'fill', q:'a) Studiert Maria Mathematik? (+) – ___, sie ___ Mathematik.', a:['Ja','studiert']},
+ {t:'fill', q:'b) Kommt Carlos aus London? (–) – ___, er kommt ___ aus London.', a:['Nein','nicht']},
+ {t:'fill', q:'c) Reist du nach England? (+) – ___, ich ___ nach England.', a:['Ja','reise']},
+ {t:'fill', q:'d) Lernst du nicht Deutsch? (+) – ___, ich ___ Deutsch.', a:['Doch','lerne'], x:'Negative question + positive answer → <b>Doch</b>.'},
+ {t:'fill', q:'e) Kommst du nicht aus Tokio? (–) – ___, ich komme ___ aus Tokio.', a:['Nein','nicht']},
+ {t:'fill', q:'f) Gehst du nach Hause? (–) – ___, ich ___ nicht nach Hause.', a:['Nein','gehe']},
+ {t:'fill', q:'g) Trinkst du Tee? (+) – ___, ich ___ Tee.', a:['Ja','trinke']},
+ {t:'fill', q:'h) Arbeitest du nicht in München? (–) – ___, ich arbeite ___ in München.', a:['Nein','nicht'], x:'Negative question + negative answer → <b>Nein</b>, … nicht …'},
+ {t:'fill', q:'i) Gehst du ins Kino? (–) – ___, ich gehe ___ ins Kino.', a:['Nein','nicht']},
+ {t:'fill', q:'j) Studieren Robert und Eva Jura? (+) – ___, sie ___ Jura.', a:['Ja','studieren']},
+ {t:'mcq', q:'Lernst du nicht Deutsch? (+) – ___, ich lerne Deutsch.', o:['Doch','Ja','Nein'], a:0, x:'Negative question + positive answer → <b>Doch</b>.'},
+ {t:'mcq', q:'Arbeitest du nicht in München? (–) – ___, ich arbeite nicht in München.', o:['Nein','Doch','Ja'], a:0},
+ {t:'mcq', q:'Studierst du nicht? (+) – ___, ich studiere.', o:['Doch','Ja','Nein'], a:0},
+ {t:'mcq', q:'Und du? Studierst du auch? (–) – ___, ich studiere nicht.', o:['Nein','Doch','Ja'], a:0},
  {t:'fill', q:'Läuft Lena? – Ja, Lena ___.', a:['läuft|laeuft']},
  {t:'fill', q:'Liest Klaus Zeitung? – Ja, Klaus ___ Zeitung.', a:['liest']},
  {t:'fill', q:'Fährt Claudia nach Hause? – Ja, Claudia ___ nach Hause.', a:['fährt|faehrt']}
