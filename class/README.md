@@ -48,3 +48,16 @@ Topic files live in `topics/` (`T01_sounds.js` … `T20_wordbank.js`). Each set 
 ```
 
 `lessons:[…]` links class pages to the topic, `lessonSets:['L07:0']` picks which class exercise sets appear there, and `gens:[…]` lists the endless drills (ids from `DRILLS` in `app.js`).
+
+## Texts & dialogues (`#/texts`)
+
+Every dialogue and reading text from the books lives in `texts/` (Spektrum L1–L3, Klimenko introductory course and main course Lektion 1–4). Each text has:
+
+```js
+{id:'km1-moskau', book:'Klimenko · Main course', ref:'Lektion 1 · I', title:'…', topic:'klimenko2',
+ lines:["Denis: Guten Tag! … | English meaning"],          // "Speaker: German | English" (speaker optional)
+ words:["die Hochschule|Hochschulen|university", "sicher||of course"],  // hard words: noun with article|plural|meaning
+ items:["f:…", "m:…"]}                                     // the book's exercises (same short format as topics)
+```
+
+The app adds extra practice automatically from every text: gap-fills with the hard words, word order, translation, "who says it?" and word meanings. `topic:` links the text to a practice topic.

@@ -695,7 +695,7 @@ function viewHome(){
   const words = allVocab().length; const items = LESSONS.reduce((a,l)=>a+lessonItems(l).length,0);
   let html = `<h1>Deutsch mit Anara 🇩🇪</h1><p class="muted">My A1 classes with Anara Bekbolotova — every lesson with grammar, word meanings and practice. Tap any <span class="w" data-w="Wort">underlined</span> German word to see what it means and hear it.</p>
   <div class="stat"><div><b>${LESSONS.length}</b>classes</div><div><b>${words}</b>words</div><div><b>${items}</b>exercises + endless drills</div><div><b>${S.stats.ans}</b>answered${S.stats.ans?` · ${acc}% right`:''}</div><div><b>${S.stats.days[today()]||0}</b>today</div></div>
-  <div class="row" style="margin-top:12px">${latest?`<a class="btn go" href="#/l/${latest.id}">Latest class: ${esc(latest.title)} →</a>`:''}<a class="btn go" href="#/topics">🎯 Practice by topic (${TOPICS.length})</a><a class="btn" href="#/mix">🎲 Mixed review (20)</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a><a class="btn" href="#/flash">🃏 Flashcards</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>
+  <div class="row" style="margin-top:12px">${latest?`<a class="btn go" href="#/l/${latest.id}">Latest class: ${esc(latest.title)} →</a>`:''}<a class="btn go" href="#/topics">🎯 Practice by topic (${TOPICS.length})</a><a class="btn" href="#/texts">📚 Book texts & dialogues (${TEXTS.length})</a><a class="btn" href="#/mix">🎲 Mixed review (20)</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a><a class="btn" href="#/flash">🃏 Flashcards</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>
   <h2 style="margin-top:18px">Classes</h2><div class="grid">`;
   LESSONS.slice().reverse().forEach((l, i)=>{
     const p = lessonProgress(l);
@@ -842,7 +842,7 @@ function P(raw){
 const TOPICS = (window.TOPICS||[]).map((t,i)=> Object.assign({n:i+1}, t, {sets:(t.sets||[]).map(st=> Object.assign({}, st, {items: st.items.map(P)}))}));
 function topicById(id){ return TOPICS.find(t=>t.id===id); }
 function topicLessonSets(t){ const out=[]; (t.lessons||[]).forEach(id=>{ const l = lessonById(id); if(l) (l.sets||[]).forEach((st,k)=>{ if(!t.lessonSets || t.lessonSets.includes(id+':'+k)) out.push({l, st, k}); }); }); return out; }
-function topicItems(t){ const out=[]; t.sets.forEach(st=> st.items.forEach(it=> out.push(Object.assign({lid:t.id}, it)))); topicLessonSets(t).forEach(({l,st})=> st.items.forEach(it=> out.push(Object.assign({lid:l.id}, it)))); return out; }
+function topicItems(t){ const out=[]; t.sets.forEach(st=> st.items.forEach(it=> out.push(Object.assign({lid:t.id}, it)))); topicLessonSets(t).forEach(({l,st})=> st.items.forEach(it=> out.push(Object.assign({lid:l.id}, it)))); textsForTopic(t).forEach(x=> textItems(x).forEach(it=> out.push(it))); return out; }
 function topicDrills(t){ return (t.gens||[]).map(id=>DRILLS.find(d=>d.id===id)).filter(Boolean); }
 S.time = S.time || {}; // seconds practised per topic
 function fmtMin(sec){ sec = Math.round(sec||0); if(sec<60) return sec+' s'; const m = Math.round(sec/60); return m<60 ? m+' min' : Math.floor(m/60)+' h '+(m%60)+' min'; }
@@ -869,6 +869,8 @@ function viewTopic(id, tab){
   if(tab==='practice'){
     html += `<div class="row"><button class="btn go" id="allq">All ${items.length} exercises (shuffled)</button></div>`;
     t.sets.forEach((st,k)=>{ const r = S.sets['t:'+t.id+':'+k]; html += `<div class="card"><div class="row" style="justify-content:space-between;margin:0"><div><b>${esc(st.title)}</b><div class="muted">${st.items.length} questions${st.src?' · '+esc(st.src):''}${r?` · best ${r.best}/${r.total}`:''}</div></div><a class="btn ${r?'':'go'}" href="#/ts/${t.id}/${k}">${r?'Again':'Start'}</a></div></div>`; });
+    const tx = textsForTopic(t);
+    if(tx.length){ html += `<h3>Texts & dialogues from the books</h3>`; tx.forEach(x=>{ const r = S.sets['x:'+x.id]; html += `<div class="card"><div class="row" style="justify-content:space-between;margin:0"><div><b>${esc(x.title)}</b><div class="muted">${esc(x.book)} · ${esc(x.ref)} · ${x.lines.length} lines · ${x.words.length} hard words · ${textItems(x).length} exercises${r?` · best ${r.best}/${r.total}`:''}</div></div><a class="btn" href="#/x/${x.id}">Open</a></div></div>`; }); }
     const ls = topicLessonSets(t);
     if(ls.length){ html += `<h3>From the class pages</h3>`; ls.forEach(({l,st,k})=>{ const r = S.sets[setKey(l,k)]; html += `<div class="card"><div class="row" style="justify-content:space-between;margin:0"><div><b>${esc(st.title)}</b><div class="muted">${fmtDate(l.date)} · ${esc(l.title)} · ${st.items.length} questions${r?` · best ${r.best}/${r.total}`:''}</div></div><a class="btn" href="#/p/${l.id}/${k}">${r?'Again':'Start'}</a></div></div>`; }); }
   } else if(tab==='drills'){
@@ -914,6 +916,75 @@ function viewBank(){
   $app.innerHTML = html; linkify($app);
 }
 
+
+/* ---------------- texts & dialogues (books) ----------------
+   texts/*.js push {id, book, ref, title, topic, lines:["Speaker: German | English"], words:["der Noun|Plural|meaning" | "word||meaning"], items:[compact items]} */
+function parseWord(s){
+  const [a, pl, en] = s.split('|'); const m = a.match(/^(der|die|das) (.+)$/);
+  if(m){ const g = {der:'m', die:'f', das:'n'}[m[1]]; const w = {de:m[2], g, en:en||''}; if(pl) w.pl = pl; else if(g==='f' && /^(Eltern|Geschwister|Leute)$/.test(m[2])) w.g='pl'; if(/\(plural\)/.test(en||'') && !pl) w.g = 'pl'; return w; }
+  return {de:a, en:en||''};
+}
+const TEXTS = (window.TEXTS||[]).map(t=>{
+  const lines = t.lines.map(l=>{ const [de, en] = l.split(' | '); const sm = de.match(/^([A-ZÄÖÜ][^:]{0,24}): (.+)$/); return sm && !/^(Lieber|Liebe|Hallo)\b/.test(sm[1]) ? {s:sm[1], de:sm[2].trim(), en:(en||'').trim()} : {s:'', de:de.trim(), en:(en||'').trim()}; });
+  return Object.assign({}, t, {lines, words:(t.words||[]).map(parseWord), items:(t.items||[]).map(P)});
+});
+function textById(id){ return TEXTS.find(t=>t.id===id); }
+const sentSplit = s => s.split(/(?<=[.!?])\s+(?=[A-ZÄÖÜ„–])/).map(x=>x.trim()).filter(Boolean);
+function textAuto(t){
+  const out = []; const ws = t.words.filter(w=>!/\s/.test(w.de) && !/[()/]/.test(w.de));
+  t.lines.forEach((L, li)=>{
+    // cloze: blank a glossary word from the line
+    const toks = L.de.split(/(\s+)/);
+    const cands = []; toks.forEach((tk, i)=>{ const bare = tk.replace(/[.,!?;:„“"()–]/g,''); const w = ws.find(w=> w.de.toLowerCase()===bare.toLowerCase() || (w.pl && w.pl.toLowerCase()===bare.toLowerCase())); if(w && bare.length>2) cands.push([i, bare, w]); });
+    if(cands.length){ const [i, bare, w] = cands[li % cands.length]; const q = toks.map((tk,j)=> j===i ? tk.replace(bare,'___') : tk).join(''); out.push({t:'fill', q:(L.s?L.s+': ':'')+q, a:[bare], h:w.en+(w.g?' ('+ART[w.g]+')':''), x:`<b>${esc(bare)}</b> = ${esc(w.en)} · ${esc(L.en)}`, tx:t.id}); }
+    // word order & translation for single sentences
+    const ss = sentSplit(L.de);
+    if(ss.length===1){ const n = L.de.split(/\s+/).length;
+      if(n>=3 && n<=11 && /[.!?]$/.test(L.de)) out.push({t:'order', a:L.de, en:L.en, tx:t.id});
+      if(n>=2 && n<=8 && L.en) out.push({t:'tr', en:L.en, a:[L.de], h:t.title, tx:t.id});
+    }
+  });
+  const sp = [...new Set(t.lines.map(l=>l.s).filter(Boolean))];
+  if(sp.length>=2) t.lines.filter(l=>l.s).forEach(l=>{ const o = shuffle([l.s, ...shuffle(sp.filter(s=>s!==l.s)).slice(0,2)]); out.push({t:'mcq', q:`Who says: „${l.de}“`, o, a:o.indexOf(l.s), x:esc(l.en), tx:t.id}); });
+  if(t.words.length>=4) t.words.forEach(w=>{ const others = shuffle(t.words.filter(x=>x!==w && x.en!==w.en)).slice(0,3); const o = shuffle([w, ...others]); out.push({t:'mcq', q:`What does „${fullDe(w)}“ mean?`, o:o.map(x=>x.en), a:o.indexOf(w), say:fullDe(w), x:`<b>${esc(fullDe(w))}</b> = ${esc(w.en)}${w.pl?' · plural: die '+esc(w.pl):''}`, tx:t.id}); });
+  return out;
+}
+TEXTS.forEach(t=>{ t.auto = textAuto(t); });
+function textItems(t){ return t.items.map(it=>Object.assign({lid:t.id}, it)).concat(t.auto.map(it=>Object.assign({lid:t.id}, it))); }
+function textsForTopic(tp){ return TEXTS.filter(t=> t.topic===tp.id || (tp.texts||[]).includes(t.id)); }
+DRILLS.push({id:'texts', name:'Book texts & dialogues', d:'gaps, word order, who says it, translations — from every text in your books', gen:()=>{ const t = pick(TEXTS); return pick(t.auto.length ? t.auto : t.items); }});
+function addTextsToDict(){ TEXTS.forEach(t=> t.words.forEach(w=>{ addD(w.de, Object.assign({tx:t.id}, w)); if(w.pl) addD(w.pl, Object.assign({plf:true}, w)); })); }
+
+function viewTexts(){
+  setNav('texts');
+  const books = [...new Set(TEXTS.map(t=>t.book))];
+  let html = `<h1>Texts & dialogues 📚</h1><p class="muted">Every dialogue and reading text from your books, line by line with the English meaning, the hard words explained, the book's own exercises and extra practice made from the text.</p>`;
+  books.forEach(b=>{
+    html += `<h2>${esc(b)}</h2><div class="grid">`;
+    TEXTS.filter(t=>t.book===b).forEach(t=>{ const r = S.sets['x:'+t.id]; html += `<a class="lesson" href="#/x/${t.id}"><div class="d">${esc(t.ref)}</div><div class="t">${esc(t.title)}</div><div class="chips"><span class="chip">${t.lines.length} lines</span><span class="chip">${t.words.length} words</span><span class="chip">${textItems(t).length} exercises</span></div><div class="prog"><i style="width:${r?Math.round(r.best/r.total*100):0}%"></i></div></a>`; });
+    html += `</div>`;
+  });
+  $app.innerHTML = html; linkify($app);
+}
+function viewText(id){
+  const t = textById(id); if(!t) return viewTexts();
+  setNav('texts');
+  const i = TEXTS.indexOf(t), prev = TEXTS[i-1], next = TEXTS[i+1];
+  const tp = TOPICS.find(x=>x.id===t.topic);
+  let html = `<div class="row"><a class="btn sm" href="#/texts">← All texts</a>${prev?`<a class="btn sm" href="#/x/${prev.id}">‹ ${esc(prev.title)}</a>`:''}${next?`<a class="btn sm" href="#/x/${next.id}">${esc(next.title)} ›</a>`:''}</div>
+  <div class="muted">${esc(t.book)} · ${esc(t.ref)}${tp?` · topic: <a href="#/t/${tp.id}">${esc(tp.title)}</a>`:''}</div><h1>${esc(t.title)}</h1>
+  <div class="row"><button class="btn go" id="allx">Practise this text (${textItems(t).length})</button>${t.items.length?`<button class="btn" id="bookx">Book exercises (${t.items.length})</button>`:''}<button class="btn" id="readall">🔊 Read it all</button><button class="btn sm" id="tgl">Hide English</button></div>
+  <div class="card" id="tx">${t.lines.map(l=>`<div class="ex">${l.s?`<b class="muted">${esc(l.s)}:</b> `:''}<span class="de">${esc(l.de)}</span> ${spk(l.de)}<span class="en">${esc(l.en)}</span></div>`).join('')}</div>`;
+  if(t.words.length) html += `<h3>Hard words</h3>` + vocabTable(t.words, false) + `<div class="row"><button class="btn" id="wq">Quiz these words</button><button class="btn" id="ws">Write them</button></div>`;
+  $app.innerHTML = html; linkify($app);
+  document.getElementById('allx').onclick = ()=> runQuiz({title:t.title, items: shuffle(textItems(t)), key:'x:'+t.id, back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
+  const bx = document.getElementById('bookx'); if(bx) bx.onclick = ()=> runQuiz({title:t.title+' — book exercises', items: t.items.slice(), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
+  let hidden = false; document.getElementById('tgl').onclick = e=>{ hidden = !hidden; document.querySelectorAll('#tx .en').forEach(x=> x.style.display = hidden ? 'none' : ''); e.target.textContent = hidden ? 'Show English' : 'Hide English'; };
+  document.getElementById('readall').onclick = ()=>{ try{ speechSynthesis.cancel(); t.lines.forEach(l=>{ const u = new SpeechSynthesisUtterance(l.de); u.lang='de-DE'; u.rate=0.9; if(deVoice) u.voice=deVoice; speechSynthesis.speak(u); }); }catch(e){} };
+  const wq = document.getElementById('wq'); if(wq) wq.onclick = ()=> runQuiz({title:t.title+' — words', items: vocabQuiz(t.words), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
+  const ws = document.getElementById('ws'); if(ws) ws.onclick = ()=> runQuiz({title:t.title+' — write the words', items: shuffle(t.words).map(w=>({t:'tr', en:w.en, h: w.g?'with der / die / das':'', a:[fullDe(w)], x:`<b>${esc(fullDe(w))}</b>`})), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
+}
+
 /* ---------------- router ---------------- */
 function route(){
   $pop.style.display='none'; if(window.__QT) clearInterval(window.__QT);
@@ -934,12 +1005,14 @@ function route(){
     else if(p[0]==='ts'){ const t = topicById(p[1]); const st = t && t.sets[+p[2]]; if(!st) return viewTopics(); runQuiz({title:st.title, items: st.shuffle===false ? st.items.slice() : shuffle(st.items), key:'t:'+t.id+':'+p[2], back:`#/t/${t.id}`, lid:t.id, tid:t.id}); }
     else if(p[0]==='run') viewRun(p[1], p[2]);
     else if(p[0]==='bank') viewBank();
+    else if(p[0]==='texts') viewTexts();
+    else if(p[0]==='x') viewText(p[1]);
     else viewHome();
   }catch(err){ console.error(err); $app.innerHTML = `<div class="card">Something went wrong: ${esc(err.message)}. <a href="#/">Home</a></div>`; }
   window.scrollTo(0,0);
 }
-buildDict(); addBankToDict();
+buildDict(); addBankToDict(); addTextsToDict();
 window.addEventListener('hashchange', route);
 route();
-window.__ANARA = {LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems};
+window.__ANARA = {LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems};
 })();
