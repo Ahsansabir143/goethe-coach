@@ -9,5 +9,9 @@ window.UPDATES = (window.UPDATES || []).concat([
  {date:'2026-10-16', icon:'💬', text:'Chat teacher: ask about any word, grammar or exercise (💬 button, bottom right)', href:''}
 ]);
 window.UPDATES = window.UPDATES.concat([
+ {date:'2026-10-17', icon:'🔤', text:'Verbs page: every verb of the course numbered, with 1st · 2nd · 3rd form and du / er forms', href:'#/verbs'},
+ {date:'2026-10-17', icon:'📚', text:'My 12 daily-life texts (Der Morgen, Im Supermarkt, Im Bus …) line by line with English, verbs with their 3 forms', href:'#/texts'},
+ {date:'2026-10-17', icon:'#️⃣', text:'Every word list is numbered; tap any word for its meaning, grammar and (verbs) 2nd + 3rd form', href:'#/words'},
+ {date:'2026-10-17', icon:'💬', text:'Chat teacher knows the 3 forms: „2nd form of fahren“, „is treffen strong?“, „verbs with e → i“', href:''},
  {date:'2026-10-17', icon:'👉', text:'Every memory trick and short rule (DOGFU, e–st–t–en–t–en, nicht/kein …) now has worked examples in German + English', href:'#/l/L15/learn'}
 ]);

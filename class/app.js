@@ -107,6 +107,20 @@ function buildDict(){
     if(w.pl && w.pl!=='—') addD(w.pl.replace(/^die /,''), Object.assign({plf:true}, e));
   }));
 }
+/* every verb of the app (class verbs, word bank lists, extra text verbs) + all its forms → tap-for-meaning */
+const ALLV = new Map(); // infinitive → {i, en}
+function addVerbForms(){
+  if(!window.VFORMS) return;
+  VERBS.forEach(v=> ALLV.set(v.i, {i:v.i, en:v.en}));
+  (WB.verbList.weak||[]).concat(WB.verbList.strong||[]).concat(window.EXTRA_VERBS||[]).forEach(v=>{ const i = (v.de||v.i).replace(/^sich |\s*\(sich\)/g,'').replace(/^weh tun$/,'wehtun'); if(!ALLV.has(i)) ALLV.set(i, {i, en:v.en, sich:/sich/.test(v.de||'')}); });
+  ALLV.forEach(v=>{
+    const f = VFORMS(v.i);
+    const base = {w:v.i, en:v.en, pos:'verb', vg: verb(v.i) || {i:v.i, en:v.en, g:'irr', f:[f.ich, f.du, f.er, f.wir, f.ihr, f.sie]}};
+    if(!DICT.has(v.i)) addD(v.i, base);
+    const first = x => String(x).split(' … ')[0];
+    [[first(f.prat),'the 2nd form (Präteritum)'],[f.part,'the 3rd form (Partizip II)'],[first(f.du),'the du-form'],[first(f.er),'the er/sie/es-form'],[first(f.ich),'the ich-form']].forEach(([k, what])=>{ if(k && !DICT.has(k.toLowerCase())) addD(k, Object.assign({form:true, formOf:what}, base)); });
+  });
+}
 function addBankToDict(){
   WBN.forEach(w=> addD(w.de, Object.assign({wb:1}, w)));
   WBN.forEach(w=>{ if(w.pl && w.pl!=='—') addD(w.pl, Object.assign({plf:true}, w)); });
@@ -141,13 +155,22 @@ function nounLabel(w){
 function fullDe(w){ return w.g ? (w.g==='pl' ? 'die ' : ART[w.g]+' ') + w.de : w.de; }
 function showPop(el){
   const t = el.getAttribute('data-w'); const e = DICT.get(t.toLowerCase()); if(!e) return;
+  return showPop2(el, e, t);
+}
+function showPop2(el, e, t){
   let head, body = `<div>${esc(e.en)}</div>`;
-  if(e.de){ head = nounLabel(e); if(e.pl) body += `<div class="muted">Plural: ${e.pl==='—'?'no plural':'die '+esc(e.pl)}</div>`; if(e.plf) body = `<div class="muted">plural of</div>` + body; if(e.opp) body += `<div class="muted">Opposite: ${esc(e.opp)}</div>`; if(e.note) body += `<div class="muted">${esc(e.note)}</div>`; }
+  if(e.de && isVerbWord(e) && window.VFORMS){ return showPop2(el, Object.assign({}, e, {w:e.de.replace(/^sich |\s*\(sich\)/g,''), pos:'verb', de:undefined, g:undefined}), t); }
+  if(e.de){ head = nounLabel(e); if(e.pl) body += `<div class="muted">Plural: ${e.pl==='—'?'no plural':'die '+esc(e.pl)}</div>`;
+    if(e.g==='m') body += `<div class="muted">Masculine · accusative: <b>den / einen ${esc(e.de)}</b> · pronoun er → ihn</div>`; else if(e.g==='f') body += `<div class="muted">Feminine · accusative stays <b>die / eine ${esc(e.de)}</b> · pronoun sie</div>`; else if(e.g==='n') body += `<div class="muted">Neuter · accusative stays <b>das / ein ${esc(e.de)}</b> · pronoun es</div>`; else if(e.g==='pl') body += `<div class="muted">Plural word · always <b>die</b></div>`; if(e.plf) body = `<div class="muted">plural of</div>` + body; if(e.opp) body += `<div class="muted">Opposite: ${esc(e.opp)}</div>`; if(e.note) body += `<div class="muted">${esc(e.note)}</div>`; }
   else if(e.pos==='verb'){
-    head = esc(e.w); const f = conj(e.vg);
-    if(e.form) body = `<div class="muted">form of <b>${esc(e.w)}</b></div>` + body;
-    if(e.vg.g==='sep') body += `<div class="muted">separable: ich ${esc(f[0])} … ${esc(e.vg.pre)}</div>`;
-    else if(f) body += `<div class="muted">ich ${esc(f[0])} · du ${esc(f[1])} · er ${esc(f[2])}</div>`;
+    head = esc(e.w); const vf = window.VFORMS ? VFORMS(e.w) : null;
+    if(e.form) body = `<div class="muted">„${esc(t)}“ = ${esc(e.formOf||'a form')} of <b>${esc(e.w)}</b></div>` + body;
+    if(vf){
+      body += `<div class="pf">1️⃣ <b>${esc(vf.inf)}</b> · 2️⃣ <b>${esc(vf.prat)}</b> · 3️⃣ <b>${esc(vf.perfekt)}</b></div>`;
+      body += `<div class="muted">Präsens: ich ${esc(vf.ich)} · du ${esc(vf.du)} · er/sie/es ${esc(vf.er)}${vf.change?` <b>(${esc(vf.change)})</b>`:''}</div>`;
+      body += `<div class="muted">Type: ${esc((window.VKIND||{})[vf.kind]||vf.kind)}${vf.pre?` · separable: „${esc(vf.pre)}“ goes to the end`:''}${vf.ins?` · inseparable ${esc(vf.ins)}- (no ge-)`:''}</div>`;
+      body += `<div class="muted">Perfekt: ich ${vf.aux==='sein'?'bin':'habe'} … ${esc(vf.part)}</div>`;
+    }
   } else head = esc(e.w);
   $pop.innerHTML = `<b>${head}</b> ${spk(e.de?fullDe(e):e.w)}${body}`;
   $pop.style.display='block';
@@ -177,7 +200,7 @@ function numDe(n){
 function numAlts(n){ const s=numDe(n); const a=[s]; if(/^einhundert/.test(s)) a.push(s.replace(/^einhundert/,'hundert')); if(/^eintausend/.test(s)) a.push(s.replace(/^eintausend/,'tausend')); return a.join('|'); }
 
 /* ---------------- all vocab ---------------- */
-function allVocab(lid){ const out=[]; LESSONS.forEach(l=>{ if(lid && l.id!==lid) return; (l.vocab||[]).forEach(w=> out.push(Object.assign({lid:l.id}, w))); }); return out; }
+function allVocab(lid){ const out=[], seen=new Set(); LESSONS.forEach(l=>{ if(lid && l.id!==lid) return; (l.vocab||[]).forEach(w=>{ const k=(w.g||'')+'|'+w.de; if(!lid && seen.has(k)) return; seen.add(k); out.push(Object.assign({lid:l.id}, w)); }); }); return out; }
 function nouns(){ return allVocab().filter(w=> w.g && w.g!=='pl'); }
 function genderRule(w){
   const d = w.de.toLowerCase();
@@ -766,9 +789,11 @@ function viewLesson(id, tab){
   const aq = document.getElementById('allq'); if(aq) aq.onclick = ()=> runQuiz({title:l.title+' — all', items: shuffle(lessonItems(l)), back:`#/l/${l.id}/practice`, lid:l.id});
 }
 function vocabQuiz(pool){ const n = Math.min(15, pool.length); const out=[]; for(let i=0;i<n;i++){ out.push(vocabItem(pool)); } const ns = pool.filter(w=>w.g && w.g!=='pl'); for(let i=0;i<Math.min(5,ns.length);i++){ const w = pick(ns); out.push({t:'mcq', q:`___ ${w.de}  (${w.en})`, o:['der','die','das'], a:['m','f','n'].indexOf(w.g), say:fullDe(w), x:genderRule(w)}); } return shuffle(out); }
+function isVerbWord(w){ return !w.g && /^(sich )?[a-zäöüß]+(en|ern|eln|tun|sein)( \(sich\))?$/.test(w.de) && /^(\(sich\) )?to\b|^may\b|^can\b|^must\b|^should\b|^would like/.test(w.en||''); }
+function formsLine(inf){ const f = window.VFORMS ? VFORMS(inf) : null; if(!f) return ''; return `<div class="vf" translate="no"><span class="vfk ${f.kind}">${f.kind}</span> 1️⃣ <b class="de">${esc(f.inf)}</b> · 2️⃣ <b class="de">${esc(f.prat)}</b> · 3️⃣ <b class="de">${esc(f.perfekt)}</b>${f.change?`<div class="vfp">du <b class="de">${esc(f.du)}</b> · er/sie/es <b class="de">${esc(f.er)}</b> <span class="muted">(${esc(f.change)})</span></div>`:''}</div>`; }
 function vocabTable(list, showL){
   if(!list.length) return '<p class="muted">No words.</p>';
-  return `<div class="card tw"><table class="vocab"><tr><th></th><th>German</th><th>Meaning</th>${showL?'<th>Class</th>':''}</tr>${list.map(w=>`<tr><td>${spk(fullDe(w))}</td><td><b class="de">${nounLabel(w)}</b>${w.pl?`<div class="muted">pl. ${w.pl==='—'?'—':'die '+esc(w.pl)}</div>`:''}${w.ex?`<div class="muted"><span class="de">${esc(w.ex)}</span>${(window.TR||{})[w.ex]?`<div class="vex">🇬🇧 ${esc(window.TR[w.ex])}</div>`:''}</div>`:''}</td><td>${esc(w.en)}${w.opp?`<div class="muted">↔ <span class="de">${esc(w.opp)}</span></div>`:''}${w.note?`<div class="muted">${esc(w.note)}</div>`:''}</td>${showL?`<td><a href="#/l/${w.lid}/words">${esc(w.lid)}</a></td>`:''}</tr>`).join('')}</table></div>`;
+  return `<div class="card tw"><table class="vocab"><tr><th>№</th><th></th><th>German</th><th>Meaning</th>${showL?'<th>Class</th>':''}</tr>${list.map((w,i)=>`<tr><td class="num">${i+1}</td><td>${spk(fullDe(w))}</td><td><b class="de">${nounLabel(w)}</b>${w.pl?`<div class="muted">pl. ${w.pl==='—'?'—':'die '+esc(w.pl)}</div>`:''}${isVerbWord(w)?formsLine(w.de):''}${w.ex?`<div class="muted"><span class="de">${esc(w.ex)}</span>${(window.TR||{})[w.ex]?`<div class="vex">🇬🇧 ${esc(window.TR[w.ex])}</div>`:''}</div>`:''}</td><td>${esc(w.en)}${w.opp?`<div class="muted">↔ <span class="de">${esc(w.opp)}</span></div>`:''}${w.note?`<div class="muted">${esc(w.note)}</div>`:''}</td>${showL?`<td><a href="#/l/${w.lid}/words">${esc(w.lid)}</a></td>`:''}</tr>`).join('')}</table></div>`;
 }
 function drillCard(d){ const r = S.sets['drill:'+d.id]; return `<div class="card"><div class="row" style="justify-content:space-between;margin:0"><div><b>${esc(d.name)}</b><div class="muted de">${esc(d.d)}</div></div><a class="btn go" href="#/d/${d.id}">Start</a></div></div>`; }
 
@@ -1010,6 +1035,7 @@ function viewText(id){
   <div class="muted">${esc(t.book)} · ${esc(t.ref)}${tp?` · topic: <a href="#/t/${tp.id}">${esc(tp.title)}</a>`:''}</div><h1>${esc(t.title)}</h1>
   <div class="row"><button class="btn go" id="allx">Practise this text (${textItems(t).length})</button>${t.items.length?`<button class="btn" id="bookx">Book exercises (${t.items.length})</button>`:''}<button class="btn" id="readall">🔊 Read it all</button><button class="btn sm" id="tgl">Hide English</button></div>
   <div class="card" id="tx">${t.lines.map(l=>`<div class="ex">${l.s?`<b class="muted">${esc(l.s)}:</b> `:''}<span class="de">${esc(l.de)}</span> ${spk(l.de)}<span class="en">${esc(l.en)}</span></div>`).join('')}</div>`;
+  if(t.note) html += `<div class="tip">💡 ${t.note}</div>`;
   if(t.words.length) html += `<h3>Hard words</h3>` + vocabTable(t.words, false) + `<div class="row"><button class="btn" id="wq">Quiz these words</button><button class="btn" id="ws">Write them</button></div>`;
   $app.innerHTML = html; linkify($app);
   document.getElementById('allx').onclick = ()=> runQuiz({title:t.title, items: shuffle(textItems(t)), key:'x:'+t.id, back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
@@ -1018,6 +1044,37 @@ function viewText(id){
   document.getElementById('readall').onclick = ()=>{ try{ speechSynthesis.cancel(); t.lines.forEach(l=>{ const u = new SpeechSynthesisUtterance(l.de); u.lang='de-DE'; u.rate=0.9; if(deVoice) u.voice=deVoice; speechSynthesis.speak(u); }); }catch(e){} };
   const wq = document.getElementById('wq'); if(wq) wq.onclick = ()=> runQuiz({title:t.title+' — words', items: vocabQuiz(t.words), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
   const ws = document.getElementById('ws'); if(ws) ws.onclick = ()=> runQuiz({title:t.title+' — write the words', items: shuffle(t.words).map(w=>({t:'tr', en:w.en, h: w.g?'with der / die / das':'', a:[fullDe(w)], x:`<b>${esc(fullDe(w))}</b>`})), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
+}
+
+/* ---------------- verbs: the 3 forms (1st · 2nd · 3rd) ---------------- */
+function verbList(){ return [...ALLV.values()].map(v=> Object.assign({}, v, {f:VFORMS(v.i)})).sort((a,b)=> a.i.localeCompare(b.i, 'de')); }
+const firstW = x => String(x).split(' … ')[0];
+const answerSep = x => String(x).replace(' … ',' ');
+function vformItem(){
+  const all = verbList(); const v = Math.random()<.6 ? pick(all.filter(x=>x.f.kind!=='weak')) : pick(all); const f = v.f;
+  const r = Math.random();
+  const why = `1️⃣ <b>${esc(f.inf)}</b> · 2️⃣ <b>${esc(f.prat)}</b> · 3️⃣ <b>${esc(f.perfekt)}</b> — ${esc((window.VKIND||{})[f.kind]||f.kind)}`;
+  if(r < .35) return {t:'fill', q:`${f.inf} (${v.en}) → 2nd form, Präteritum: er ___`, a:[f.pre ? answerSep(f.prat)+'|'+firstW(f.prat) : f.prat], h:f.kind==='weak'?'weak: stem + -te':'strong/irregular: the vowel changes', x:why, say:`er ${answerSep(f.prat)}`};
+  if(r < .75) return {t:'fill', q:`${f.inf} (${v.en}) → 3rd form, Perfekt: er ___ ___`, a:[f.helper, f.part], h:'hat or ist + Partizip II', x:why + (f.aux==='sein'?'<br>„ist“ because it is movement / change of place or state.':''), say:`er ${f.perfekt}`};
+  if(r < .9){ const o = ['strong','weak','mixed','modal','irregular'].filter(k=>k===f.kind || ['strong','weak'].includes(k)); const opts = [...new Set(o)]; return {t:'mcq', q:`${f.inf} (${v.en}): which kind of verb?  2nd form: ${f.prat} · 3rd: ${f.perfekt}`, o:opts, a:opts.indexOf(f.kind), x:why}; }
+  return {t:'tr', en:`${v.en.replace(/^to /,'')} — all 3 forms (write: 1st, 2nd, 3rd)`, a:[...new Set([`${f.inf}, ${answerSep(f.prat)}, ${f.part}`, `${f.inf}, ${firstW(f.prat)}, ${f.part}`, `${f.inf} ${answerSep(f.prat)} ${f.part}`])], h:'e.g. fahren, fuhr, gefahren', x:why};
+}
+function vpresItem(){
+  const v = pick(verbList().filter(x=>x.f.change && !['modal','irregular'].includes(x.f.change))); const f = v.f; const who = Math.random()<.5 ? ['du', f.du] : [pick(['er','sie','es','Lena','Alex']), f.er];
+  return {t:'fill', q:`${who[0]} ___ (${f.inf} — ${v.en})`, a:[answerSep(who[1])], h:`${f.change} in du and er/sie/es`, x:`ich ${esc(f.ich)} · du <b>${esc(f.du)}</b> · er/sie/es <b>${esc(f.er)}</b> (${esc(f.change)}) · wir ${esc(f.wir)}`, say:`${who[0]} ${answerSep(who[1])}`};
+}
+DRILLS.push({id:'vforms', name:'Verb forms: 1st · 2nd · 3rd', d:'fahren – fuhr – ist gefahren · machen – machte – hat gemacht', gen:vformItem},
+            {id:'vpres', name:'Strong verbs: du / er forms', d:'du fährst, er isst, du liest, er läuft', gen:vpresItem});
+function viewVerbs(filter){
+  setNav('verbs'); filter = filter || 'all';
+  const F = {all:['All verbs', ()=>true], strong:['Strong & irregular', v=>v.f.kind!=='weak'], weak:['Weak (regular)', v=>v.f.kind==='weak'], change:['Vowel change: du / er', v=>/→/.test(v.f.change)], sep:['Separable', v=>!!v.f.pre], sein:['Perfekt with ist', v=>v.f.aux==='sein']};
+  const list = verbList().filter(F[filter][1]);
+  let html = `<h1>Verbs: the 3 forms 🔤</h1><p class="muted">1️⃣ Infinitiv (1st form) · 2️⃣ Präteritum (2nd form, er/sie/es) · 3️⃣ Partizip II with <b>hat</b> or <b>ist</b> (3rd form). Strong verbs also show how du and er/sie/es change. Tap any verb to hear it and see all its grammar.</p>
+  <div class="row">${Object.entries(F).map(([k,[n]])=>`<a class="btn sm ${k===filter?'go':''}" href="#/verbs/${k}">${n}</a>`).join('')}</div>
+  <div class="row"><input id="vsearch" class="ans" style="flex:1;min-width:0" placeholder="Search a verb (German or English)…" autocomplete="off"><a class="btn go" href="#/d/vforms">Drill the 3 forms ♾️</a><a class="btn" href="#/d/vpres">du / er forms ♾️</a></div>
+  <div class="card tw"><table class="vocab" id="vt"><tr><th>№</th><th>1️⃣ Infinitiv</th><th>Meaning</th><th>2️⃣ Präteritum</th><th>3️⃣ Perfekt</th><th>du · er/sie/es</th></tr>${list.map((v,i)=>`<tr data-s="${esc((v.i+' '+v.en).toLowerCase())}"><td class="num">${i+1}</td><td><b class="de">${esc(v.i)}</b> ${spk(v.i)}<div><span class="vfk ${v.f.kind}">${v.f.kind}</span></div></td><td>${esc(v.en)}</td><td class="de">${esc(v.f.prat)}</td><td class="de">${esc(v.f.perfekt)}</td><td class="de">${esc(v.f.du)} · ${esc(v.f.er)}${v.f.change?`<div class="muted">${esc(v.f.change)}</div>`:''}</td></tr>`).join('')}</table></div>`;
+  $app.innerHTML = html; linkify($app);
+  const inp = document.getElementById('vsearch'); inp.oninput = ()=>{ const q = inp.value.toLowerCase().trim(); document.querySelectorAll('#vt tr[data-s]').forEach(r=> r.style.display = !q || r.dataset.s.includes(q) ? '' : 'none'); };
 }
 
 /* ---------------- router ---------------- */
@@ -1040,14 +1097,15 @@ function route(){
     else if(p[0]==='ts'){ const t = topicById(p[1]); const st = t && t.sets[+p[2]]; if(!st) return viewTopics(); runQuiz({title:st.title, items: st.shuffle===false ? st.items.slice() : shuffle(st.items), key:'t:'+t.id+':'+p[2], back:`#/t/${t.id}`, lid:t.id, tid:t.id}); }
     else if(p[0]==='run') viewRun(p[1], p[2]);
     else if(p[0]==='bank') viewBank();
+    else if(p[0]==='verbs') viewVerbs(p[1]);
     else if(p[0]==='texts') viewTexts();
     else if(p[0]==='x') viewText(p[1]);
     else viewHome();
   }catch(err){ console.error(err); $app.innerHTML = `<div class="card">Something went wrong: ${esc(err.message)}. <a href="#/">Home</a></div>`; }
   window.scrollTo(0,0);
 }
-buildDict(); addBankToDict(); addTextsToDict();
+buildDict(); addBankToDict(); addTextsToDict(); addVerbForms();
 window.addEventListener('hashchange', route);
 route();
-window.__ANARA = {LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems, speak, fullDe, linkify, verb, esc, ART, lessonItems, topicDrills};
+window.__ANARA = {verbList, ALLV, LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems, speak, fullDe, linkify, verb, esc, ART, lessonItems, topicDrills};
 })();

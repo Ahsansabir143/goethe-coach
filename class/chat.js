@@ -106,6 +106,17 @@ function conjTable(v){
   return P.map((p,i) => `${p} **${f[i]}${pre}**`).join(' · ');
 }
 function verbType(v){ return {reg:'regular', td:'regular (extra -e: du …est, er …et)', s:'regular (du only adds -t)', strong:'strong — the vowel changes for du and er/sie/es', sep:`separable — „${v.pre}“ goes to the end`, irr:'irregular'}[v.g] || ''; }
+function verbCard(inf, en, typed, formOf){
+  const f = window.VFORMS ? VFORMS(inf) : null; if(!f) return `**${inf}** — ${en}`;
+  const v = verb(inf);
+  let out = `**${f.inf}** — ${en}${typed ? `\n(„${typed}“ is ${formOf || 'a form'} of **${f.inf}**)` : ''}`;
+  out += `\n1️⃣ **${f.inf}** · 2️⃣ **${f.prat}** · 3️⃣ **${f.perfekt}**`;
+  out += `\nType: ${(window.VKIND||{})[f.kind] || f.kind}${f.pre ? ` · separable („${f.pre}“ goes to the end)` : ''}${f.ins ? ` · ${f.ins}- is never separated, no ge-` : ''}`;
+  out += v ? `\nPräsens: ${conjTable(v)}` : `\nPräsens: ich **${f.ich}** · du **${f.du}** · er/sie/es **${f.er}**`;
+  if(f.change && /→/.test(f.change)) out += `\n⚠️ Vowel change **${f.change}** only for du and er/sie/es.`;
+  out += `\nPerfekt: ich **${f.aux === 'sein' ? 'bin' : 'habe'} … ${f.part}**${f.aux === 'sein' ? ' (ist: movement / change)' : ''}`;
+  return out;
+}
 function nounCard(e){
   const head = fullDe(e); let out = `**${head}** — ${e.en}`;
   if(e.plf) out = `**${e.pl}** is the plural of **${head}** — ${e.en}`;
@@ -120,8 +131,7 @@ function wordCard(e, typed){
   LAST.word = e;
   let out;
   if(e.pos === 'verb'){
-    const v = e.vg;
-    out = `**${v.i}** — ${v.en}${e.form && typed && lo(typed) !== lo(v.i) ? `\n(„${typed}“ is a form of **${v.i}**)` : ''}\nType: ${verbType(v)}\n${conjTable(v)}`;
+    const v = e.vg || {i:e.w, en:e.en}; out = verbCard(v.i || e.w, v.en || e.en, e.form && typed && lo(typed) !== lo(v.i||e.w) ? typed : '', e.formOf);
   } else if(e.de && e.g){ out = nounCard(e); }
   else out = `**${e.w || e.de}** — ${e.en}${e.opp ? `\nOpposite: **${e.opp}**` : ''}${e.note ? `\n💡 ${e.note}` : ''}`;
   const wf = whereFrom(e); if(wf) out += '\n' + wf;
@@ -240,7 +250,7 @@ function currentQuestionHelp(reveal){
 function hello(){
   const d = latestDay(); const ls = dayLessons(d);
   return `Hallo Ahsan! 👋 I'm your class teacher. I know every class with Anara, every word, the Spektrum and Klimenko texts and all the exercises in this app.\n\nType or say a word in German or English, or ask me anything. Today's class: ${ls.map(l => go(l.id + ': ' + l.title.slice(0, 32), '#/l/' + l.id)).join(' ')}\n\nTry:\n` +
-    [act('📖 What does Geschenk mean?', 'what does Geschenk mean'), act('🇬🇧→🇩🇪 How do you say dog?', 'how do you say dog'), act('der/die/das Tisch?', 'der die das Tisch'), act('Accusative of der Hund', 'accusative of der Hund'), act('Conjugate lesen', 'conjugate lesen'), act('Explain the accusative', 'explain the accusative'), '[[fill:✍️ Check my German|check: ]]', act('🎯 Take me to today\'s class', "take me to today's class")].join(' ');
+    [act('📖 What does Geschenk mean?', 'what does Geschenk mean'), act('🇬🇧→🇩🇪 How do you say dog?', 'how do you say dog'), act('der/die/das Tisch?', 'der die das Tisch'), act('Accusative of der Hund', 'accusative of der Hund'), act('Conjugate lesen', 'conjugate lesen'), act('2nd & 3rd form of fahren', '3 forms of fahren'), act('e → i verbs', 'verbs with e → i'), act('Explain the accusative', 'explain the accusative'), '[[fill:✍️ Check my German|check: ]]', act('🎯 Take me to today\'s class', "take me to today's class")].join(' ');
 }
 function answer(q){
   const raw = q.trim(); const ql = lo(raw);
@@ -258,6 +268,29 @@ function answer(q){
   // numbers
   const nm = /^(?:how do (?:you|i) say |say |number |zahl )?(\d{1,6})\??$/i.exec(ql) || /\b(?:say|number|zahl|in german)\b.*?\b(\d{1,6})\b|\b(\d{1,6})\b.*\bin german/i.exec(ql);
   if(nm){ const n = +(nm[1] || nm[2]); return `**${n}** = **${numDe(n)}**${n > 20 && n < 100 && n % 10 ? `\n(21–99: the ONE comes first — ${n % 10} + und + ${n - n % 10})` : ''}\n${go('🔢 Numbers practice', '#/t/numbers')}`; }
+  // verb forms: 2nd / 3rd form, past, Perfekt, Partizip, strong or weak
+  const vfq = /(?:(?:1st|2nd|3rd|first|second|third|all (?:3|three)|three|3)\s*(?:and \S+ )?forms?|past(?: tense)?|präteritum|prateritum|perfekt|perfect|partizip(?: ii| 2)?|participle|v2|v3)\s+(?:form\s+)?(?:of|von|for)?\s*["„“]?([a-zäöüß ]+?)["“”]?\??$/i.exec(raw) || /^(?:is|ist)\s+["„“]?([a-zäöüß]+)["“”]?\s+(?:a\s+)?(?:strong|weak|irregular|regular|stark|schwach)/i.exec(raw);
+  if(vfq && window.VFORMS){ const w = vfq[1].trim().replace(/^sich /,''); const e = DICT.get(lo(w)); const inf = e && e.pos === 'verb' ? e.w : (A.ALLV && A.ALLV.has(w) ? w : (e && e.pos === 'verb' ? e.w : w)); const f = VFORMS(inf);
+    const known = (A.ALLV && A.ALLV.has(inf)) || (e && e.pos === 'verb');
+    const ask = lo(raw); let lead = '';
+    if(/2nd|second|past|präteritum|prateritum|v2/.test(ask)) lead = `2️⃣ The 2nd form (Präteritum) of **${f.inf}** is **${f.prat}** (er/sie/es).`;
+    else if(/3rd|third|perfekt|perfect|partizip|participle|v3/.test(ask)) lead = `3️⃣ The 3rd form of **${f.inf}** is **${f.part}** → Perfekt: **er ${f.perfekt}**.`;
+    else if(/strong|weak|irregular|regular|stark|schwach/.test(ask)) lead = `**${f.inf}** is **${f.kind}**.`;
+    return (lead ? lead + '\n\n' : '') + verbCard(f.inf, (A.ALLV && A.ALLV.get(f.inf) || {}).en || (e && e.pos === 'verb' && e.en) || (known ? '' : '(not in your course list yet — forms built by the rules)'), '', '') + '\n\n' + go('🔤 All verbs: 3 forms', '#/verbs') + ' ' + go('♾️ Drill the 3 forms', '#/d/vforms'); }
+  // lists of strong verbs by vowel change
+  const lst = /(strong|irregular|stem.?chang\w*|vowel.?chang\w*|a ?(?:→|->|to|>) ?ä|e ?(?:→|->|to|>) ?ie|e ?(?:→|->|to|>) ?i|au ?(?:→|->|to|>) ?äu|weak|separable)\s*verbs?|verbs?\s+(?:with|like)\s+(a ?(?:→|->|>) ?ä|e ?(?:→|->|>) ?ie|e ?(?:→|->|>) ?i|au ?(?:→|->|>) ?äu)|list (?:of )?verbs/i.exec(raw);
+  if(lst && A.verbList){ const all = A.verbList(); const q = lo(raw).replace(/->|>| to /g,'→').replace(/\s+/g,'');
+    let pickF, title, href = '#/verbs';
+    if(/a→ä/.test(q)){ pickF = v => v.f.change === 'a → ä'; title = 'Verbs with a → ä (du / er)'; href = '#/l/L16/learn'; }
+    else if(/e→ie/.test(q)){ pickF = v => v.f.change === 'e → ie'; title = 'Verbs with e → ie'; href = '#/l/L16/learn'; }
+    else if(/e→i/.test(q)){ pickF = v => v.f.change === 'e → i'; title = 'Verbs with e → i'; href = '#/l/L16/learn'; }
+    else if(/au→äu/.test(q)){ pickF = v => v.f.change === 'au → äu'; title = 'Verbs with au → äu'; href = '#/l/L16/learn'; }
+    else if(/stem|vowel/.test(q)){ pickF = v => /→/.test(v.f.change); title = 'Verbs with a vowel change in du / er'; href = '#/verbs/change'; }
+    else if(/weak/.test(q)){ pickF = v => v.f.kind === 'weak'; title = 'Weak verbs'; href = '#/verbs/weak'; }
+    else if(/separable/.test(q)){ pickF = v => !!v.f.pre; title = 'Separable verbs'; href = '#/verbs/sep'; }
+    else { pickF = v => v.f.kind !== 'weak' && !v.f.pre && !v.f.ins; title = 'Strong & irregular verbs (base verbs)'; href = '#/verbs/strong'; }
+    const L = all.filter(pickF);
+    return `${title} in your course (${L.length}):\n` + L.slice(0, 30).map((v,i) => `${i+1}. **${v.i}** (${v.en}) — ${v.f.change && /→/.test(v.f.change) ? `du **${v.f.du}**, er **${v.f.er}** · ` : ''}2️⃣ **${v.f.prat}** · 3️⃣ **${v.f.perfekt}**`).join('\n') + (L.length > 30 ? `\n… and ${L.length - 30} more.` : '') + '\n\n' + go('🔤 Open the full list', href) + ' ' + go('♾️ Practise', /→/.test(title) ? '#/d/vpres' : '#/d/vforms'); }
   // conjugation
   const cj = /(?:conjugat\w*|konjugier\w*|forms? of|present (?:tense )?of)\s+(?:the verb\s+)?["„“]?([a-zäöüß ]+?)["“”]?\??$/i.exec(raw);
   if(cj){ const w = cj[1].trim().replace(/^sich /,''); let e = DICT.get(lo(w)); if(!e || e.pos !== 'verb'){ const v = VERBS.find(x => lo(x.i) === lo(w) || lo(x.i).endsWith(lo(w))); if(v) e = {pos:'verb', vg:v, w:v.i, en:v.en}; }
