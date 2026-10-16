@@ -35,17 +35,41 @@ function fmtDate(d){ try{ return new Date(d+'T12:00:00').toLocaleDateString('en-
 function hashItem(it){ const s = JSON.stringify(it); let h=0; for(let i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))|0; } return 'h'+h; }
 function lessonById(id){ return LESSONS.find(l=>l.id===id); }
 
-/* ---------------- speech ---------------- */
-let deVoice = null;
-function pickVoice(){ try{ const vs = speechSynthesis.getVoices(); deVoice = vs.find(v=>/^de(-|_)DE/i.test(v.lang) && /Anna|Petra|Helena|Google/i.test(v.name)) || vs.find(v=>/^de/i.test(v.lang)) || null; }catch(e){} }
-try{ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }catch(e){}
+/* ---------------- speech (same robust method as the main Goethe Coach app) ----------------
+   Chrome drops an utterance that is spoken right after cancel(), and may stop if the utterance object is
+   garbage-collected — so: cancel → short wait → speak, keep a reference, unlock speech on the first tap,
+   prefer a real German voice, split long text, and warn the user if the browser never starts speaking. */
+const SYN = window.speechSynthesis || null;
+let VOICES = [], deVoice = null, VOICE_OK = false, STUCK = false, SPEAK_TOK = 0; const LIVE_U = [];
+function pickVoice(){ try{ VOICES = SYN ? SYN.getVoices() : []; const d = VOICES.filter(v=>/^de/i.test(v.lang));
+  deVoice = d.find(v=>/google deutsch/i.test(v.name)) || d.find(v=>/anna|petra|helena|katja|hedda|marlene|vicki/i.test(v.name)) || d.find(v=>/^de(-|_)DE/i.test(v.lang)) || d[0] || null; }catch(e){} }
+if(SYN){ pickVoice(); try{ SYN.onvoiceschanged = pickVoice; }catch(e){} }
+let UNLOCKED = false;
+function unlockSpeech(){ if(UNLOCKED || !SYN) return; UNLOCKED = true; try{ const u = new SpeechSynthesisUtterance(' '); u.volume = 0; SYN.speak(u); }catch(e){} }
+['touchend','click','keydown'].forEach(ev=> document.addEventListener(ev, unlockSpeech, {capture:true, passive:true}));
+function voiceStuck(){
+  if(STUCK) return; STUCK = true;
+  const d = document.createElement('div'); d.className = 'voicewarn';
+  d.innerHTML = `<b>🔇 Your browser's voice is not playing.</b> The app sent the sound, but the browser did not start it (this happens to every website, not only this app).<br><b>Fix:</b> 1) Turn the computer sound on and make sure this tab is not muted (right-click the tab → Unmute site). 2) Quit Chrome completely (⌘Q on Mac) and open it again. 3) Mac: System Settings → Accessibility → Spoken Content → System voice → add a <b>German</b> voice (e.g. Anna). 4) Or open the app in <b>Safari</b>. <button class="btn sm" id="vwx">OK</button>`;
+  document.body.appendChild(d); d.querySelector('#vwx').onclick = ()=> d.remove();
+}
+function speakOne(text){
+  return new Promise(res=>{
+    if(!SYN || !text){ res(); return; }
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'de-DE'; u.rate = 0.9; if(!deVoice) pickVoice(); if(deVoice) u.voice = deVoice;
+    LIVE_U.push(u); if(LIVE_U.length > 20) LIVE_U.shift();
+    let done = false, started = false; const fin = ()=>{ if(!done){ done = true; clearTimeout(tm); clearTimeout(chk); res(); } };
+    u.onstart = ()=>{ started = true; VOICE_OK = true; }; u.onend = fin; u.onerror = fin;
+    const chk = setTimeout(()=>{ if(!started && !done && !VOICE_OK) voiceStuck(); }, 3500);
+    const tm = setTimeout(fin, 3000 + text.length * 170);
+    try{ if(SYN.paused) SYN.resume(); SYN.speak(u); }catch(e){ fin(); }
+  });
+}
 function speak(t){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(String(t).replace(/___/g,' … '));
-    u.lang = 'de-DE'; u.rate = 0.9; if(deVoice) u.voice = deVoice;
-    speechSynthesis.speak(u);
-  }catch(e){}
+  if(!SYN) return; const txt = String(t||'').replace(/___/g,' … ').replace(/[„“"]/g,'').trim(); if(!txt) return;
+  const tok = ++SPEAK_TOK; try{ SYN.cancel(); }catch(e){}
+  const parts = txt.length < 160 ? [txt] : (txt.match(/[^.!?]+[.!?]*\s*/g) || [txt]).map(x=>x.trim()).filter(Boolean);
+  setTimeout(async ()=>{ for(const p of parts){ if(tok !== SPEAK_TOK) return; await speakOne(p); } }, 90);
 }
 const spk = t => `<button class="spk" title="Listen" data-say="${esc(t)}">🔊</button>`;
 document.addEventListener('click', e=>{
@@ -1127,7 +1151,7 @@ function viewText(id){
   document.getElementById('allx').onclick = ()=> runQuiz({title:t.title, items: shuffle(textItems(t)), key:'x:'+t.id, back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
   const bx = document.getElementById('bookx'); if(bx) bx.onclick = ()=> runQuiz({title:t.title+' — book exercises', items: t.items.slice(), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
   let hidden = false; document.getElementById('tgl').onclick = e=>{ hidden = !hidden; document.querySelectorAll('#tx .en').forEach(x=> x.style.display = hidden ? 'none' : ''); e.target.textContent = hidden ? 'Show English' : 'Hide English'; };
-  document.getElementById('readall').onclick = ()=>{ try{ speechSynthesis.cancel(); t.lines.forEach(l=>{ const u = new SpeechSynthesisUtterance(l.de); u.lang='de-DE'; u.rate=0.9; if(deVoice) u.voice=deVoice; speechSynthesis.speak(u); }); }catch(e){} };
+  document.getElementById('readall').onclick = ()=>{ const tok = ++SPEAK_TOK; try{ SYN && SYN.cancel(); }catch(e){} setTimeout(async ()=>{ for(const l of t.lines){ if(tok !== SPEAK_TOK) return; await speakOne(l.de); await new Promise(r=>setTimeout(r,300)); } }, 90); };
   const wq = document.getElementById('wq'); if(wq) wq.onclick = ()=> runQuiz({title:t.title+' — words', items: vocabQuiz(t.words), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
   const ws = document.getElementById('ws'); if(ws) ws.onclick = ()=> runQuiz({title:t.title+' — write the words', items: shuffle(t.words).map(w=>({t:'tr', en:w.en, h: w.g?'with der / die / das':'', a:[fullDe(w)], x:`<b>${esc(fullDe(w))}</b>`})), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
 }
