@@ -126,7 +126,7 @@ function linkify(root){
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     const nodes = []; while(walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(n=>{
-      if(n.parentElement && n.parentElement.closest('.w,.spk,button,input')) return;
+      if(n.parentElement && n.parentElement.closest('.w,.spk,button,input,.en')) return;
       const html = linkText(n.nodeValue);
       if(html === esc(n.nodeValue)) return;
       const span = document.createElement('span'); span.innerHTML = html; n.replaceWith(...span.childNodes);
@@ -718,13 +718,26 @@ function viewHome(){
   let html = `<h1>Deutsch mit Anara 🇩🇪</h1><p class="muted">My A1 classes with Anara Bekbolotova — every lesson with grammar, word meanings and practice. Tap any <span class="w" data-w="Wort">underlined</span> German word to see what it means and hear it.</p>
   <div class="stat"><div><b>${LESSONS.length}</b>classes</div><div><b>${words}</b>words</div><div><b>${items}</b>exercises + endless drills</div><div><b>${S.stats.ans}</b>answered${S.stats.ans?` · ${acc}% right`:''}</div><div><b>${S.stats.days[today()]||0}</b>today</div></div>
   <div class="row" style="margin-top:12px">${latest?`<a class="btn go" href="#/l/${latest.id}">Latest class: ${esc(latest.title)} →</a>`:''}<a class="btn go" href="#/topics">🎯 Practice by topic (${TOPICS.length})</a><a class="btn" href="#/texts">📚 Book texts & dialogues (${TEXTS.length})</a><a class="btn" href="#/mix">🎲 Mixed review (20)</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a><a class="btn" href="#/flash">🃏 Flashcards</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>
-  <h2 style="margin-top:18px">Classes</h2><div class="grid">`;
-  LESSONS.slice().reverse().forEach((l, i)=>{
-    const p = lessonProgress(l);
-    html += `<a class="lesson" href="#/l/${l.id}"><div class="d">${fmtDate(l.date)} · ${esc(l.id)}${i===0?' · <b style="color:var(--acc)">NEW</b>':''}</div><div class="t">${esc(l.title)}</div><div class="chips">${(l.topics||[]).map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div><div class="prog"><i style="width:${p}%"></i></div></a>`;
-  });
-  html += `</div><details class="card" style="margin-top:18px"><summary>How this app grows with my classes</summary><p>Each class is one file in <code>class/lessons/</code> of the <code>goethe-coach</code> repository. After a new class, send Claude the new material (or ask it to read the WhatsApp chat with Anara) and say “add today's class to my practice app” — it adds a new lesson file with grammar, words and exercises, and the drills, flashcards and word list pick the new words up automatically.</p></details>`;
+  <h2 style="margin-top:18px">Classes by day</h2>`;
+  html += dayBoxes();
+  html += `<details class="card" style="margin-top:18px"><summary>How this app grows with my classes</summary><p>Each class is one file in <code>class/lessons/</code> of the <code>goethe-coach</code> repository. After a new class, send Claude the new material (or ask it to read the WhatsApp chat with Anara) and say “add today's class to my practice app” — it adds a new lesson file with grammar, words and exercises (shown in that day’s box), and the drills, flashcards, word list and the 💬 chat teacher pick the new words up automatically.</p></details>`;
   $app.innerHTML = html; linkify($app);
+}
+
+/* one box per day: that day's classes + whatever else was added that day (data/updates.js) */
+function dayBoxes(){
+  const UPD = window.UPDATES || [];
+  const days = [...new Set(LESSONS.map(l=>l.date).concat(UPD.map(u=>u.date)))].sort().reverse();
+  const newest = days[0];
+  return days.map((d, k)=>{
+    const ls = LESSONS.filter(l=>l.date===d); const up = UPD.filter(u=>u.date===d);
+    const isToday = d===today();
+    const lab = `${fmtDate(d)}${isToday?' · Today':''}`;
+    const tiles = ls.map(l=>{ const p = lessonProgress(l); return `<a class="lesson" href="#/l/${l.id}"><div class="d">${esc(l.id)}${d===newest?' · <b style="color:var(--acc)">NEW</b>':''}</div><div class="t">${esc(l.title)}</div><div class="chips">${(l.topics||[]).map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div><div class="prog"><i style="width:${p}%"></i></div></a>`; }).join('');
+    const extras = up.length ? `<div class="dayup"><b>Also added this day</b><ul>${up.map(u=>`<li>${u.icon||'•'} ${u.href?`<a href="${u.href}">${esc(u.text)}</a>`:esc(u.text)}</li>`).join('')}</ul></div>` : '';
+    const sum = [ls.length?`${ls.length} class${ls.length>1?'es':''}`:'', up.length?`${up.length} other update${up.length>1?'s':''}`:''].filter(Boolean).join(' · ');
+    return `<details class="card daybox"${k<2?' open':''}><summary><span class="dayd">📅 ${lab}</span> <span class="muted">${sum}</span></summary><div class="grid" style="margin-top:10px">${tiles}</div>${extras}</details>`;
+  }).join('');
 }
 
 function viewLesson(id, tab){
@@ -755,7 +768,7 @@ function viewLesson(id, tab){
 function vocabQuiz(pool){ const n = Math.min(15, pool.length); const out=[]; for(let i=0;i<n;i++){ out.push(vocabItem(pool)); } const ns = pool.filter(w=>w.g && w.g!=='pl'); for(let i=0;i<Math.min(5,ns.length);i++){ const w = pick(ns); out.push({t:'mcq', q:`___ ${w.de}  (${w.en})`, o:['der','die','das'], a:['m','f','n'].indexOf(w.g), say:fullDe(w), x:genderRule(w)}); } return shuffle(out); }
 function vocabTable(list, showL){
   if(!list.length) return '<p class="muted">No words.</p>';
-  return `<div class="card tw"><table class="vocab"><tr><th></th><th>German</th><th>Meaning</th>${showL?'<th>Class</th>':''}</tr>${list.map(w=>`<tr><td>${spk(fullDe(w))}</td><td><b class="de">${nounLabel(w)}</b>${w.pl?`<div class="muted">pl. ${w.pl==='—'?'—':'die '+esc(w.pl)}</div>`:''}${w.ex?`<div class="muted de">${esc(w.ex)}</div>`:''}</td><td>${esc(w.en)}${w.opp?`<div class="muted">↔ <span class="de">${esc(w.opp)}</span></div>`:''}${w.note?`<div class="muted">${esc(w.note)}</div>`:''}</td>${showL?`<td><a href="#/l/${w.lid}/words">${esc(w.lid)}</a></td>`:''}</tr>`).join('')}</table></div>`;
+  return `<div class="card tw"><table class="vocab"><tr><th></th><th>German</th><th>Meaning</th>${showL?'<th>Class</th>':''}</tr>${list.map(w=>`<tr><td>${spk(fullDe(w))}</td><td><b class="de">${nounLabel(w)}</b>${w.pl?`<div class="muted">pl. ${w.pl==='—'?'—':'die '+esc(w.pl)}</div>`:''}${w.ex?`<div class="muted"><span class="de">${esc(w.ex)}</span>${(window.TR||{})[w.ex]?`<div class="vex">🇬🇧 ${esc(window.TR[w.ex])}</div>`:''}</div>`:''}</td><td>${esc(w.en)}${w.opp?`<div class="muted">↔ <span class="de">${esc(w.opp)}</span></div>`:''}${w.note?`<div class="muted">${esc(w.note)}</div>`:''}</td>${showL?`<td><a href="#/l/${w.lid}/words">${esc(w.lid)}</a></td>`:''}</tr>`).join('')}</table></div>`;
 }
 function drillCard(d){ const r = S.sets['drill:'+d.id]; return `<div class="card"><div class="row" style="justify-content:space-between;margin:0"><div><b>${esc(d.name)}</b><div class="muted de">${esc(d.d)}</div></div><a class="btn go" href="#/d/${d.id}">Start</a></div></div>`; }
 
@@ -968,7 +981,7 @@ function textAuto(t){
   });
   const sp = [...new Set(t.lines.map(l=>l.s).filter(Boolean))];
   if(sp.length>=2) t.lines.filter(l=>l.s).forEach(l=>{ const o = shuffle([l.s, ...shuffle(sp.filter(s=>s!==l.s)).slice(0,2)]); out.push({t:'mcq', q:`Who says: „${l.de}“`, o, a:o.indexOf(l.s), x:esc(l.en), tx:t.id}); });
-  if(t.words.length>=4) t.words.forEach(w=>{ const others = shuffle(t.words.filter(x=>x!==w && x.en!==w.en)).slice(0,3); const o = shuffle([w, ...others]); out.push({t:'mcq', q:`What does „${fullDe(w)}“ mean?`, o:o.map(x=>x.en), a:o.indexOf(w), say:fullDe(w), x:`<b>${esc(fullDe(w))}</b> = ${esc(w.en)}${w.pl?' · plural: die '+esc(w.pl):''}`, tx:t.id}); });
+  if(t.words.length>=4) t.words.forEach(w=>{ const seenEn = new Set([w.en]); const others = shuffle(t.words.filter(x=>x!==w && x.en!==w.en)).filter(x=>!seenEn.has(x.en) && seenEn.add(x.en)).slice(0,3); const o = shuffle([w, ...others]); if(o.length<2) return; out.push({t:'mcq', q:`What does „${fullDe(w)}“ mean?`, o:o.map(x=>x.en), a:o.indexOf(w), say:fullDe(w), x:`<b>${esc(fullDe(w))}</b> = ${esc(w.en)}${w.pl?' · plural: die '+esc(w.pl):''}`, tx:t.id}); });
   return out;
 }
 TEXTS.forEach(t=>{ t.auto = textAuto(t); });
@@ -1036,5 +1049,5 @@ function route(){
 buildDict(); addBankToDict(); addTextsToDict();
 window.addEventListener('hashchange', route);
 route();
-window.__ANARA = {LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems};
+window.__ANARA = {LESSONS, VERBS, conj, numDe, DRILLS, DICT, RENDER, norm, TOPICS, P, topicItems, TEXTS, textItems, speak, fullDe, linkify, verb, esc, ART, lessonItems, topicDrills};
 })();

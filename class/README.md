@@ -61,3 +61,17 @@ Every dialogue and reading text from the books lives in `texts/` (Spektrum L1–
 ```
 
 The app adds extra practice automatically from every text: gap-fills with the hard words, word order, translation, "who says it?" and word meanings. `topic:` links the text to a practice topic.
+
+## Days, translations and the chat teacher
+
+- **Home page = one box per day.** Classes are grouped by their `date`. Anything else added that day
+  (new topics, texts, features) goes in `data/updates.js` as `{date, icon, text, href}` and appears in the same day box.
+- **German + English everywhere.** `EX(de, en)` always shows the English line. If a lesson gives a grammar note
+  instead of a translation, or no English at all, put the translation in `data/translations.js` (key = the German
+  sentence without HTML). Full German sentences inside `TBL` tables also get their English from there.
+  The page has `translate="no"` so Chrome's auto-translate can't replace the German with English.
+- **💬 Chat teacher (`chat.js`)** — the same idea as the chat in the main Goethe Coach app. It works only from the
+  app's own data (classes, words, verbs, texts, topics), offline, no API key. It explains words (DE↔EN), der/die/das,
+  plurals, accusative forms, conjugations, numbers and grammar; finds example sentences; checks sentences
+  (verb endings, capitals, accusative); helps with the exercise on screen; and links to lessons, topics, drills and timed sessions.
+  New classes are picked up automatically.
