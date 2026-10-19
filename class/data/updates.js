@@ -24,3 +24,6 @@ window.UPDATES = window.UPDATES.concat([
 window.UPDATES = window.UPDATES.concat([
  {date:'2026-10-17', icon:'🧑‍🏫', text:'Teach me: 19 step-by-step lessons (definition → use → rules → step by step → examples → mistakes → summary) with check questions', href:'#/teach'}
 ]);
+window.UPDATES = window.UPDATES.concat([
+ {date:'2026-10-19', icon:'🏋️', text:'4-hour practice page: verb endings, -t/-d verbs, sein, pronouns, wo/wohin/woher, yes/no questions, strong verbs, accusative + / –, gender rules, (in)separable verbs — book exercises + endless questions', href:'#/t/practice4'}
+]);

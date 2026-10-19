@@ -105,9 +105,9 @@ addGuide({id:'plural', ch:'lektion2', icon:'👥', title:'Plural of nouns', goal
 ]});
 
 addGuide({id:'gender', ch:'lektion2', icon:'🧬', title:'Gender rules & compound nouns', goal:'Guess der / die / das from the ending.',
- links:{pages:['L11'], topic:'gender'}, steps:[
- {k:'rules', h:'The rules', html: TBL(['Ending / group','Article','Examples'],[['-ung, -heit, -keit, -schaft, -ion, -tät, -ei','die','die Zeitung, die Freiheit, die Information'],['-chen, -lein, -ment, -um, Infinitiv','das','das Mädchen, das Dokument, das Zentrum, das Lernen'],['days, months, seasons, -er (people), -ling, -ismus','der','der Montag, der Lehrer, der Lehrling']]),
-  q:['m: ___ Zeitung|die|der|das','m: ___ Mädchen|das|die|der','m: ___ Montag|der|die|das']},
+ links:{pages:['L11'], topic:'gender', drills:['p4-genus']}, steps:[
+ {k:'rules', h:'The rules (Grammatik A1, 3.1)', html: TBL(['Ending / group','Article','Examples'],[['~male persons & animals, male jobs','der','der Kollege, der Löwe, der Arzt'],['~months, days, times of day','der','der Mai, der Montag, der Morgen'],['-or, -en, -ismus','der','der Motor, der Garten, der Tourismus'],['~female persons & animals, female jobs','die','die Studentin, die Katze, die Ärztin'],['~often vegetables & fruit','die','die Tomate, die Birne'],['-ei, -ung, -heit, -keit, -schaft','die','die Bäckerei, die Zeitung, die Krankheit, die Mannschaft'],['-tät, -ion, -ik, -ur','die','die Universität, die Aktion, die Musik, die Natur'],['-chen, -lein, -ment, -um','das','das Mädchen, das Tischlein, das Appartement, das Zentrum'],['~infinitive as noun','das','das Lernen']]),
+  q:['m: ___ Zeitung|die|der|das','m: ___ Mädchen|das|die|der','m: ___ Montag|der|die|das','m: ___ Motor|der|die|das','m: ___ Bäckerei|die|der|das','m: ___ Musik|die|der|das']},
  {k:'how', h:'Compound nouns', html:`<p>In a compound noun the <b>last word</b> gives the article.</p>`+EX('die Kaffeemaschine','the coffee machine (die Maschine)')+EX('das Wörterbuch','the dictionary (das Buch)')+EX('der Zimmerschlüssel','the room key (der Schlüssel)'),
   q:['m: ___ Orangensaft (der Saft)|der|die|das','m: ___ Wartezimmer (das Zimmer)|das|der|die']},
  {k:'sum', h:'Summary', html: TIP('-ung/-heit/-keit → die · -chen/-um → das · days & months → der · compounds: the last word decides.')}

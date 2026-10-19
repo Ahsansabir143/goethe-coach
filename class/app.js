@@ -1185,6 +1185,7 @@ function vpresItem(){
 }
 DRILLS.push({id:'vforms', name:'Verb forms: 1st · 2nd · 3rd', d:'fahren – fuhr – ist gefahren · machen – machte – hat gemacht', gen:vformItem},
             {id:'vpres', name:'Strong verbs: du / er forms', d:'du fährst, er isst, du liest, er läuft', gen:vpresItem});
+DRILLS.push(...(window.EXTRA_DRILLS||[]));
 function viewVerbs(filter){
   setNav('verbs'); filter = filter || 'all';
   const F = {all:['All verbs', ()=>true], strong:['Strong & irregular', v=>v.f.kind!=='weak'], weak:['Weak (regular)', v=>v.f.kind==='weak'], change:['Vowel change: du / er', v=>/→/.test(v.f.change)], sep:['Separable', v=>!!v.f.pre], sein:['Perfekt with ist', v=>v.f.aux==='sein']};
