@@ -640,6 +640,18 @@ function recordAnswer(it, ok, lid){
   if(!ok){ if(i>=0){ S.mistakes[i].n++; S.mistakes[i].t=Date.now(); } else { S.mistakes.unshift({k, it, lid:lid||it.lid||'', n:1, t:Date.now()}); if(S.mistakes.length>300) S.mistakes.pop(); } }
   save();
 }
+/* RANDOMNESS: every practice set / test is different each time it is opened —
+   the questions are shuffled and ~50% brand-new generated questions on the same topic are mixed in. */
+function lessonDrills(l){ if(l.drills && l.drills.length) return l.drills; const c = chapterOfPage(l.id); return c ? [].concat(...chTopics(c).map(t=>t.gens||[])) : []; }
+function freshen(items, drillIds, ratio){
+  const base = shuffle(items||[]);
+  const gens = (drillIds||[]).map(id=> typeof id === 'string' ? DRILLS.find(d=>d.id===id) : id).filter(Boolean);
+  if(!gens.length) return base;
+  const extra = Math.max(4, Math.ceil(base.length * (ratio==null ? 0.5 : ratio)));
+  const add = []; let guard = 0; const seen = new Set(base.map(it=>JSON.stringify([it.q,it.a,it.en])));
+  while(add.length < extra && guard++ < extra*6){ try{ const it = pick(gens).gen(); const k = JSON.stringify([it.q,it.a,it.en]); if(seen.has(k)) continue; seen.add(k); add.push(Object.assign({fresh:true}, it)); }catch(e){} }
+  const out = base.slice(); add.forEach(it=> out.splice(rnd(out.length+1), 0, it)); return out;
+}
 function runQuiz(o){
   // o: {title, items?, gen?, key?, back, lid?, mistakesMode?}
   let idx = 0, score = 0, n = 0; const wrong = [];
@@ -654,7 +666,7 @@ function runQuiz(o){
     if(items && idx>=items.length) return finish();
     const it = items ? items[idx] : o.gen();
     window.__cur = it; // used by the automated test
-    $app.innerHTML = `<div class="row"><a class="btn sm" href="${o.back}">← Back</a>${o.gen?'<button class="btn sm" id="stop">Finish</button>':''}</div><div class="card" id="qc">${head()}<div id="qb"></div><div id="fb"></div></div>`;
+    $app.innerHTML = `<div class="row"><a class="btn sm" href="${o.back}">← Back</a>${o.gen?'<button class="btn sm" id="stop">Finish</button>':''}</div><div class="card" id="qc">${head()}${it.fresh?'<div class="muted" style="font-size:.82em">🆕 new question for this run</div>':''}<div id="qb"></div><div id="fb"></div></div>`;
     if(o.gen) document.getElementById('stop').onclick = finish;
     const qb = document.getElementById('qb');
     RENDER[it.t](qb, it, (ok, correct, your)=>{
@@ -891,7 +903,7 @@ function viewLesson(id, tab){
   }
   $app.innerHTML = html; linkify($app); wireColQuiz(window.__LW||{});
   const vq = document.getElementById('vq'); if(vq) vq.onclick = ()=> runQuiz({title:pageTitle(l)+' — words', items: vocabQuiz(allVocab(l.id)), back:`#/l/${l.id}/words`, lid:l.id});
-  const aq = document.getElementById('allq'); if(aq) aq.onclick = ()=> runQuiz({title:pageTitle(l)+' — all', items: shuffle(lessonItems(l)), back:`#/l/${l.id}/practice`, lid:l.id});
+  const aq = document.getElementById('allq'); if(aq) aq.onclick = ()=> runQuiz({title:pageTitle(l)+' — all', items: freshen(lessonItems(l), lessonDrills(l), 0.3), back:`#/l/${l.id}/practice`, lid:l.id});
 }
 function vocabQuiz(pool){ const n = Math.min(15, pool.length); const out=[]; for(let i=0;i<n;i++){ out.push(vocabItem(pool)); } const ns = pool.filter(w=>w.g && w.g!=='pl'); for(let i=0;i<Math.min(5,ns.length);i++){ const w = pick(ns); out.push({t:'mcq', q:`___ ${w.de}  (${w.en})`, o:['der','die','das'], a:['m','f','n'].indexOf(w.g), say:fullDe(w), x:genderRule(w)}); } return shuffle(out); }
 function isVerbWord(w){ return !w.g && /^(sich )?[a-zäöüß]+(en|ern|eln|tun|sein)( \(sich\))?$/.test(w.de) && /^(\(sich\) )?to\b|^may\b|^can\b|^must\b|^should\b|^would like/.test(w.en||''); }
@@ -1047,7 +1059,7 @@ function viewTopic(id, tab){
     return;
   }
   $app.innerHTML = html; linkify($app);
-  const aq = document.getElementById('allq'); if(aq) aq.onclick = ()=> runQuiz({title:t.title+' — all exercises', items: shuffle(items), back:`#/t/${t.id}`, lid:t.id, tid:t.id});
+  const aq = document.getElementById('allq'); if(aq) aq.onclick = ()=> runQuiz({title:t.title+' — all exercises', items: freshen(items, t.gens, 0.3), back:`#/t/${t.id}`, lid:t.id, tid:t.id});
 }
 function topicGen(t){
   // exact items first (shuffled, no repeats until all used), mixed ~50/50 with generators
@@ -1106,7 +1118,7 @@ function textAuto(t){
     // cloze: blank a glossary word from the line
     const toks = L.de.split(/(\s+)/);
     const cands = []; toks.forEach((tk, i)=>{ const bare = tk.replace(/[.,!?;:„“"()–]/g,''); const w = ws.find(w=> w.de.toLowerCase()===bare.toLowerCase() || (w.pl && w.pl.toLowerCase()===bare.toLowerCase())); if(w && bare.length>2) cands.push([i, bare, w]); });
-    if(cands.length){ const [i, bare, w] = cands[li % cands.length]; const q = toks.map((tk,j)=> j===i ? tk.replace(bare,'___') : tk).join(''); out.push({t:'fill', q:(L.s?L.s+': ':'')+q, a:[bare], h:w.en+(w.g?' ('+ART[w.g]+')':''), x:`<b>${esc(bare)}</b> = ${esc(w.en)} · ${esc(L.en)}`, tx:t.id}); }
+    if(cands.length){ const [i, bare, w] = pick(cands); const q = toks.map((tk,j)=> j===i ? tk.replace(bare,'___') : tk).join(''); out.push({t:'fill', q:(L.s?L.s+': ':'')+q, a:[bare], h:w.en+(w.g?' ('+ART[w.g]+')':''), x:`<b>${esc(bare)}</b> = ${esc(w.en)} · ${esc(L.en)}`, tx:t.id}); }
     // word order & translation for single sentences
     const ss = sentSplit(L.de);
     if(ss.length===1){ const n = L.de.split(/\s+/).length;
@@ -1120,9 +1132,9 @@ function textAuto(t){
   return out;
 }
 TEXTS.forEach(t=>{ t.auto = textAuto(t); });
-function textItems(t){ return t.items.map(it=>Object.assign({lid:t.id}, it)).concat(t.auto.map(it=>Object.assign({lid:t.id}, it))); }
+function textItems(t, fresh){ const auto = fresh ? textAuto(t) : t.auto; return t.items.map(it=>Object.assign({lid:t.id}, it)).concat(auto.map(it=>Object.assign({lid:t.id}, it))); }
 function textsForTopic(tp){ return TEXTS.filter(t=> t.topic===tp.id || (tp.texts||[]).includes(t.id)); }
-DRILLS.push({id:'texts', name:'Book texts & dialogues', d:'gaps, word order, who says it, translations — from every text in your books', gen:()=>{ const t = pick(TEXTS); return pick(t.auto.length ? t.auto : t.items); }});
+DRILLS.push({id:'texts', name:'Book texts & dialogues', d:'gaps, word order, who says it, translations — from every text in your books', gen:()=>{ const t = pick(TEXTS); const au = textAuto(t); return pick(au.length ? au : t.items); }});
 function addTextsToDict(){ TEXTS.forEach(t=> t.words.forEach(w=>{ addD(w.de, Object.assign({tx:t.id}, w)); if(w.pl) addD(w.pl, Object.assign({plf:true}, w)); })); }
 
 function viewTexts(){
@@ -1148,8 +1160,8 @@ function viewText(id){
   if(t.note) html += `<div class="tip">💡 ${t.note}</div>`;
   if(t.words.length) html += `<h3 id="words">Hard words</h3>` + vocabTable(t.words, false) + `<div class="row"><button class="btn" id="wq">Quiz these words</button><button class="btn" id="ws">Write them</button></div>`;
   $app.innerHTML = html; linkify($app);
-  document.getElementById('allx').onclick = ()=> runQuiz({title:t.title, items: shuffle(textItems(t)), key:'x:'+t.id, back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
-  const bx = document.getElementById('bookx'); if(bx) bx.onclick = ()=> runQuiz({title:t.title+' — book exercises', items: t.items.slice(), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
+  document.getElementById('allx').onclick = ()=> runQuiz({title:t.title, items: shuffle(textItems(t, true)), key:'x:'+t.id, back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
+  const bx = document.getElementById('bookx'); if(bx) bx.onclick = ()=> runQuiz({title:t.title+' — book exercises', items: shuffle(t.items), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
   let hidden = false; document.getElementById('tgl').onclick = e=>{ hidden = !hidden; document.querySelectorAll('#tx .en').forEach(x=> x.style.display = hidden ? 'none' : ''); e.target.textContent = hidden ? 'Show English' : 'Hide English'; };
   document.getElementById('readall').onclick = ()=>{ const tok = ++SPEAK_TOK; try{ SYN && SYN.cancel(); }catch(e){} setTimeout(async ()=>{ for(const l of t.lines){ if(tok !== SPEAK_TOK) return; await speakOne(l.de); await new Promise(r=>setTimeout(r,300)); } }, 90); };
   const wq = document.getElementById('wq'); if(wq) wq.onclick = ()=> runQuiz({title:t.title+' — words', items: vocabQuiz(t.words), back:`#/x/${t.id}`, lid:t.id, tid:t.topic});
@@ -1239,8 +1251,8 @@ function viewTeach(id, k){
     html += `<div class="card done"><h3>🎉 You finished „${esc(g.title)}“</h3><p>Now practise it:</p><div class="row">${all.length?`<button class="btn go" id="tall">📝 Test: all ${all.length} questions of this lesson</button>`:''}${(L.pages||[]).map(pid=>{ const l = lessonById(pid); return l?`<a class="btn" href="#/l/${l.id}/practice">✍️ ${esc(pageTitle(l))}</a>`:''; }).join('')}${L.topic&&topicById(L.topic)?`<a class="btn" href="#/t/${L.topic}">🎯 ${esc(topicById(L.topic).title)}</a><a class="btn" href="#/run/${L.topic}/30">⏱ 30 min practice</a>`:''}${(L.drills||[]).map(d=>{ const D = DRILLS.find(x=>x.id===d); return D?`<a class="btn" href="#/d/${d}">♾️ ${esc(D.name)}</a>`:''; }).join('')}</div></div>`; }
   html += `<div class="row tnav">${k>0?`<a class="btn" href="#/teach/${g.id}/${k-1}">‹ Back</a>`:''}${!last?`<a class="btn go" href="#/teach/${g.id}/${k+1}">Next: ${esc(g.steps[k+1].h.replace(/^\d+\.\s*/,''))} ›</a>`:(nextG?`<a class="btn go" href="#/teach/${nextG.id}/0">Next lesson: ${esc(nextG.title)} ›</a>`:'')}</div>`;
   $app.innerHTML = html; linkify($app);
-  const box = document.getElementById('chks'); if(box) renderChecks(box, st.q);
-  const ta = document.getElementById('tall'); if(ta){ const all = []; g.steps.forEach(s2=> s2.q.forEach(q=>all.push(q))); ta.onclick = ()=> runQuiz({title:g.title+' — test', items: shuffle(all), back:`#/teach/${g.id}/${k}`}); }
+  const box = document.getElementById('chks'); if(box) renderChecks(box, shuffle(st.q));
+  const ta = document.getElementById('tall'); if(ta){ const all = []; g.steps.forEach(s2=> s2.q.forEach(q=>all.push(q))); ta.onclick = ()=> runQuiz({title:g.title+' — test', items: freshen(all, (g.links||{}).drills), back:`#/teach/${g.id}/${k}`}); }
 }
 
 /* ---------------- 📚 Contents: every topic of the course, numbered, in sequence ---------------- */
@@ -1329,7 +1341,7 @@ function route(){
   try{
     if(!h) viewHome();
     else if(p[0]==='l') viewLesson(p[1], p[2]);
-    else if(p[0]==='p'){ const l = lessonById(p[1]); const s = l && l.sets[+p[2]]; if(!s) return viewHome(); runQuiz({title:s.title, items: s.shuffle===false ? s.items.slice() : shuffle(s.items), key:setKey(l,+p[2]), back:`#/l/${l.id}/practice`, lid:l.id}); }
+    else if(p[0]==='p'){ const l = lessonById(p[1]); const s = l && l.sets[+p[2]]; if(!s) return viewHome(); runQuiz({title:s.title, items: freshen(s.items, lessonDrills(l)), key:setKey(l,+p[2]), back:`#/l/${l.id}/practice`, lid:l.id}); }
     else if(p[0]==='words') viewWords();
     else if(p[0]==='c') viewChapter(p[1], p[2]);
     else if(p[0]==='contents') viewContents();
@@ -1342,7 +1354,7 @@ function route(){
     else if(p[0]==='mix') viewMix();
     else if(p[0]==='topics') viewTopics();
     else if(p[0]==='t') viewTopic(p[1], p[2]);
-    else if(p[0]==='ts'){ const t = topicById(p[1]); const st = t && t.sets[+p[2]]; if(!st) return viewTopics(); runQuiz({title:st.title, items: st.shuffle===false ? st.items.slice() : shuffle(st.items), key:'t:'+t.id+':'+p[2], back:`#/t/${t.id}`, lid:t.id, tid:t.id}); }
+    else if(p[0]==='ts'){ const t = topicById(p[1]); const st = t && t.sets[+p[2]]; if(!st) return viewTopics(); runQuiz({title:st.title, items: freshen(st.items, t.gens), key:'t:'+t.id+':'+p[2], back:`#/t/${t.id}`, lid:t.id, tid:t.id}); }
     else if(p[0]==='run') viewRun(p[1], p[2]);
     else if(p[0]==='bank') viewBank();
     else if(p[0]==='verbs') viewVerbs(p[1]);
