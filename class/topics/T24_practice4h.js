@@ -168,3 +168,25 @@ TOPICS.push({id:'practice4', icon:'🏋️', title:'4-hour practice: verbs, sein
  ]
 });
 })();
+
+/* The 9 practice topics (each its own page), made from the sets above; 'practice4' stays as the full mix. */
+(function(){
+  const big = TOPICS.find(t=>t.id==='practice4'); if(!big) return;
+  const G = [
+   ['pr-verbs','🧩','Weak verbs (-t/-d) & verb conjugation','Maria kommt aus Rom · du arbeitest · Lena wartet · ihr redet',[0,9],1,['p4-conj','p4-td','conj-reg','conj-td']],
+   ['pr-sein','⭐','sein','Ich bin · du bist · Julia und Maria sind in Italien · Wer? Wie? Wo?',[1],2,['p4-sein','sein-haben']],
+   ['pr-pron','👥','Personal pronouns (Nominativ)','(Peter und ich) → wir · (Maria) → sie · (Mädchen) → es',[2],3,['p4-pron','pron']],
+   ['pr-wo','🧭','wo? / wohin? / woher?','in Wien · nach Rom · aus Kairo · zu Hause · von zu Hause',[3],4,['p4-wo','wohin']],
+   ['pr-jn','❓','Yes/no questions','Arbeitest du in Passau? – Ja, ich arbeite in Passau.',[4,5],5,['p4-jn','yesno']],
+   ['pr-strong','💪','Strong verbs (a→ä, e→i, e→ie, au→äu)','du fährst · er isst · du liest · sie läuft · Peter schreibt nicht, er redet',[6,7,8,10],6,['p4-strong','conj-strong','vpres']],
+   ['pr-akk','🎯','Accusative: positive & negative','einen / eine / ein · keinen / keine / kein · den / die / das',[11,12],7,['p4-akk','akk','neg']],
+   ['pr-genus','🧬','Noun gender rules: der, die, das','-ung → die · -chen → das · days & months → der …',[13],8,['p4-genus','articles','rules']],
+   ['pr-sep','✂️','Inseparable & separable verbs','Max besucht die Tante · Du schließt die Tür ab',[14,15,16],9,['p4-insep','p4-sep','conj-sep','sepq']]
+  ];
+  G.forEach(([id, icon, title, d, sets, li, gens])=>{
+    TOPICS.push({id, icon, title, d, src: big.src, gens,
+      learn:[{h:'Practise this topic', html:`<div class="row"><a class="btn go" href="#/ts/${id}/0">✍️ Start the exercises</a><a class="btn" href="#/run/${id}/15">⏱ 15 min</a><a class="btn" href="#/run/${id}/30">⏱ 30 min</a><a class="btn" href="#/run/${id}/60">⏱ 1 hour</a><a class="btn" href="#/run/${id}/240">⏱ 4 hours</a></div>`}, big.learn[li]],
+      sets: sets.map(k=> big.sets[k]).filter(Boolean)});
+  });
+  big.title = '4-hour practice: everything mixed (all 9 topics)';
+})();

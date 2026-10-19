@@ -21,7 +21,7 @@ window.COURSE = [
   pages:['L04','L16'], topics:['strong'], texts:null, link:['#/verbs','🔤 All verbs with their 3 forms']},
  {id:'uebung', label:'Practice', title:'4-hour practice: Lektion 1–4', icon:'🏋️',
   sub:'Weak verbs (-t/-d) · conjugation · sein · pronouns · wo / wohin / woher · yes/no questions · strong verbs · accusative + / – · noun gender · (in)separable verbs',
-  pages:[], topics:['practice4'], texts:null, link:['#/run/practice4/240','⏱ Start the 4-hour practice']},
+  pages:[], topics:['pr-verbs','pr-sein','pr-pron','pr-wo','pr-jn','pr-strong','pr-akk','pr-genus','pr-sep','practice4'], texts:null, link:['#/practice','🏋️ Open the practice topics']},
  {id:'klimenko', label:'Klimenko', title:'Klimenko book: introductory & main course', icon:'📗',
   sub:'Texts, dialogues and exercises of the Klimenko book',
   pages:[], topics:['klimenko','klimenko2'], texts:/^(k\d|km\d)/},

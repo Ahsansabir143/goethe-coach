@@ -1338,15 +1338,15 @@ function viewContents(){
 /* ---------------- 🏋️ Practice hub ---------------- */
 function viewPractice(){
   setNav('practice');
-  const t = topicById('practice4');
-  let html = `<h1>🏋️ Practice</h1><p class="muted">Everything to practise, in one place. Every set is different each time you open it.</p>`;
-  if(t){ const p = topicProgress(t);
-    html += `<div class="card teachbox"><h2 style="margin-top:0">${t.icon||''} 4-hour practice: Lektion 1–4</h2><p class="muted">${esc(t.d)}</p>
-    <div class="row"><a class="btn go" href="#/run/practice4/240">⏱ Start 4 hours</a><a class="btn go" href="#/run/practice4/60">⏱ 1 hour</a><a class="btn" href="#/run/practice4/30">⏱ 30 min</a><a class="btn" href="#/run/practice4/15">⏱ 15 min</a><a class="btn" href="#/t/practice4/learn">📖 Rules first</a></div>
-    <div class="prog"><i style="width:${p}%"></i></div>
-    <h3>The exercise sets (${t.sets.length})</h3><ol class="cheads">${t.sets.map((st,k)=>{ const r = S.sets['t:practice4:'+k]; return `<li><a href="#/ts/practice4/${k}">✍️ ${esc(st.title)} <span class="muted">(${st.items.length}${r?` · best ${r.best}/${r.total}`:''})</span></a></li>`; }).join('')}</ol></div>`; }
+  const ids = ['pr-verbs','pr-sein','pr-pron','pr-wo','pr-jn','pr-strong','pr-akk','pr-genus','pr-sep'];
+  const tps = ids.map(topicById).filter(Boolean); const mix = topicById('practice4');
+  let html = `<h1>🏋️ Practice</h1><p class="muted">Choose a topic and go inside: rules, exercise sets, endless new questions and timed sessions (15 min – 4 h). Every set is different each time you open it.</p><div class="ptgrid">`;
+  tps.forEach((t,i)=>{ const p = topicProgress(t); const n = topicItems(t).length;
+    html += `<a class="ptcard" href="#/t/${t.id}"><div class="ptn">${i+1}</div><div class="pti">${t.icon||''}</div><div class="ptt">${esc(t.title)}</div><div class="muted" style="font-size:.86em">${esc(t.d)}</div><div class="chips"><span class="chip">${n} exercises</span><span class="chip">${topicDrills(t).length} drills ♾️</span>${S.time&&S.time[t.id]?`<span class="chip">⏱ ${fmtMin(S.time[t.id])}</span>`:''}</div><div class="prog"><i style="width:${p}%"></i></div></a>`; });
+  html += `</div>`;
+  if(mix) html += `<div class="card teachbox"><h2 style="margin-top:0">🔀 Everything mixed (all 9 topics)</h2><p class="muted">The full 4-hour practice: all exercise sets + new questions from every topic.</p><div class="row"><a class="btn go" href="#/run/practice4/240">⏱ 4 hours</a><a class="btn go" href="#/run/practice4/60">⏱ 1 hour</a><a class="btn" href="#/run/practice4/30">⏱ 30 min</a><a class="btn" href="#/t/practice4">📋 All ${mix.sets.length} sets</a></div></div>`;
   html += `<h2>Practice by chapter</h2><div class="grid">` + COURSE.filter(c=>c.id!=='uebung').map(c=>`<a class="lesson" href="#/c/${c.id}/practice"><div class="d">${esc(c.label)}</div><div class="t">${c.icon||''} ${esc(c.title)}</div><div class="prog"><i style="width:${chProgress(c)}%"></i></div></a>`).join('') + `</div>`;
-  html += `<h2>More ways to practise</h2><div class="row"><a class="btn" href="#/topics">🎯 Practice topics (${TOPICS.length})</a><a class="btn" href="#/drills">♾️ Endless drills (${DRILLS.length})</a><a class="btn" href="#/mix">🎲 Mixed review</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a><a class="btn" href="#/flash">🃏 Flashcards</a><a class="btn" href="#/d/vforms">🔤 Verb forms</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>`;
+  html += `<h2>More ways to practise</h2><div class="row"><a class="btn" href="#/topics">🎯 All practice topics (${TOPICS.length})</a><a class="btn" href="#/drills">♾️ Endless drills (${DRILLS.length})</a><a class="btn" href="#/mix">🎲 Mixed review</a><a class="btn" href="#/flash">🃏 Flashcards</a><a class="btn" href="#/d/vforms">🔤 Verb forms</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>`;
   $app.innerHTML = html; linkify($app);
 }
 
