@@ -6,6 +6,7 @@
 (function(){
 // base verb: [Präteritum (er), Partizip II, helper]   (helper 'sein' = ist …, 'haben' = hat …)
 const STRONG = {
+ verzeihen:['verzieh','verziehen','haben'],
  backen:['backte','gebacken','haben'], beginnen:['begann','begonnen','haben'], bitten:['bat','gebeten','haben'],
  bleiben:['blieb','geblieben','sein'], braten:['briet','gebraten','haben'], empfehlen:['empfahl','empfohlen','haben'],
  essen:['aß','gegessen','haben'], fahren:['fuhr','gefahren','sein'], fallen:['fiel','gefallen','sein'],

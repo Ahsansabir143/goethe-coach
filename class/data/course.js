@@ -12,10 +12,13 @@ window.COURSE = [
   pages:['L05','L10','L07','L11','L12'], topics:['nouns','gender','negation','adjectives','numbers','jobs','family','possessive'], texts:/^s2-/},
  {id:'lektion3', label:'Lektion 3', title:'In der Stadt', icon:'🏙️',
   sub:'Im Café: möchten · the accusative (den, einen, keinen · mich, dich, ihn · durch, für, gegen, ohne, um) · hotel · war',
-  pages:['L13','L14','L15'], topics:['moechten','akkusativ','stadt'], texts:/^s3-/},
+  pages:['L13','L14','L15','L17'], topics:['moechten','akkusativ','stadt'], texts:/^s3-/},
  {id:'lektion4', label:'Lektion 4', title:'Von morgens bis abends', icon:'⏰',
   sub:'Daily routine · separable & inseparable verbs · nicht · my daily-life texts',
   pages:['L06'], topics:['separable'], texts:/^al-/},
+ {id:'dativ', label:'Dativ', title:'The dative: articles & pronouns (6.1–6.2)', icon:'🎁',
+  sub:'Wem? · dem / der / dem / den + -n · einem / einer · helfen, danken, antworten … · gehören, schmecken, gefallen, passen · mir, dir, ihm, ihr, uns, euch, ihnen',
+  pages:['L18','L19'], topics:['pr-dativ'], texts:null, link:['#/teach/dativ/0','🧑‍🏫 Teach me the dative step by step']},
  {id:'verben', label:'Verbs', title:'Strong verbs & the 3 verb forms', icon:'🔤',
   sub:'a → ä, e → i, e → ie, au → äu · 1st · 2nd · 3rd form (Infinitiv · Präteritum · Partizip II) · all verbs of the course',
   pages:['L04','L16'], topics:['strong'], texts:null, link:['#/verbs','🔤 All verbs with their 3 forms']},
@@ -45,6 +48,9 @@ window.PAGE = {
  L13:{t:'Im Café: möchten · the accusative — introduction', s:'Ordering in a café with „Ich möchte …“, then the accusative case: only masculine changes — der → den, ein → einen, kein → keinen.'},
  L14:{t:'Accusative practice: packing for a trip · Walter goes shopping', s:'Two worksheets — what I need for a trip to Berlin (den/die/das) and what Walter buys (einen/eine/ein).'},
  L15:{t:'The accusative case — summary', s:'The definition, examples for every gender, the accusative personal pronouns and the words that always take the accusative (DOGFU).'},
+ L17:{t:'Accusative pronouns: mich, dich, ihn … (4.3)', s:'Replace the direct object with a pronoun: den Kuchen → ihn, die Milch → sie, das Buch → es · Ich kenne Maria, aber sie kennt mich nicht · Mögen Sie Kaffee? – Nein, ich mag keinen Kaffee.'},
+ L18:{t:'The dative: nouns & articles (6.1)', s:'Wem? → dem / der / dem / den + -n, einem / einer · verbs with the dative: helfen, danken, antworten, glauben … · gehören, schmecken, gefallen, passen.'},
+ L19:{t:'The dative: personal pronouns (6.2)', s:'mir, dir, ihm, ihr, ihm, uns, euch, ihnen / Ihnen · Glaubst du mir? – Ja, ich glaube dir · word order: Gefällt dir der Film?'},
  L16:{t:'Strong verbs (a→ä, e→i, e→ie, au→äu) · the 3 verb forms', s:'Stem-changing verbs with du and er/sie/es, every verb with its 1st, 2nd and 3rd form, and practice sentences.'}
 };
 /* meaning categories for words: the themes of Nouns.pages (same order); the 300-noun list is mapped onto them */
