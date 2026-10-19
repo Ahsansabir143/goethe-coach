@@ -843,7 +843,7 @@ function viewHome(){
   const cont = COURSE.find(c=>c.id===S.lastCh) || COURSE[0];
   let html = `<h1>Deutsch mit Anara 🇩🇪</h1><p class="muted">My German A1 course in the order of the book: every chapter with its grammar, words, texts and exercises. Tap any <span class="w" data-w="Wort">underlined</span> German word to see its meaning and grammar.</p>
   <div class="stat"><div><b>${COURSE.length}</b>chapters</div><div><b>${words}</b>words</div><div><b>${items}</b>exercises + endless drills</div><div><b>${S.stats.ans}</b>answered${S.stats.ans?` · ${acc}% right`:''}</div><div><b>${S.stats.days[today()]||0}</b>today</div></div>
-  <div class="row" style="margin-top:12px">${cont?`<a class="btn go" href="#/c/${cont.id}">Continue: ${esc(cont.label)} · ${esc(cont.title)} →</a>`:''}<a class="btn" href="#/teach">🧑‍🏫 Teach me step by step</a><a class="btn" href="#/contents">📚 Course contents (all topics)</a><a class="btn" href="#/topics">🎯 Practice by topic</a><a class="btn" href="#/texts">📚 Texts & dialogues</a><a class="btn" href="#/mix">🎲 Mixed review</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>
+  <div class="row" style="margin-top:12px">${cont?`<a class="btn go" href="#/c/${cont.id}">Continue: ${esc(cont.label)} · ${esc(cont.title)} →</a>`:''}<a class="btn go" href="#/practice">🏋️ Practice (4-hour practice)</a><a class="btn" href="#/teach">🧑‍🏫 Teach me step by step</a><a class="btn" href="#/contents">📚 Course contents (all topics)</a><a class="btn" href="#/topics">🎯 Practice by topic</a><a class="btn" href="#/texts">📚 Texts & dialogues</a><a class="btn" href="#/mix">🎲 Mixed review</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>
   <h2 style="margin-top:18px">Course</h2><div class="chlist">`;
   COURSE.forEach((c,i)=>{ const p = chProgress(c); const ls = chPages(c);
     html += `<a class="chap" href="#/c/${c.id}"><div class="chn">${c.icon||''}</div><div class="chb"><div class="d">${esc(c.label)}</div><div class="t">${esc(c.title)}</div><div class="muted" style="font-size:.88em">${esc(c.sub)}</div>
@@ -1334,6 +1334,22 @@ function viewContents(){
   inp.addEventListener('input', ()=>{ try{ sessionStorage.setItem('csq', inp.value); }catch(e){} });
 }
 
+
+/* ---------------- 🏋️ Practice hub ---------------- */
+function viewPractice(){
+  setNav('practice');
+  const t = topicById('practice4');
+  let html = `<h1>🏋️ Practice</h1><p class="muted">Everything to practise, in one place. Every set is different each time you open it.</p>`;
+  if(t){ const p = topicProgress(t);
+    html += `<div class="card teachbox"><h2 style="margin-top:0">${t.icon||''} 4-hour practice: Lektion 1–4</h2><p class="muted">${esc(t.d)}</p>
+    <div class="row"><a class="btn go" href="#/run/practice4/240">⏱ Start 4 hours</a><a class="btn go" href="#/run/practice4/60">⏱ 1 hour</a><a class="btn" href="#/run/practice4/30">⏱ 30 min</a><a class="btn" href="#/run/practice4/15">⏱ 15 min</a><a class="btn" href="#/t/practice4/learn">📖 Rules first</a></div>
+    <div class="prog"><i style="width:${p}%"></i></div>
+    <h3>The exercise sets (${t.sets.length})</h3><ol class="cheads">${t.sets.map((st,k)=>{ const r = S.sets['t:practice4:'+k]; return `<li><a href="#/ts/practice4/${k}">✍️ ${esc(st.title)} <span class="muted">(${st.items.length}${r?` · best ${r.best}/${r.total}`:''})</span></a></li>`; }).join('')}</ol></div>`; }
+  html += `<h2>Practice by chapter</h2><div class="grid">` + COURSE.filter(c=>c.id!=='uebung').map(c=>`<a class="lesson" href="#/c/${c.id}/practice"><div class="d">${esc(c.label)}</div><div class="t">${c.icon||''} ${esc(c.title)}</div><div class="prog"><i style="width:${chProgress(c)}%"></i></div></a>`).join('') + `</div>`;
+  html += `<h2>More ways to practise</h2><div class="row"><a class="btn" href="#/topics">🎯 Practice topics (${TOPICS.length})</a><a class="btn" href="#/drills">♾️ Endless drills (${DRILLS.length})</a><a class="btn" href="#/mix">🎲 Mixed review</a><a class="btn" href="#/run/all/60">⏱ 1 hour of everything</a><a class="btn" href="#/flash">🃏 Flashcards</a><a class="btn" href="#/d/vforms">🔤 Verb forms</a>${S.mistakes.length?`<a class="btn" href="#/mistakes">❗ My mistakes (${S.mistakes.length})</a>`:''}</div>`;
+  $app.innerHTML = html; linkify($app);
+}
+
 /* ---------------- router ---------------- */
 function route(){
   $pop.style.display='none'; if(window.__QT) clearInterval(window.__QT);
@@ -1345,6 +1361,7 @@ function route(){
     else if(p[0]==='words') viewWords();
     else if(p[0]==='c') viewChapter(p[1], p[2]);
     else if(p[0]==='contents') viewContents();
+    else if(p[0]==='practice') viewPractice();
     else if(p[0]==='teach') (p[1] ? viewTeach(p[1], p[2]) : viewTeachList());
     else if(p[0]==='flash') viewFlash(p[1]);
     else if(p[0]==='drills') viewDrills();
