@@ -16,9 +16,9 @@ window.COURSE = [
  {id:'lektion4', label:'Lektion 4', title:'Von morgens bis abends', icon:'⏰',
   sub:'Daily routine · separable & inseparable verbs · nicht · my daily-life texts',
   pages:['L06'], topics:['separable'], texts:/^al-/},
- {id:'dativ', label:'Dativ', title:'The dative: articles & pronouns (6.1–6.2)', icon:'🎁',
-  sub:'Wem? · dem / der / dem / den + -n · einem / einer · helfen, danken, antworten … · gehören, schmecken, gefallen, passen · mir, dir, ihm, ihr, uns, euch, ihnen',
-  pages:['L18','L19'], topics:['pr-dativ'], texts:null, link:['#/teach/dativ/0','🧑‍🏫 Teach me the dative step by step']},
+ {id:'dativ', label:'Dativ', title:'The dative: articles, pronouns & prepositions (6.1–6.2 · 7.3)', icon:'🎁',
+  sub:'Wem? · dem / der / dem / den + -n · einem / einer · helfen, danken … · gehören, schmecken, gefallen, passen · mir, dir, ihm … · Nominativ, Akkusativ, Dativ: who does what · aus, bei, mit, nach, seit, von, zu, gegenüber',
+  pages:['L18','L19','L20','L21'], topics:['pr-dativ','pr-cases','pr-dprep'], texts:null, link:['#/teach/dativ/0','🧑‍🏫 Teach me the dative step by step']},
  {id:'verben', label:'Verbs', title:'Strong verbs & the 3 verb forms', icon:'🔤',
   sub:'a → ä, e → i, e → ie, au → äu · 1st · 2nd · 3rd form (Infinitiv · Präteritum · Partizip II) · all verbs of the course',
   pages:['L04','L16'], topics:['strong'], texts:null, link:['#/verbs','🔤 All verbs with their 3 forms']},
@@ -51,6 +51,8 @@ window.PAGE = {
  L17:{t:'Accusative pronouns: mich, dich, ihn … (4.3)', s:'Replace the direct object with a pronoun: den Kuchen → ihn, die Milch → sie, das Buch → es · Ich kenne Maria, aber sie kennt mich nicht · Mögen Sie Kaffee? – Nein, ich mag keinen Kaffee.'},
  L18:{t:'The dative: nouns & articles (6.1)', s:'Wem? → dem / der / dem / den + -n, einem / einer · verbs with the dative: helfen, danken, antworten, glauben … · gehören, schmecken, gefallen, passen.'},
  L19:{t:'The dative: personal pronouns (6.2)', s:'mir, dir, ihm, ihr, ihm, uns, euch, ihnen / Ihnen · Glaubst du mir? – Ja, ich glaube dir · word order: Gefällt dir der Film?'},
+ L20:{t:'Nominativ, Akkusativ, Dativ: who does what?', s:'The doer (Wer?), the thing (Wen? / Was?) and the person to / for whom (Wem?) — how to find each case, what changes, sein has no accusative, and how to know der, die or das.'},
+ L21:{t:'Prepositions with the dative (7.3)', s:'aus, bei, mit, nach, seit, von, zu, gegenüber + Dativ · beim, vom, zum, zur · nach or zu? · Gehst du zu Klaus? – Nein, ich gehe nicht zu ihm.'},
  L16:{t:'Strong verbs (a→ä, e→i, e→ie, au→äu) · the 3 verb forms', s:'Stem-changing verbs with du and er/sie/es, every verb with its 1st, 2nd and 3rd form, and practice sentences.'}
 };
 /* meaning categories for words: the themes of Nouns.pages (same order); the 300-noun list is mapped onto them */
