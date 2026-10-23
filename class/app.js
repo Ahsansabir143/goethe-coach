@@ -1205,13 +1205,30 @@ function viewVerbs(filter){
   const total = groups.reduce((a,g)=>a+g.list.length,0);
   let html = `<h1>Verbs: the 3 forms 🔤</h1><p class="muted">In the order of my lists. 1️⃣ Infinitiv (1st form) · 2️⃣ Präteritum (2nd form, er/sie/es) · 3️⃣ Partizip II with <b>hat</b> or <b>ist</b> (3rd form). Strong verbs also show how du and er/sie/es change. Tap any verb for its grammar.</p>
   <div class="row">${Object.entries(F).map(([k,[n]])=>`<a class="btn sm ${k===filter?'go':''}" href="#/verbs/${k}">${n}</a>`).join('')}</div>
-  <div class="row"><input id="vsearch" class="ans" style="flex:1;min-width:0" placeholder="Search a verb (German or English)… (${total} verbs)" autocomplete="off"><a class="btn go" href="#/d/vforms">Drill the 3 forms ♾️</a><a class="btn" href="#/d/vpres">du / er forms ♾️</a></div>`;
+  <div class="row"><input id="vsearch" class="ans" style="flex:1;min-width:0" placeholder="Search a verb (German or English)… (${total} verbs)" autocomplete="off"><a class="btn go" href="#/d/vforms">Drill the 3 forms ♾️</a><a class="btn" href="#/vcases">🎯 Verbs by case</a><a class="btn" href="#/d/vpres">du / er forms ♾️</a></div>`;
   groups.forEach(g=>{ html += `<h2>${esc(g.title)} <span class="muted">(${g.list.length})</span></h2><p class="muted">${esc(g.sub)}</p><div class="card tw"><table class="vocab vt"><tr><th>№</th><th>1️⃣ Infinitiv</th><th>Meaning</th><th>2️⃣ Präteritum</th><th>3️⃣ Perfekt</th><th>du · er/sie/es</th></tr>${g.list.map((v,i)=>`<tr data-s="${esc((v.i+' '+v.en).toLowerCase())}"><td class="num">${i+1}</td><td>${tapWord({de:v.i})} ${spk(v.i)}<div><span class="vfk ${v.f.kind}">${v.f.kind}</span></div></td><td>${esc(v.en)}</td><td class="de">${esc(v.f.prat)}</td><td class="de">${esc(v.f.perfekt)}</td><td class="de">${esc(v.f.du)} · ${esc(v.f.er)}${v.f.change?`<div class="muted">${esc(v.f.change)}</div>`:''}</td></tr>`).join('')}</table></div>`; });
   $app.innerHTML = html; linkify($app);
   const inp = document.getElementById('vsearch'); inp.oninput = ()=>{ const q = inp.value.toLowerCase().trim(); document.querySelectorAll('.vt tr[data-s]').forEach(r=> r.style.display = !q || r.dataset.s.includes(q) ? '' : 'none'); };
 }
 
 
+
+/* ---------------- 🎯 Verbs by case (data/vcases.js) ---------------- */
+function vcMark(s){ return esc(s).replace(/\[([nad]):([^\]]+)\]/g, (m,k,w)=>`<span class="vc${k}">${w}</span>`); }
+function viewVcases(cat){
+  setNav('vcases'); const C = window.VCASES||[]; cat = cat||'all';
+  const total = C.reduce((a,c)=>a+c.list.length,0);
+  let html = `<h1>🎯 Verbs by case</h1><p class="muted">Every verb of the course, sorted by the case it needs. The verb itself has <b>no case</b> — it decides the case of the other words. In the examples: <span class="vcn">blue = Nominativ</span> · <span class="vca">orange = Akkusativ</span> · <span class="vcd">green = Dativ</span>.</p>
+  <div class="row"><a class="btn sm ${cat==='all'?'go':''}" href="#/vcases">All (${total})</a>${C.map(c=>`<a class="btn sm ${cat===c.id?'go':''}" href="#/vcases/${c.id}">${c.icon} ${esc(c.title.split(' (')[0])} (${c.list.length})</a>`).join('')}</div>
+  <div class="row"><input id="vcsearch" class="ans" style="flex:1;min-width:0" placeholder="Search a verb (German or English)…" autocomplete="off"><a class="btn go" href="#/t/pr-vcase">🏋️ Practise</a><a class="btn" href="#/d/p-vcase">♾️ Which case?</a></div>`;
+  C.filter(c=>cat==='all'||c.id===cat).forEach(c=>{
+    html += `<div class="vcgrp"><h2 class="vch k-${c.k}">${c.icon} ${esc(c.title)} <span class="muted">(${c.list.length})</span></h2><p class="muted">${esc(c.sub)} · <b>${esc(c.ask)}</b></p><div class="card tw"><table class="vocab vct"><tr><th>№</th><th>Verb</th><th>Meaning</th><th>Example</th></tr>`;
+    c.list.forEach(([v,en,ex,exen],i)=>{ const p = ex.replace(/\[[nad]:([^\]]+)\]/g,'$1'); html += `<tr data-s="${esc((v+' '+en+' '+p).toLowerCase())}"><td>${i+1}</td><td>${spk(v)} <b class="de">${esc(v)}</b></td><td class="muted">${esc(en)}</td><td>${spk(p)} <span class="de">${vcMark(ex)}</span><div class="muted">${esc(exen)}</div></td></tr>`; });
+    html += `</table></div></div>`;
+  });
+  $app.innerHTML = html; linkify($app);
+  const inp = document.getElementById('vcsearch'); inp.oninput = ()=>{ const q = inp.value.toLowerCase().trim(); document.querySelectorAll('.vct tr[data-s]').forEach(r=> r.style.display = !q || r.dataset.s.includes(q) ? '' : 'none'); document.querySelectorAll('.vcgrp').forEach(g=> g.style.display = [...g.querySelectorAll('tr[data-s]')].some(r=>r.style.display!=='none') ? '' : 'none'); };
+}
 
 /* ---------------- 🧑‍🏫 Teach me: step-by-step lessons (data/guides.js) ---------------- */
 const GUIDES = (window.GUIDES||[]).map(g=> Object.assign({}, g, {steps: g.steps.map(st=> Object.assign({}, st, {q:(st.q||[]).map(P)}))}));
@@ -1338,7 +1355,7 @@ function viewContents(){
 /* ---------------- 🏋️ Practice hub ---------------- */
 function viewPractice(){
   setNav('practice');
-  const ids = ['pr-verbs','pr-sein','pr-pron','pr-wo','pr-jn','pr-strong','pr-akk','pr-genus','pr-sep','pr-dativ','pr-cases','pr-dprep'];
+  const ids = ['pr-verbs','pr-sein','pr-pron','pr-wo','pr-jn','pr-strong','pr-akk','pr-genus','pr-sep','pr-dativ','pr-cases','pr-dprep','pr-vcase'];
   const tps = ids.map(topicById).filter(Boolean); const mix = topicById('practice4');
   let html = `<h1>🏋️ Practice</h1><p class="muted">Choose a topic and go inside: rules, exercise sets, endless new questions and timed sessions (15 min – 4 h). Every set is different each time you open it.</p><div class="ptgrid">`;
   tps.forEach((t,i)=>{ const p = topicProgress(t); const n = topicItems(t).length;
@@ -1375,6 +1392,7 @@ function route(){
     else if(p[0]==='run') viewRun(p[1], p[2]);
     else if(p[0]==='bank') viewBank();
     else if(p[0]==='verbs') viewVerbs(p[1]);
+    else if(p[0]==='vcases') viewVcases(p[1]);
     else if(p[0]==='texts') viewTexts();
     else if(p[0]==='x') viewText(p[1]);
     else viewHome();

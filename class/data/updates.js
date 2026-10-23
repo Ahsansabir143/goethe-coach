@@ -27,5 +27,6 @@ window.UPDATES = window.UPDATES.concat([
 window.UPDATES = window.UPDATES.concat([
  {date:'2026-10-19', icon:'🏋️', text:'4-hour practice page: verb endings, -t/-d verbs, sein, pronouns, wo/wohin/woher, yes/no questions, strong verbs, accusative + / –, gender rules, (in)separable verbs — book exercises + endless questions', href:'#/t/practice4'},
  {date:'2026-10-19', icon:'🎁', text:'New: the dative (6.1 nouns & articles · 6.2 pronouns mir, dir, ihm …) with rules, book exercises, a Teach-me lesson and endless practice — plus 4.3 accusative pronouns (mich, dich, ihn …)', href:'#/c/dativ'},
- {date:'2026-10-20', icon:'🧭', text:'New: prepositions with the dative (7.3: aus, bei, mit, nach, seit, von, zu, gegenüber) and „Nominativ, Akkusativ, Dativ: who does what?“ — rules, book exercises, Teach-me lessons and endless practice', href:'#/c/dativ'}
+ {date:'2026-10-20', icon:'🧭', text:'New: prepositions with the dative (7.3: aus, bei, mit, nach, seit, von, zu, gegenüber) and „Nominativ, Akkusativ, Dativ: who does what?“ — rules, book exercises, Teach-me lessons and endless practice', href:'#/c/dativ'},
+ {date:'2026-10-23', icon:'🎯', text:'New tab „Verbs by case“: all 171 verbs of the course sorted into Nominativ, Akkusativ, Dativ, Akkusativ + Dativ, reflexive, preposition and modal verbs — numbered, with colour-coded examples and endless practice', href:'#/vcases'}
 ]);
