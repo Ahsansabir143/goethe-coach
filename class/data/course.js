@@ -14,8 +14,11 @@ window.COURSE = [
   sub:'Im Café: möchten · the accusative (den, einen, keinen · mich, dich, ihn · durch, für, gegen, ohne, um) · hotel · war',
   pages:['L13','L14','L15','L17'], topics:['moechten','akkusativ','stadt'], texts:/^s3-/},
  {id:'lektion4', label:'Lektion 4', title:'Von morgens bis abends', icon:'⏰',
-  sub:'Daily routine · separable & inseparable verbs · nicht · my daily-life texts',
-  pages:['L06'], topics:['separable'], texts:/^al-/},
+  sub:'Daily routine · separable & inseparable verbs · nicht · a phone call · the chapter verbs · word order · modal & irregular verbs · my daily-life texts',
+  pages:['L06','L22','L23'], topics:['separable','pr-modal'], texts:/^al-/},
+ {id:'lektion6', label:'Lektion 6', title:'Gestern und heute: das Perfekt', icon:'⏪',
+  sub:'The past tense: haben / sein + Partizip II · ge-…-t / ge-…-en · -ieren and be-/ver- without ge · separable zu-ge-macht · movement → sein · talking about yesterday',
+  pages:['L24','L25'], topics:['pr-perfekt'], texts:null, link:['#/teach/perfekt/0','🧑‍🏫 Teach me the Perfekt step by step']},
  {id:'dativ', label:'Dativ', title:'The dative: articles, pronouns & prepositions (6.1–6.2 · 7.3)', icon:'🎁',
   sub:'Wem? · dem / der / dem / den + -n · einem / einer · helfen, danken … · gehören, schmecken, gefallen, passen · mir, dir, ihm … · Nominativ, Akkusativ, Dativ: who does what · aus, bei, mit, nach, seit, von, zu, gegenüber',
   pages:['L18','L19','L20','L21'], topics:['pr-dativ','pr-cases','pr-dprep'], texts:null, link:['#/teach/dativ/0','🧑‍🏫 Teach me the dative step by step']},
@@ -53,6 +56,10 @@ window.PAGE = {
  L19:{t:'The dative: personal pronouns (6.2)', s:'mir, dir, ihm, ihr, ihm, uns, euch, ihnen / Ihnen · Glaubst du mir? – Ja, ich glaube dir · word order: Gefällt dir der Film?'},
  L20:{t:'Nominativ, Akkusativ, Dativ: who does what?', s:'The doer (Wer?), the thing (Wen? / Was?) and the person to / for whom (Wem?) — how to find each case, what changes, sein has no accusative, and how to know der, die or das.'},
  L21:{t:'Prepositions with the dative (7.3)', s:'aus, bei, mit, nach, seit, von, zu, gegenüber + Dativ · beim, vom, zum, zur · nach or zu? · Gehst du zu Klaus? – Nein, ich gehe nicht zu ihm.'},
+ L22:{t:'Ein Telefongespräch · the chapter verbs · word order', s:'Herr Gruber wants to speak to Frau Lustig: a business phone call with useful phrases, the 20 verbs of the chapter with example sentences, and building sentences in the right word order.'},
+ L23:{t:'Irregular verbs (sein, haben, mögen, wissen, tun) & modal verbs', s:'sein, haben, möchten, mögen, wissen, tun and the six modal verbs müssen, können, dürfen, wollen, sollen, möchten — forms, ich = er, and the sentence bracket.'},
+ L24:{t:'The past tense: das Perfekt', s:'Present → past, the formula S + haben / sein + … + Partizip II, questions and negation, how to build the Partizip, haben or sein, and the class worksheets.'},
+ L25:{t:'Perfekt with sein · talking about yesterday', s:'All the sein verbs (movement, change of state, others) as statement, question and negation, plus 30 questions about yesterday, work and the weekend.'},
  L16:{t:'Strong verbs (a→ä, e→i, e→ie, au→äu) · the 3 verb forms', s:'Stem-changing verbs with du and er/sie/es, every verb with its 1st, 2nd and 3rd form, and practice sentences.'}
 };
 /* meaning categories for words: the themes of Nouns.pages (same order); the 300-noun list is mapped onto them */

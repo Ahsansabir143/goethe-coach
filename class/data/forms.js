@@ -6,6 +6,7 @@
 (function(){
 // base verb: [Präteritum (er), Partizip II, helper]   (helper 'sein' = ist …, 'haben' = hat …)
 const STRONG = {
+ springen:['sprang','gesprungen','sein'], wachsen:['wuchs','gewachsen','sein'], schmelzen:['schmolz','geschmolzen','sein'], gefrieren:['gefror','gefroren','sein'], geschehen:['geschah','geschehen','sein'], gelingen:['gelang','gelungen','sein'], treiben:['trieb','getrieben','haben'], schneiden:['schnitt','geschnitten','haben'],
  verzeihen:['verzieh','verziehen','haben'],
  backen:['backte','gebacken','haben'], beginnen:['begann','begonnen','haben'], bitten:['bat','gebeten','haben'],
  bleiben:['blieb','geblieben','sein'], braten:['briet','gebraten','haben'], empfehlen:['empfahl','empfohlen','haben'],
@@ -40,6 +41,7 @@ const MODAL = new Set(['können','dürfen','müssen','sollen','wollen','mögen',
 const IRR = new Set(['sein','haben','werden']);
 // present tense: du / er forms that change (a→ä, e→i, e→ie, au→äu and irregular)
 const PRES = {
+ wachsen:['wächst','wächst','a → ä'], schmelzen:['schmilzt','schmilzt','e → i'], geschehen:['geschiehst','geschieht','e → ie'],
  backen:['bäckst','bäckt','a → ä'], braten:['brätst','brät','a → ä'], fahren:['fährst','fährt','a → ä'], fallen:['fällst','fällt','a → ä'],
  fangen:['fängst','fängt','a → ä'], halten:['hältst','hält','a → ä'], laden:['lädst','lädt','a → ä'], lassen:['lässt','lässt','a → ä'],
  raten:['rätst','rät','a → ä'], schlafen:['schläfst','schläft','a → ä'], schlagen:['schlägst','schlägt','a → ä'], tragen:['trägst','trägt','a → ä'],
@@ -65,6 +67,7 @@ function weakStem(b){ return /en$/.test(b) ? b.slice(0,-2) : b.replace(/n$/,'');
 function needE(stem){ return /([td]|[^aeiouäöülrh][mn])$/.test(stem) && !/(lm|rm|ln|rn|hm|hn|mm|nn)$/.test(stem); }
 function split(inf){
   inf = lo(inf).replace(/^sich\s+/,'').replace(/\s*\(sich\)/,'').replace(/^weh tun$/,'wehtun').trim();
+  if(inf === 'wiederholen') return {inf, pre:'', ins:'wieder', base:'holen'};
   if(STRONG[inf] || /ieren$/.test(inf) && !SEP.some(p=>inf.startsWith(p) && KNOWN.has(inf.slice(p.length)))) return {inf, pre:'', ins:'', base:inf};
   for(const p of SEP){ if(inf.startsWith(p) && inf.length >= p.length+3){ const b = inf.slice(p.length); if(KNOWN.has(b) || STRONG[b]) return {inf, pre:p, ins:'', base:b}; } }
   for(const p of INSEP){ if(inf.startsWith(p) && inf.length > p.length+3){ const b = inf.slice(p.length); if(STRONG[b] || KNOWN.has(b) || b.length >= 5) return {inf, pre:'', ins:p, base:b}; } }

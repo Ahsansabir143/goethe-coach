@@ -1355,7 +1355,7 @@ function viewContents(){
 /* ---------------- 🏋️ Practice hub ---------------- */
 function viewPractice(){
   setNav('practice');
-  const ids = ['pr-verbs','pr-sein','pr-pron','pr-wo','pr-jn','pr-strong','pr-akk','pr-genus','pr-sep','pr-dativ','pr-cases','pr-dprep','pr-vcase'];
+  const ids = ['pr-verbs','pr-sein','pr-pron','pr-wo','pr-jn','pr-strong','pr-akk','pr-genus','pr-sep','pr-dativ','pr-cases','pr-dprep','pr-vcase','pr-modal','pr-perfekt'];
   const tps = ids.map(topicById).filter(Boolean); const mix = topicById('practice4');
   let html = `<h1>🏋️ Practice</h1><p class="muted">Choose a topic and go inside: rules, exercise sets, endless new questions and timed sessions (15 min – 4 h). Every set is different each time you open it.</p><div class="ptgrid">`;
   tps.forEach((t,i)=>{ const p = topicProgress(t); const n = topicItems(t).length;
