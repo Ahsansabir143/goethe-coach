@@ -35,7 +35,7 @@ const IRRS = {sein:['müde','krank','zu Hause'], haben:['keine Zeit','zwei Kinde
 window.EXTRA_DRILLS = (window.EXTRA_DRILLS||[]).concat([
  {id:'p8-aux', name:'Perfekt: haben or sein?', d:'Ich bin gefahren · Ich habe gekocht', gen:()=>{
    const v = pk(V); const [s,i] = pk(P); const a = AUXW(v,i), b = (v[1]==='s'?HABEN:SEIN)[i];
-   return {t:'mcq', q:`${s} ___ ${v[3]} ${v[2]}. <span class="muted">(${v[0]})</span>`, o:[a,b], a:0, x:`${v[0]} → <b>${v[1]==='s'?'sein':'haben'}</b> (${v[5]})`, say:`${s} ${a} ${v[3]} ${v[2]}`}; }},
+   return {t:'mcq', q:`${s} ___ ${v[3]} ${v[2]}. (${v[0]})`, o:[a,b], a:0, x:`${v[0]} → <b>${v[1]==='s'?'sein':'haben'}</b> (${v[5]})`, say:`${s} ${a} ${v[3]} ${v[2]}`}; }},
  {id:'p8-part', name:'Make the Partizip II', d:'kochen → gekocht · studieren → studiert · zumachen → zugemacht', gen:()=>{
    const v = pk(V); if(Math.random()<.5) return {t:'fill', q:`${v[0]} (to ${v[4]}) → ${v[1]==='s'?'ist':'hat'} ___`, a:[v[2]], h:v[5], x:`${v[0]} → ${v[1]==='s'?'ist':'hat'} <b>${v[2]}</b> · ${v[5]}`};
    const wrong = [ 'ge'+v[2].replace(/^ge/,''), v[2].replace(/t$/,'en'), v[0].replace(/en$/,'t').replace(/^/, v[2].startsWith('ge')?'':'ge') ].filter(w=>w!==v[2]);

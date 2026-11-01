@@ -14,8 +14,8 @@ window.COURSE = [
   sub:'Im Café: möchten · the accusative (den, einen, keinen · mich, dich, ihn · durch, für, gegen, ohne, um) · hotel · war',
   pages:['L13','L14','L15','L17'], topics:['moechten','akkusativ','stadt'], texts:/^s3-/},
  {id:'lektion4', label:'Lektion 4', title:'Von morgens bis abends', icon:'⏰',
-  sub:'Daily routine · separable & inseparable verbs · nicht · a phone call · the chapter verbs · word order · modal & irregular verbs · my daily-life texts',
-  pages:['L06','L22','L23'], topics:['separable','pr-modal'], texts:/^al-/},
+  sub:'Daily routine · separable & inseparable verbs · nicht · a phone call · the chapter verbs · word order · modal & irregular verbs · question words: wie viel, wie oft, wie lange · my daily-life texts',
+  pages:['L06','L22','L23','L26'], topics:['separable','pr-modal','pr-frage'], texts:/^al-/},
  {id:'lektion6', label:'Lektion 6', title:'Gestern und heute: das Perfekt', icon:'⏪',
   sub:'The past tense: haben / sein + Partizip II · ge-…-t / ge-…-en · -ieren and be-/ver- without ge · separable zu-ge-macht · movement → sein · talking about yesterday',
   pages:['L24','L25'], topics:['pr-perfekt'], texts:null, link:['#/teach/perfekt/0','🧑‍🏫 Teach me the Perfekt step by step']},
@@ -28,6 +28,9 @@ window.COURSE = [
  {id:'uebung', label:'Practice', title:'4-hour practice: Lektion 1–4', icon:'🏋️',
   sub:'Weak verbs (-t/-d) · conjugation · sein · pronouns · wo / wohin / woher · yes/no questions · strong verbs · accusative + / – · noun gender · (in)separable verbs',
   pages:[], topics:['pr-verbs','pr-sein','pr-pron','pr-wo','pr-jn','pr-strong','pr-akk','pr-genus','pr-sep','practice4'], texts:null, link:['#/practice','🏋️ Open the practice topics']},
+ {id:'lesen', label:'Exam: Lesen', title:'Goethe A1 exam practice: Lesen (reading)', icon:'📖',
+  sub:'25 short e-mails, messages and notices · Hotel · travel · work · school & courses · family · Richtig / Falsch and a / b',
+  pages:[], topics:['pr-lesen'], texts:/^gl-/, link:['#/d/p-lesen','♾️ Random text + question']},
  {id:'klimenko', label:'Klimenko', title:'Klimenko book: introductory & main course', icon:'📗',
   sub:'Texts, dialogues and exercises of the Klimenko book',
   pages:[], topics:['klimenko','klimenko2'], texts:/^(k\d|km\d)/},
@@ -59,6 +62,7 @@ window.PAGE = {
  L22:{t:'Ein Telefongespräch · the chapter verbs · word order', s:'Herr Gruber wants to speak to Frau Lustig: a business phone call with useful phrases, the 20 verbs of the chapter with example sentences, and building sentences in the right word order.'},
  L23:{t:'Irregular verbs (sein, haben, mögen, wissen, tun) & modal verbs', s:'sein, haben, möchten, mögen, wissen, tun and the six modal verbs müssen, können, dürfen, wollen, sollen, möchten — forms, ich = er, and the sentence bracket.'},
  L24:{t:'The past tense: das Perfekt', s:'Present → past, the formula S + haben / sein + … + Partizip II, questions and negation, how to build the Partizip, haben or sein, and the class worksheets.'},
+ L26:{t:'Question words: wie viel, wie viele, wie oft, wie lange', s:'How to ask about price, number, frequency and duration, all the W-question words, and the class worksheet „Fragewörter“ A + B.'},
  L25:{t:'Perfekt with sein · talking about yesterday', s:'All the sein verbs (movement, change of state, others) as statement, question and negation, plus 30 questions about yesterday, work and the weekend.'},
  L16:{t:'Strong verbs (a→ä, e→i, e→ie, au→äu) · the 3 verb forms', s:'Stem-changing verbs with du and er/sie/es, every verb with its 1st, 2nd and 3rd form, and practice sentences.'}
 };

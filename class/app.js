@@ -21,6 +21,7 @@ const today = () => new Date().toISOString().slice(0,10);
 
 /* ---------------- helpers ---------------- */
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const qh = s => esc(s).replace(/&lt;(\/?)(b|i)&gt;/g,'<$1$2>').replace(/&lt;br&gt;/g,'<br>').replace(/&lt;span class=&quot;muted&quot;&gt;/g,'<span class="muted">').replace(/&lt;\/span&gt;/g,'</span>'); // questions may use <b> <i> <br> and muted spans
 const rnd = n => Math.floor(Math.random()*n);
 const pick = a => a[rnd(a.length)];
 function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
@@ -714,7 +715,7 @@ document.addEventListener('click', e=>{
 const RENDER = {
   mcq(box, it, done){
     const order = shuffle(it.o.map((_,i)=>i));
-    box.innerHTML = `<div class="q de">${esc(it.q)} ${it.say && /___/.test(it.q)===false ? '' : ''}</div>${it.h?`<div class="muted">${esc(it.h)}</div>`:''}<div class="opts">${order.map(i=>`<button class="btn opt ${/^(der|die|das|ein|eine|kein)/.test(it.o[i])||/[äöüß]/.test(it.o[i])?'de':''}" data-i="${i}">${esc(it.o[i])}</button>`).join('')}</div>`;
+    box.innerHTML = `${it.pre?`<div class="card de" style="white-space:pre-line;font-weight:normal;margin-bottom:10px">${esc(it.pre)}</div>`:''}<div class="q de">${qh(it.q)} ${it.say && /___/.test(it.q)===false ? '' : ''}</div>${it.h?`<div class="muted">${esc(it.h)}</div>`:''}<div class="opts">${order.map(i=>`<button class="btn opt ${/^(der|die|das|ein|eine|kein)/.test(it.o[i])||/[äöüß]/.test(it.o[i])?'de':''}" data-i="${i}">${esc(it.o[i])}</button>`).join('')}</div>`;
     box.querySelectorAll('.opt').forEach(b=> b.onclick = ()=>{
       if(box.dataset.done) return; box.dataset.done=1;
       const i = +b.dataset.i; const ok = i===it.a;
@@ -726,7 +727,7 @@ const RENDER = {
   fill(box, it, done){
     const parts = it.q.split('___'); const ans = Array.isArray(it.a) ? it.a : [it.a];
     let html = '<div class="q">';
-    parts.forEach((p,i)=>{ html += `<span class="de">${esc(p)}</span>`; if(i<parts.length-1){ const w = Math.max(4, ...alts(ans[i]||'').map(x=>x.length)); html += `<input class="ans${it.wide?' wide':''}" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:${it.wide?'100%':Math.min(18,w+3)+'ch'}" data-i="${i}">`; } });
+    parts.forEach((p,i)=>{ html += `<span class="de">${qh(p)}</span>`; if(i<parts.length-1){ const w = Math.max(4, ...alts(ans[i]||'').map(x=>x.length)); html += `<input class="ans${it.wide?' wide':''}" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:${it.wide?'100%':Math.min(18,w+3)+'ch'}" data-i="${i}">`; } });
     html += '</div>' + (it.h?`<div class="muted">💡 ${esc(it.h)}</div>`:'') + keysBar() + `<div class="row"><button class="btn go" id="ck">Check</button><button class="btn sm" id="dk">Show answer</button></div>`;
     box.innerHTML = html;
     const ins = [...box.querySelectorAll('input.ans')];
@@ -970,7 +971,7 @@ function viewMistakes(){
   if(!S.mistakes.length){ $app.innerHTML = `<h1>My mistakes</h1><div class="card">No mistakes saved — every wrong answer lands here so you can practise it again. 👍</div>`; return; }
   const list = S.mistakes.slice(0,100);
   $app.innerHTML = `<h1>My mistakes (${S.mistakes.length})</h1><p class="muted">Answer a question correctly here and it leaves this list.</p><div class="row"><button class="btn go" id="mq">Practise mistakes</button><button class="btn sm" id="mc">Clear list</button></div>` +
-   list.map(m=>{ const it=m.it; const q = it.t==='tr'?it.en : it.t==='order'? it.a : it.t==='match' ? 'Match pairs' : it.q; return `<div class="card"><div class="muted">${esc(m.lid||'drill')} · wrong ${m.n}×</div><div class="de">${esc(q)}</div></div>`; }).join('');
+   list.map(m=>{ const it=m.it; const q = it.t==='tr'?it.en : it.t==='order'? it.a : it.t==='match' ? 'Match pairs' : it.q; return `<div class="card"><div class="muted">${esc(m.lid||'drill')} · wrong ${m.n}×</div><div class="de">${qh(q)}</div></div>`; }).join('');
   linkify($app);
   document.getElementById('mq').onclick = ()=> runQuiz({title:'My mistakes', items: shuffle(S.mistakes.slice(0,20).map(m=>m.it)), back:'#/mistakes', mistakesMode:true});
   document.getElementById('mc').onclick = ()=>{ S.mistakes=[]; save(); viewMistakes(); };
@@ -1355,7 +1356,7 @@ function viewContents(){
 /* ---------------- 🏋️ Practice hub ---------------- */
 function viewPractice(){
   setNav('practice');
-  const ids = ['pr-verbs','pr-sein','pr-pron','pr-wo','pr-jn','pr-strong','pr-akk','pr-genus','pr-sep','pr-dativ','pr-cases','pr-dprep','pr-vcase','pr-modal','pr-perfekt'];
+  const ids = ['pr-verbs','pr-sein','pr-pron','pr-wo','pr-jn','pr-strong','pr-akk','pr-genus','pr-sep','pr-dativ','pr-cases','pr-dprep','pr-vcase','pr-modal','pr-perfekt','pr-frage','pr-lesen'];
   const tps = ids.map(topicById).filter(Boolean); const mix = topicById('practice4');
   let html = `<h1>🏋️ Practice</h1><p class="muted">Choose a topic and go inside: rules, exercise sets, endless new questions and timed sessions (15 min – 4 h). Every set is different each time you open it.</p><div class="ptgrid">`;
   tps.forEach((t,i)=>{ const p = topicProgress(t); const n = topicItems(t).length;
