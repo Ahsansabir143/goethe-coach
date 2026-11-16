@@ -95,3 +95,7 @@ select,.inp{background:var(--card2);color:var(--txt);border:1px solid var(--line
 .msg.u{align-self:flex-end;background:#2b2f36}.msg.a{align-self:flex-start;background:var(--card2);border:1px solid var(--line)}
 .sugg{display:flex;gap:6px;overflow-x:auto;padding:0 10px 6px}.sugg .chip{flex:0 0 auto}
 #chatF{display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)}#chatF .inp{margin:0}
+
+.wsvg{background:var(--card2);border-radius:10px;padding:6px 0;margin:8px 0;--t:#848e9c}
+.wsvg .th{fill:var(--txt);font-size:14px;font-weight:600}
+.wsvg .ts{fill:var(--mut);font-size:12px}
