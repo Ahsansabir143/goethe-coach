@@ -2,6 +2,46 @@
    the 12-week (3-month) plan, the drills, and the chat teacher's knowledge. */
 window.BE_GUIDE = {
 parts:[
+ {id:'keys', title:'Key points: when I trade (cheat sheet)', html:`
+ <p class="big">Read the last 10 one-minute candles against the candles to their left. They tell the story. Trade only when every box below says yes.</p>
+ <h3>1 · Weather: is the market moving enough?</h3>
+ <ul><li><b>Trade</b> only when the right side looks more alive than the left: <b>Waking</b> (candles growing) or <b>Storm</b> (candles huge, stop further away).</li>
+ <li><b>No trade</b> in <b>Calm</b> (tiny candles, colours flipping) or <b>Cooling</b> (one huge candle, then smaller and smaller).</li></ul>
+ <h3>2 · Size and volume must agree</h3>
+ <ul><li>Candles bigger + volume bigger = real move ✅</li>
+ <li>Candles bigger + volume flat = weak move: wait ⏳</li>
+ <li>Candles smaller + volume smaller = people leaving: no trade ⛔</li>
+ <li>Candles small + volume high = fight or absorption: don't trade yet, a breakout often follows 👀</li></ul>
+ <h3>3 · Wicks show who pushes back</h3>
+ <ul><li>Long wicks on top = sellers defending: careful with longs.</li>
+ <li>Long wicks on the bottom = buyers defending: careful with shorts.</li>
+ <li>Long wicks on both sides = wild fight (Storm): wider stop or wait.</li>
+ <li>Short wicks, solid bodies, mostly one colour = one side in control: go with that colour ✅</li></ul>
+ <h3>4 · Wind: which direction?</h3>
+ <ul><li><b>LONG</b> only if: green side of the order book clearly bigger near price, Trades list mostly green with the biggest prints green, and the Bitcoin 15-minute chart mostly up.</li>
+ <li><b>SHORT</b> only if all of that is red / down.</li>
+ <li>If they disagree (for example the coin looks long but Bitcoin is falling): <b>WAIT</b>.</li></ul>
+ <h3>5 · Stop and target</h3>
+ <ul><li>Stop behind a wall that has stayed 30+ seconds and price already bounced from it. Never rely on a brand-new big wall.</li>
+ <li>Target just before the wall on the other side, and far enough to pay the fees (on ETH about 12 dollars; that's 0.40%), but no more than about 3 recent candles away.</li>
+ <li>Risk only 0.5–1% of the account. In a Storm the stop is wider, so trade smaller.</li></ul>
+ <h3>6 · Danger: stand aside</h3>
+ <ul><li>Gap between buy and sell price suddenly wide + walls disappearing + heavy one-colour trades = market makers running away. Don't trade until the book fills again.</li>
+ <li>One big candle after a long quiet stretch is not enough: wait for 2–3 more candles to confirm.</li></ul>
+ <h3>The candle story at a glance</h3>
+ <table><tr><th>Last 10 candles</th><th>Story</th><th>Do</th></tr>
+ <tr><td>Bigger + more volume</td><td>People joining. Waking</td><td>Trade allowed</td></tr>
+ <tr><td>Bigger, volume flat</td><td>Few people behind it</td><td>Wait</td></tr>
+ <tr><td>Smaller + less volume</td><td>People leaving. Calm / Cooling</td><td>No trade</td></tr>
+ <tr><td>Smaller, volume high</td><td>Fight / absorption</td><td>Watch for breakout</td></tr>
+ <tr><td>Huge one, then shrinking</td><td>Shock fading. Cooling</td><td>No trade</td></tr>
+ <tr><td>Long top wicks</td><td>Sellers defending</td><td>Careful with longs</td></tr>
+ <tr><td>Long bottom wicks</td><td>Buyers defending</td><td>Careful with shorts</td></tr>
+ <tr><td>Long wicks both sides</td><td>Wild fight. Storm</td><td>Wider stop or wait</td></tr>
+ <tr><td>Short wicks, solid, one colour</td><td>One side in control</td><td>Go with it</td></tr>
+ <tr><td>Tiny bodies, colours flipping</td><td>Nobody pushing. Calm</td><td>No trade</td></tr></table>
+ <p class="big">Every box agrees → trade. Anything disagrees → WAIT.</p>
+ <p class="small">Practise in Binance Demo Trading first. Not financial advice.</p>`},
  {id:'why', title:'Why train your eye', html:`
  <p>In a live scalp you have seconds, not minutes. The strategy used numbers (GARCH expected move, order-book imbalance, delta). This course turns each number into something you can <b>see</b> on the chart, the order book and the Trades list.</p>
  <p>Practise only in Binance Demo Trading until your journal shows the reads work. The backtests found no fixed rule that was reliably profitable after fees, so any edge has to come from skill you can measure. That is what this app measures.</p>`},
@@ -84,7 +124,7 @@ drills:[
 ],
 // 12 weeks = about 3 months. Each day lists drill counts. "R" = Replay (drill 10), "E" = guided examples.
 plan:[
- {w:1,focus:'Engle: see the weather',read:['why','weather-eye','engle'],day:{E:3,1:20,2:5,3:5},pass:'Drill 1 ≥ 70% over the week'},
+ {w:1,focus:'Engle: see the weather',read:['keys','weather-eye','engle'],day:{E:3,1:20,2:5,3:5},pass:'Drill 1 ≥ 70% over the week'},
  {w:2,focus:'Engle: persistence and asymmetry',read:['weather-eye','engle','calib'],day:{1:20,2:10,3:10},pass:'Drills 1, 2, 3 at goal'},
  {w:3,focus:"O'Hara: read the tape",read:['ohara'],day:{E:2,6:30,7:10},pass:'Drill 6 ≥ 80%'},
  {w:4,focus:"O'Hara: walls and spread (live book)",read:['ohara','mistakes'],day:{4:10,5:5,6:20},pass:'Drills 4 and 6 at goal'},
@@ -98,6 +138,9 @@ plan:[
  {w:12,focus:'Exam week',read:['eye'],day:{R:40},pass:'Expert test: see Progress'}
 ],
 faq:[
+ {k:['key points','cheat sheet','when do i trade','when to trade','when should i trade','rules','checklist','summary'],a:"Key points: 1) Weather: trade only when the last 10 candles look more alive than the ones before (Waking or Storm). 2) Size and volume must grow together. 3) Wicks: long top wicks = sellers defending, long bottom wicks = buyers defending, short wicks + solid bodies = one side in control. 4) Wind: order book, Trades list and Bitcoin all agree on the direction. 5) Stop behind a wall that held 30+ seconds, target before the opposite wall and far enough to pay the fees. 6) Spread suddenly wide + walls vanishing = stand aside. Anything disagrees → WAIT.",go:'#learn/keys'},
+ {k:['wick','wicks','shadow','tail','rejection'],a:"Wicks show who pushes back. Long top wicks = price went up but sellers pushed it down: careful with longs. Long bottom wicks = buyers defending: careful with shorts. Long wicks both sides = wild fight (Storm): wider stop or wait. Short wicks with solid bodies of one colour = one side in control: go with it.",go:'#learn/keys'},
+ {k:['volume','volume flat','volume high','candles smaller','candles bigger','size and volume'],a:"Size and volume must agree. Bigger candles + bigger volume = real move. Bigger candles + flat volume = weak move, wait. Smaller candles + smaller volume = people leaving, no trade. Small candles + high volume = a fight or someone absorbing: don't trade yet, a breakout often follows.",go:'#learn/keys'},
  {k:['weather','engle','cluster','volatility','garch','arch','waking','storm','cooling'],a:"Look at the right edge of your 1-minute chart and compare it with the rest of the screen. Same small, flat candles = Calm: no trade. Candles clearly bigger and growing, volume bars getting taller = Waking: trade allowed. Suddenly huge candles = Storm: trade, but stop further away. One giant candle and everything since shrinking = Cooling: no trade. If the right side looks more alive than the left and volume agrees, the market can move enough to pay the fees.",go:'#learn/weather-eye'},
  {k:['calm','quiet','bored','no move','small candles'],a:'Calm cluster = no trade. Engle: calm tends to stay calm for a while. The 0.40% fee move is then many candle heights away, so fees win. See guided example 2 and 12.',go:'#examples/12'},
  {k:['storm','stop too tight','stop size','stop','where stop','stop loss'],a:'Stop goes behind a wall that has held 30+ seconds, and at least about 3 recent candle heights away. In a storm that is wide, so trade a smaller position: risk stays 0.5–1% of the account. In Replay the app uses stop = 1.5 × the last-10 average candle height (at least 0.15%).',go:'#examples/8'},

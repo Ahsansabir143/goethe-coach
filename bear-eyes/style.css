@@ -99,3 +99,4 @@ select,.inp{background:var(--card2);color:var(--txt);border:1px solid var(--line
 .wsvg{background:var(--card2);border-radius:10px;padding:6px 0;margin:8px 0;--t:#848e9c}
 .wsvg .th{fill:var(--txt);font-size:14px;font-weight:600}
 .wsvg .ts{fill:var(--mut);font-size:12px}
+.prose h3{font-size:15px;color:var(--y);margin:14px 0 4px}

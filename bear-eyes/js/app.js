@@ -82,7 +82,7 @@ function today(){
     return {done,n,label,href};
   });
   const allDone=tasks.every(t=>t.done>=t.n);
-  view(`<div class="card hero"><div class="lbl"><span>Day ${day} of 84 · Week ${wk} of 12</span><span>${allDone?'✅ today done':''}</span></div>
+  view(`<a class="task card" href="#learn/keys"><b>📌 Key points: when I trade</b><span>→</span></a><div class="card hero"><div class="lbl"><span>Day ${day} of 84 · Week ${wk} of 12</span><span>${allDone?'✅ today done':''}</span></div>
   <h2>${esc(P.focus)}</h2><p class="small">Move on when: ${esc(P.pass)}</p></div>
   <div class="card"><div class="lbl"><span>Today's practice</span></div>
   ${tasks.map(t=>`<a class="task" href="${t.href}"><div><b>${esc(t.label)}</b><div class="pbar"><i style="width:${Math.min(100,t.done/t.n*100)}%"></i></div></div><span class="${t.done>=t.n?'ok':''}">${t.done} / ${t.n}</span></a>`).join('')}
