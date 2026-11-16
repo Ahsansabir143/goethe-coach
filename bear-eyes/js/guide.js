@@ -2,8 +2,26 @@
    the 12-week (3-month) plan, the drills, and the chat teacher's knowledge. */
 window.BE_GUIDE = {
 parts:[
- {id:'keys', title:'Key points: when I trade (cheat sheet)', html:`
+ {id:'keys', title:'My trade scenarios & key points', html:`
  <p class="big">Read the last 10 one-minute candles against the candles to their left. They tell the story. Trade only when every box below says yes.</p>
+ <div class="scen"><h3>🟢 My LONG scenario</h3><ul>
+ <li>Last 10 candles getting <b>bigger</b>, volume bars getting <b>taller</b></li>
+ <li>Candles mostly <b>green</b>, solid bodies, short wicks (no long top wicks)</li>
+ <li>Order book: <b>green side clearly bigger</b> near price</li>
+ <li>Trades list: mostly <b>green</b>, the biggest trades green</li>
+ <li>Bitcoin 15-minute: mostly <b>up</b></li>
+ <li><b>Stop</b> just under a bid wall that has held 30+ seconds</li>
+ <li><b>Target</b> just before the ask wall above, at least about 12 dollars away on ETH</li></ul></div>
+ <div class="scen red"><h3>🔴 My SHORT scenario (exact mirror)</h3><ul>
+ <li>Last 10 candles getting <b>bigger</b>, volume bars getting <b>taller</b></li>
+ <li>Candles mostly <b>red</b>, no long bottom wicks</li>
+ <li>Order book: <b>red side clearly bigger</b> near price</li>
+ <li>Trades list: mostly <b>red</b>, the biggest trades red</li>
+ <li>Bitcoin 15-minute: mostly <b>down</b></li>
+ <li><b>Stop</b> just above an ask wall that has held 30+ seconds</li>
+ <li><b>Target</b> just before the bid wall below, at least about 12 dollars away on ETH</li></ul></div>
+ <p class="big">⛔ Everything else = WAIT: even one point missing, candles small or shrinking, or the spread suddenly wide with walls vanishing.</p>
+ <h3>The rules behind it</h3>
  <h3>1 · Weather: is the market moving enough?</h3>
  <ul><li><b>Trade</b> only when the right side looks more alive than the left: <b>Waking</b> (candles growing) or <b>Storm</b> (candles huge, stop further away).</li>
  <li><b>No trade</b> in <b>Calm</b> (tiny candles, colours flipping) or <b>Cooling</b> (one huge candle, then smaller and smaller).</li></ul>
@@ -138,6 +156,7 @@ plan:[
  {w:12,focus:'Exam week',read:['eye'],day:{R:40},pass:'Expert test: see Progress'}
 ],
 faq:[
+ {k:['my trade','trade scenario','scenario','my setup','setup','entry','when do i enter','long scenario','short scenario'],a:"You trade only two scenarios.\nLONG: last 10 candles getting bigger with taller volume bars; candles mostly green, solid, no long top wicks; green side of the order book clearly bigger; Trades list mostly green with the biggest trades green; Bitcoin 15-minute mostly up; stop just under a bid wall that held 30+ seconds; target just before the ask wall above, at least about 12 dollars on ETH.\nSHORT: the exact mirror (red candles, no long bottom wicks, red book side bigger, red trades, Bitcoin down, stop above a held ask wall, target before the bid wall).\nAnything missing = WAIT.",go:'#learn/keys'},
  {k:['key points','cheat sheet','when do i trade','when to trade','when should i trade','rules','checklist','summary'],a:"Key points: 1) Weather: trade only when the last 10 candles look more alive than the ones before (Waking or Storm). 2) Size and volume must grow together. 3) Wicks: long top wicks = sellers defending, long bottom wicks = buyers defending, short wicks + solid bodies = one side in control. 4) Wind: order book, Trades list and Bitcoin all agree on the direction. 5) Stop behind a wall that held 30+ seconds, target before the opposite wall and far enough to pay the fees. 6) Spread suddenly wide + walls vanishing = stand aside. Anything disagrees → WAIT.",go:'#learn/keys'},
  {k:['wick','wicks','shadow','tail','rejection'],a:"Wicks show who pushes back. Long top wicks = price went up but sellers pushed it down: careful with longs. Long bottom wicks = buyers defending: careful with shorts. Long wicks both sides = wild fight (Storm): wider stop or wait. Short wicks with solid bodies of one colour = one side in control: go with it.",go:'#learn/keys'},
  {k:['volume','volume flat','volume high','candles smaller','candles bigger','size and volume'],a:"Size and volume must agree. Bigger candles + bigger volume = real move. Bigger candles + flat volume = weak move, wait. Smaller candles + smaller volume = people leaving, no trade. Small candles + high volume = a fight or someone absorbing: don't trade yet, a breakout often follows.",go:'#learn/keys'},

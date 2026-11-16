@@ -100,3 +100,4 @@ select,.inp{background:var(--card2);color:var(--txt);border:1px solid var(--line
 .wsvg .th{fill:var(--txt);font-size:14px;font-weight:600}
 .wsvg .ts{fill:var(--mut);font-size:12px}
 .prose h3{font-size:15px;color:var(--y);margin:14px 0 4px}
+.scen{border:1px solid var(--g);background:var(--gbg);border-radius:10px;padding:4px 12px;margin:10px 0}.scen.red{border-color:var(--r);background:var(--rbg)}.scen h3{margin:8px 0 2px;color:var(--txt)}.scen li{color:var(--txt)}
